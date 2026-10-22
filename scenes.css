@@ -85,3 +85,5 @@
 /* Categories lead the work archive; each film or series lives beneath its category. */
 .work-category{display:block;scroll-margin-top:110px;margin-bottom:60px}.work-category-heading{padding:35px 0 26px}.work-category-heading .eyebrow{display:block;margin-bottom:12px;color:var(--muted);font-size:9px}.work-category-heading h2{font-size:clamp(34px,4.2vw,62px);line-height:1.08}.work-category:has(#work-short-film) .work-category-heading h2{color:#c3a1ed}.work-scene-copy h3{font-size:clamp(28px,3vw,44px);line-height:1.08;letter-spacing:-.04em;margin-bottom:25px;transform-origin:left center}.work-category .work-scene+.work-scene{margin-top:24px}
 @media(max-width:760px){.work-category{margin-bottom:35px}.work-category-heading{padding:24px 8px}.work-category-heading h2{font-size:34px}.work-scene-copy h3{font-size:28px;margin-bottom:20px}}
+
+.social-subheading{font-size:clamp(24px,4vw,44px);padding:40px 6vw 0;color:#eee9df}.work-object img{object-fit:contain;background:#090b0e}
