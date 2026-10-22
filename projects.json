@@ -40,26 +40,6 @@
     "featured": false
   },
   {
-    "slug": "cinematography",
-    "title": "Cinematography / project slot",
-    "category": "Cinematography",
-    "thumbnail": "/assets/landscape.jpg",
-    "placeholder": true,
-    "client": "",
-    "year": "",
-    "role": "",
-    "tools": [],
-    "description": "This is an editable portfolio slot. Project details and original media will be added here.",
-    "brief": "",
-    "approach": "",
-    "process": "",
-    "outcome": "",
-    "previewVideo": "",
-    "videoUrl": "",
-    "gallery": [],
-    "featured": false
-  },
-  {
     "slug": "podcast",
     "title": "GUESSS India Podcast",
     "category": "Podcasts & Interviews",
