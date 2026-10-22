@@ -56,6 +56,12 @@ if(openingHero){
  toggle.addEventListener('click',()=>{const paused=openingHero.classList.toggle('hero-paused');toggle.setAttribute('aria-pressed',String(paused));toggle.textContent=paused?'Resume motion ▷':'Pause motion Ⅱ'});
  reduce.addEventListener('change',()=>{toggle.hidden=reduce.matches});
 }
+// Open the inline screening room from its project image or title link.
+document.addEventListener('click',e=>{
+ const link=e.target.closest('a[href^="#details-"]');if(!link)return;
+ const target=document.getElementById(link.hash.slice(1)),screen=target?.querySelector('.film-screen');
+ if(screen){screen.open=true;window.dispatchEvent(new Event('portfolio:layout'));}
+});
 // Native range input gives mouse, touch and keyboard scrubbing without scroll hijacking.
 const scrubber=document.querySelector('.page-scrubber');
 if(scrubber){

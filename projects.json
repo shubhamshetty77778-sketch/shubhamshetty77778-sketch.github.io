@@ -1,5 +1,27 @@
 [
   {
+    "slug": "short-film",
+    "title": "RANA",
+    "category": "Short Films",
+    "thumbnail": "https://i.ytimg.com/vi/wC8YnssIHL8/hqdefault.jpg",
+    "placeholder": false,
+    "client": "",
+    "year": "",
+    "role": "",
+    "tools": [],
+    "description": "A Kannada horror short film. Published by Chowki Films.",
+    "brief": "",
+    "approach": "",
+    "process": "",
+    "outcome": "",
+    "previewVideo": "",
+    "videoUrl": "https://www.youtube.com/watch?v=wC8YnssIHL8",
+    "gallery": [],
+    "featured": true,
+    "youtubeId": "wC8YnssIHL8",
+    "genre": "Horror"
+  },
+  {
     "slug": "brand-film",
     "title": "Brand film / project slot",
     "category": "Brand Films & Corporate",
@@ -57,7 +79,7 @@
     "previewVideo": "",
     "videoUrl": "",
     "gallery": [],
-    "featured": true
+    "featured": false
   },
   {
     "slug": "podcast",
@@ -124,26 +146,6 @@
     "title": "Independent work / project slot",
     "category": "Freelance & Creative Projects",
     "thumbnail": "/assets/cinema.jpg",
-    "placeholder": true,
-    "client": "",
-    "year": "",
-    "role": "",
-    "tools": [],
-    "description": "This is an editable portfolio slot. Project details and original media will be added here.",
-    "brief": "",
-    "approach": "",
-    "process": "",
-    "outcome": "",
-    "previewVideo": "",
-    "videoUrl": "",
-    "gallery": [],
-    "featured": false
-  },
-  {
-    "slug": "short-film",
-    "title": "Your next story / film slot",
-    "category": "Short Films",
-    "thumbnail": "/assets/city.jpg",
     "placeholder": true,
     "client": "",
     "year": "",
