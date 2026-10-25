@@ -80,9 +80,9 @@ function measure(){
  if(wide){                                          // 16:9 films: a big centre screen
   slots=mobile?3:5;
   span=mobile?w:Math.min(w*.98,1600);
-  across=mobile?1.22:(w<1050?2.1:2.45);
-  cardW=Math.max(280,Math.min(900,span/across));
-  stepDeg=mobile?26:18;spacing=cardW*(mobile?.8:.84);
+  across=mobile?1.08:(w<1050?1.65:1.9);
+  cardW=Math.max(300,Math.min(1120,span/across));
+  stepDeg=mobile?26:19;spacing=cardW*(mobile?.8:.82);
  }else{                                             // vertical reels
   slots=mobile?5:(w<1050?5:7);
   span=mobile?w:Math.min(w*.97,1560);
