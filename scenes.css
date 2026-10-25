@@ -276,3 +276,7 @@
 .channel-cta{flex:none;padding:11px 18px;border-radius:999px;border:1px solid #ffffff33;font:500 13px 'Plus Jakarta Sans',Arial,sans-serif;white-space:nowrap;transition:background .35s,border-color .35s,color .35s}
 .channel-card:hover .channel-cta,.channel-card:focus-visible .channel-cta{background:var(--accent);border-color:var(--accent);color:#fff}
 @media (max-width:640px){.channel-card{flex-wrap:wrap}.channel-cta{width:100%;text-align:center}}
+
+/* More Work: hidden until its Drive folder has videos */
+.more-work:not(:has(.iv-block:not([hidden]))){display:none}
+.more-work .iv-block:first-of-type{margin-top:clamp(28px,4vw,48px)}

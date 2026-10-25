@@ -42,6 +42,12 @@ COLLECTIONS = [
         'match': None,
         'strip': r'interviews?(\s*\(\d+\))?', 'fallback': 'Student interview', 'preview': 'native',
     },
+    {   # More Work: every video in the Drive "More Work" folder (inside Portfolio)
+        'dir': 'more', 'out': 'more.json', 'key': 'videos',
+        'folder': '1oGpPpxSt4XVkItF7cRO4UhvkDtdsAWI-',
+        'match': None,
+        'strip': r'more\s*work', 'fallback': 'Video', 'preview': 'native', 'preview_size': (1280, 720),
+    },
     {   # Featured long videos (the podcasts): fixed files, listed by hand in features/sources.json
         'dir': 'features', 'out': 'features.json', 'key': 'features',
         'folder': None,
