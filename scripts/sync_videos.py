@@ -42,9 +42,9 @@ COLLECTIONS = [
         'match': None,
         'strip': r'(interviews?|testimonials?)(\s*\(\d+\))?', 'fallback': 'Student story', 'preview': 'native',
     },
-    {   # More Work: every video in the Drive "More Work" folder (inside Portfolio)
+    {   # More Work: every video in the Drive folder "1" (inside Portfolio)
         'dir': 'more', 'out': 'more.json', 'key': 'videos',
-        'folder': '1oGpPpxSt4XVkItF7cRO4UhvkDtdsAWI-',
+        'folder': '1sZtcDtoa2PLU7hPfM-0JUOQbEBsvne_R',
         'match': None,
         'strip': r'more\s*work', 'fallback': 'Video', 'preview': 'native', 'preview_size': (1280, 720),
     },
