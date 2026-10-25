@@ -1,0 +1,54 @@
+name: Sync event videos from Drive
+
+# Rebuilds the Events section from videos named "Event…" in the Drive Portfolio folder.
+# Runs when the event list changes, every 6 hours, or from the Actions tab ("Run workflow").
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'events/sources.json'
+      - 'scripts/sync_events.py'
+      - '.github/workflows/sync-events.yml'
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: sync-events
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Download event videos and make posters and previews
+        env:
+          DRIVE_API_KEY: ${{ secrets.DRIVE_API_KEY }}
+        run: python3 scripts/sync_events.py
+
+      - name: Publish changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add events assets/events
+          if git diff --cached --quiet; then
+            echo "Nothing to publish"
+            exit 0
+          fi
+          git commit -m "Sync event videos from Drive"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          # make sure GitHub Pages rebuilds with the new videos
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null || true

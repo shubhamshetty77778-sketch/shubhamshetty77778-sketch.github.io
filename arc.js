@@ -1,13 +1,49 @@
 /* Shorts arc: vertical reels on a concave curve.
    Cards glide between slots (auto, arrows, drag/swipe, keys); visible cards play muted previews;
    theme chips refilter the arc; the arc fans out when it first comes into view. */
-(()=>{
+(async()=>{
 'use strict';
 const root=document.querySelector('.shorts-arc');
 if(!root)return;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const stage=root.querySelector('.arc-stage'),track=root.querySelector('.arc-track');
+
+// Events come from the Drive sync (events/events.json); they are spread through the arc.
+async function loadEvents(){
+ const src=root.dataset.events;if(!src)return;
+ const base=src.replace(/events\/events\.json$/,'');
+ const asset=p=>p&&p.startsWith('/')?base+p.slice(1):p;
+ try{
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),4000);
+  const data=await fetch(src,{cache:'no-cache',signal:ctl.signal}).then(r=>r.json());clearTimeout(t);
+  const made=(data.events||[]).map(e=>{
+   const a=document.createElement('a');
+   a.className='arc-card';a.href=base+'projects/event.html#'+encodeURIComponent(e.id);a.dataset.theme='events';a.dataset.cursor='PLAY';
+   const media=document.createElement('span');media.className='arc-media';
+   const img=document.createElement('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';media.append(img);
+   if(e.preview){const v=document.createElement('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.poster=asset(e.poster);v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');media.append(v)}
+   const cap=document.createElement('span');cap.className='arc-caption';
+   const sm=document.createElement('small');sm.textContent='Events';const b=document.createElement('b');b.textContent=e.title;cap.append(sm,b);
+   a.append(media,cap);return a;
+  });
+  const fixed=[...track.querySelectorAll('.arc-card')],out=[],n=fixed.length+made.length;
+  let i=0,j=0;
+  for(let k=0;k<n;k++){ // even mix of events and other reels
+   const wantEvent=j<made.length&&(i>=fixed.length||(j+1)/(made.length+1)<=(i+1)/(fixed.length+1));
+   out.push(wantEvent?made[j++]:fixed[i++]);
+  }
+  track.append(...out);
+ }catch(e){/* the rest of the arc still works without events */}
+}
+await loadEvents();
 const all=[...track.querySelectorAll('.arc-card')];
+
+// Keep chip counts and the reel total in step with what is actually on the arc.
+root.querySelectorAll('.arc-chip').forEach(chip=>{
+ const f=chip.dataset.filter,n=f==='all'?all.length:all.filter(c=>c.dataset.theme===f).length;
+ const sp=chip.querySelector('span');if(sp)sp.textContent=n;chip.hidden=n===0;
+});
+const eyebrow=root.querySelector('.arc-head .eyebrow');if(eyebrow)eyebrow.textContent='VERTICAL / '+all.length+' REELS';
 const prev=root.querySelector('.arc-prev'),next=root.querySelector('.arc-next'),count=root.querySelector('.arc-count');
 const controls=root.querySelector('.arc-controls'),chips=[...root.querySelectorAll('.arc-chip')];
 const cursor=document.querySelector('.cursor');
