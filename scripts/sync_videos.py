@@ -29,11 +29,11 @@ COLLECTIONS = [
         'match': None,
         'strip': r'brand\s*films?(\s*\(\d+\))?', 'fallback': 'Brand film', 'preview': 'native',
     },
-    {   # Ad Films: every video in the "Ads" folder
+    {   # Digital Ads (Google and Meta ads): every video in the "Ads" folder
         'dir': 'ads', 'out': 'ads.json', 'key': 'ads',
         'folder': '1Bj18V1Q2ylIQytH_BNKIS2P1f7PFmntQ',
         'match': None,
-        'strip': r'(ad\s*films?|ads?)(\s*\(\d+\))?', 'fallback': 'Ad film', 'preview': 'native',
+        'strip': r'(ad\s*films?|ads?)(\s*\(\d+\))?', 'fallback': 'Digital ad', 'preview': 'native',
     },
 ]
 
