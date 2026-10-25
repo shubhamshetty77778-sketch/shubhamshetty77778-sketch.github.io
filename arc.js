@@ -1,5 +1,6 @@
-/* Shorts arc: vertical reels on a concave curve.
-   Cards glide between slots (auto, arrows, drag/swipe, keys); visible cards play muted previews;
+/* Social media arc: reels on a concave curve.
+   Positions are driven frame by frame from one continuous value, so gliding, dragging and
+   settling are smooth; cards fade at the ends; visible cards play muted previews;
    theme chips refilter the arc; the arc fans out when it first comes into view. */
 (async()=>{
 'use strict';
@@ -48,82 +49,100 @@ const prev=root.querySelector('.arc-prev'),next=root.querySelector('.arc-next'),
 const controls=root.querySelector('.arc-controls'),chips=[...root.querySelectorAll('.arc-chip')];
 const cursor=document.querySelector('.cursor');
 
-let pool=all.slice(),cur=0,geo=null,inView=false,entered=false,hovering=false,timer=0,lastInteract=0;
+let pool=all.slice(),pos=0,target=0,geo=null,inView=false,entered=false,hovering=false,timer=0,lastInteract=0;
+let raf=0,last=0,visibleKey='';
 const wrap=(n,m)=>((n%m)+m)%m;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 function measure(){
  const w=stage.clientWidth||root.clientWidth,mobile=innerWidth<=760;
  const slots=mobile?5:(w<1050?5:7);               // cards on the curve
- const span=mobile?w:Math.min(w*.92,1440);          // the arc stays inside this width
- const across=mobile?2.45:(slots===5?4.5:6.5);      // card widths that span it
- const cardW=Math.max(128,Math.min(270,span/across));
- const stepDeg=mobile?17:(slots===5?15:12.5),step=stepDeg*Math.PI/180;
- const spacing=cardW*(mobile?.86:.96),radius=spacing/Math.sin(step);
+ const span=mobile?w:Math.min(w*.97,1560);          // the arc stays inside this width
+ const across=mobile?2.15:(slots===5?4.1:5.9);      // card widths that span it
+ const cardW=Math.max(140,Math.min(300,span/across));
+ const stepDeg=mobile?17:(slots===5?14.5:12),step=stepDeg*Math.PI/180;
+ const spacing=cardW*(mobile?.86:.95),radius=spacing/Math.sin(step);
  geo={slots,half:Math.floor(slots/2),cardW,stepDeg,step,radius};
  root.style.setProperty('--arc-w',cardW+'px');
- root.style.setProperty('--arc-h',Math.round(cardW*16/9*1.22+40)+'px');
+ root.style.setProperty('--arc-h',Math.round(cardW*16/9*1.2+40)+'px');
+}
+const rotating=()=>pool.length>geo.slots;
+
+function offset(i){ // continuous signed distance from the centre
+ const n=pool.length;
+ if(!rotating())return i-(n-1)/2;
+ let d=wrap(i-pos,n);if(d>n/2)d-=n;return d;
 }
 
-function offset(i){ // signed slot distance from the centre card
- const n=pool.length;
- if(n<=geo.slots)return i-(n-1)/2;
- let d=wrap(i-cur,n);if(d>n/2)d-=n;return d;
-}
-
-function place(stagger){
- const n=pool.length;
+function render(){
+ const keys=[];
  pool.forEach((card,i)=>{
-  const d=offset(i),ad=Math.abs(d),hidden=ad>geo.half+.01;
-  const prevD=parseFloat(card.dataset.d??d);
-  // a card that wraps from one end to the other travels while invisible
-  card.classList.toggle('no-anim',Math.abs(prevD-d)>1.5);
-  const dd=hidden?Math.sign(d)*(geo.half+1):d,th=dd*geo.step;
-  card.style.setProperty('--x',(geo.radius*Math.sin(th)).toFixed(1)+'px');
-  card.style.setProperty('--z',(geo.radius*(1-Math.cos(th))*.85).toFixed(1)+'px');
-  card.style.setProperty('--ry',(-dd*geo.stepDeg*.92).toFixed(2)+'deg');
-  card.style.setProperty('--s',ad<.5?1.04:1);
-  card.style.setProperty('--o',hidden?0:1);
-  card.style.setProperty('--b',hidden?1:(1-Math.min(ad,3)*.07).toFixed(2));
-  card.style.setProperty('--zi',String(100-Math.round(ad*10)));
-  card.style.transitionDelay=stagger?(ad*70)+'ms':'';
-  card.dataset.d=d;card.dataset.hidden=String(hidden);
-  card.tabIndex=hidden?-1:0;card.setAttribute('aria-hidden',String(hidden));
+  const d=offset(i),ad=Math.abs(d),edge=geo.half+.5;
+  const fade=rotating()?clamp((edge+.5-ad)/1,0,1):1;   // soft fade across the last half slot
+  const dd=clamp(d,-(geo.half+1),geo.half+1),th=dd*geo.step;
+  const st=card.style;
+  st.setProperty('--x',(geo.radius*Math.sin(th)).toFixed(2)+'px');
+  st.setProperty('--z',(geo.radius*(1-Math.cos(th))*.85).toFixed(2)+'px');
+  st.setProperty('--ry',(-dd*geo.stepDeg*.92).toFixed(3)+'deg');
+  st.setProperty('--s',(1+.04*clamp(1-ad,0,1)).toFixed(4));
+  st.setProperty('--o',fade.toFixed(3));
+  st.setProperty('--b',(1-Math.min(ad,3)*.07).toFixed(3));
+  st.zIndex=String(100-Math.round(ad*10));
+  const hidden=fade<.05;
+  if(card.dataset.hidden!==String(hidden)){card.dataset.hidden=String(hidden);card.tabIndex=hidden?-1:0;card.setAttribute('aria-hidden',String(hidden))}
   card.classList.toggle('is-center',ad<.5);
+  card.dataset.d=d.toFixed(3);
+  if(!hidden)keys.push(i);
  });
- all.filter(c=>!pool.includes(c)).forEach(c=>{c.style.setProperty('--o',0);c.style.setProperty('--s',.6);c.dataset.hidden='true';c.tabIndex=-1;c.setAttribute('aria-hidden','true');c.classList.remove('is-center')});
- requestAnimationFrame(()=>pool.forEach(c=>c.classList.remove('no-anim')));
- const rotating=n>geo.slots;
- controls.hidden=!rotating;
- if(rotating)count.textContent=String(wrap(cur,n)+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
- syncVideos();
+ const n=pool.length;
+ controls.hidden=!rotating();
+ if(rotating())count.textContent=String(wrap(Math.round(pos),n)+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
+ const key=keys.join(',');if(key!==visibleKey){visibleKey=key;syncVideos()}
+}
+
+function hideOthers(){
+ all.filter(c=>!pool.includes(c)).forEach(c=>{c.style.setProperty('--o',0);c.style.setProperty('--k',0);c.dataset.hidden='true';c.tabIndex=-1;c.setAttribute('aria-hidden','true');c.classList.remove('is-center')});
 }
 
 function syncVideos(){
  all.forEach(card=>{
   const v=card.querySelector('video');if(!v)return;
-  const show=inView&&!reduce.matches&&card.dataset.hidden==='false'&&!document.hidden;
+  const show=inView&&!reduce.matches&&card.dataset.hidden==='false'&&pool.includes(card)&&!document.hidden;
   if(show){
    if(!v.src)v.src=v.dataset.src;
-   const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{});
+   if(v.paused){const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})}
   }else if(!v.paused){v.pause()}
  });
 }
 
+// One animation loop: pos eases towards target with a critically damped glide.
+function loop(t){
+ const dt=Math.min(.05,(t-(last||t))/1000);last=t;
+ if(!dragging){
+  const k=reduce.matches?1:1-Math.exp(-dt/.16);
+  pos+= (target-pos)*k;
+  if(Math.abs(target-pos)<.0008)pos=target;
+ }
+ render();
+ if(dragging||pos!==target){raf=requestAnimationFrame(loop)}else{raf=0;last=0}
+}
+function kick(){if(!raf){last=0;raf=requestAnimationFrame(loop)}}
+
 function go(dir,user){
- if(pool.length<=geo.slots)return;
- cur=wrap(cur+dir,pool.length);place(false);
- if(user){lastInteract=performance.now()}
+ if(!rotating())return;
+ target=Math.round(target)+dir;kick();
+ if(user)lastInteract=performance.now();
 }
 
 // Gentle auto-advance; pauses on hover/focus, after interaction, offscreen, or with reduced motion.
 function schedule(){
  clearInterval(timer);
  timer=setInterval(()=>{
-  if(!inView||hovering||reduce.matches||document.hidden)return;
+  if(!inView||hovering||dragging||reduce.matches||document.hidden)return;
   if(root.contains(document.activeElement)&&document.activeElement!==document.body)return;
   if(performance.now()-lastInteract<6000)return;
   go(1,false);
- },3600);
+ },4200);
 }
 
 prev.addEventListener('click',()=>go(-1,true));
@@ -136,60 +155,72 @@ root.addEventListener('keydown',e=>{
 stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hovering=true});
 stage.addEventListener('pointerleave',()=>{hovering=false});
 
-// Clicking a side card brings it to the centre first; clicking the centre card opens it.
+// Clicking a side card glides it to the centre first; clicking the centre card opens it.
 track.addEventListener('click',e=>{
  const card=e.target.closest('.arc-card');if(!card)return;
  if(suppress){e.preventDefault();suppress=false;return}
  const d=parseFloat(card.dataset.d);
- if(Math.abs(d)>.5&&pool.length>geo.slots){e.preventDefault();go(Math.round(d),true)}
+ if(Math.abs(d)>.5&&rotating()){e.preventDefault();go(Math.round(d),true)}
 });
 
-// Drag / swipe: about one card width per step.
-let down=null,suppress=false;
-stage.addEventListener('pointerdown',e=>{if(e.button!==0)return;down={x:e.clientX,y:e.clientY,stepped:0}});
+// Drag / swipe follows the pointer exactly, then settles with momentum.
+let down=null,dragging=false,suppress=false;
+stage.addEventListener('pointerdown',e=>{if(e.button!==0||!rotating())return;down={x:e.clientX,y:e.clientY,pos,lx:e.clientX,lt:performance.now(),v:0}});
 addEventListener('pointermove',e=>{
  if(!down)return;
  const dx=e.clientX-down.x;
- if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(e.clientY-down.y))stage.classList.add('is-dragging');
- const want=Math.trunc(-dx/(geo.cardW*.7));
- if(want!==down.stepped){go(want-down.stepped,true);down.stepped=want;suppress=true}
+ if(!dragging){
+  if(Math.abs(dx)<8||Math.abs(dx)<Math.abs(e.clientY-down.y))return;
+  dragging=true;suppress=true;stage.classList.add('is-dragging');
+ }
+ const unit=geo.cardW*.95,now=performance.now(),dtm=Math.max(1,now-down.lt);
+ down.v=.8*down.v+.2*(-(e.clientX-down.lx)/unit/(dtm/1000));down.lx=e.clientX;down.lt=now;
+ pos=down.pos-dx/unit;target=pos;kick();
 });
-addEventListener('pointerup',()=>{if(!down)return;stage.classList.remove('is-dragging');if(!down.stepped)suppress=false;down=null});
-addEventListener('pointercancel',()=>{down=null;stage.classList.remove('is-dragging')});
+function release(){
+ if(!down)return;
+ if(dragging){
+  target=Math.round(pos+clamp(down.v*.18,-3,3));
+  lastInteract=performance.now();dragging=false;stage.classList.remove('is-dragging');kick();
+ }else suppress=false;
+ down=null;
+}
+addEventListener('pointerup',release);addEventListener('pointercancel',release);
 track.addEventListener('dragstart',e=>e.preventDefault());
 
 // Theme filters: fold the arc in, swap the set, fan it back out.
+function fanIn(cards){
+ cards.forEach(c=>{c.style.transitionDelay='0ms';c.style.setProperty('--k',0)});
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  cards.forEach(c=>{c.style.transitionDelay=reduce.matches?'0ms':(Math.min(Math.abs(parseFloat(c.dataset.d)||0),4)*70)+'ms';c.style.setProperty('--k',1)});
+ }));
+}
 chips.forEach(chip=>chip.addEventListener('click',()=>{
  const f=chip.dataset.filter;
  chips.forEach(c=>c.setAttribute('aria-pressed',String(c===chip)));
- pool.forEach(c=>{c.style.setProperty('--o',0);c.style.setProperty('--s',.85)});
+ pool.forEach(c=>{c.style.transitionDelay='0ms';c.style.setProperty('--k',0)});
  setTimeout(()=>{
   pool=f==='all'?all.slice():all.filter(c=>c.dataset.theme===f);
-  cur=0;pool.forEach(c=>{delete c.dataset.d;c.classList.add('no-anim');c.style.setProperty('--x','0px');c.style.setProperty('--z','0px');c.style.setProperty('--ry','0deg');c.style.setProperty('--o',0)});
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{pool.forEach(c=>c.classList.remove('no-anim'));place(true)}));
+  pos=target=0;hideOthers();render();fanIn(pool);
   lastInteract=performance.now();
- },reduce.matches?0:320);
+ },reduce.matches?0:380);
 }));
 
 // The site's cursor reads "PLAY" over cards; give it the light treatment there.
 if(cursor){track.addEventListener('pointerover',e=>cursor.classList.toggle('is-play',!!e.target.closest('.arc-card')));track.addEventListener('pointerleave',()=>cursor.classList.remove('is-play'))}
 
-// First view: cards start stacked at the centre and fan out along the curve.
-function enter(){
- entered=true;
- if(reduce.matches){place(false);return}
- all.forEach(c=>{c.classList.add('no-anim');c.style.setProperty('--x','0px');c.style.setProperty('--z','-120px');c.style.setProperty('--ry','0deg');c.style.setProperty('--o',0);c.style.setProperty('--s',.8)});
- requestAnimationFrame(()=>requestAnimationFrame(()=>{all.forEach(c=>c.classList.remove('no-anim'));place(true);setTimeout(()=>all.forEach(c=>c.style.transitionDelay=''),1400)}));
-}
+// First view: cards start folded at the centre and fan out along the curve.
+function enter(){entered=true;fanIn(pool);syncVideos()}
 
-measure();place(false);schedule();
+measure();render();schedule();
+all.forEach(c=>c.style.setProperty('--k',reduce.matches?1:0));
 if('IntersectionObserver' in window){
  new IntersectionObserver(es=>es.forEach(e=>{
   inView=e.isIntersecting;
   if(inView&&!entered)enter();else syncVideos();
- }),{threshold:.25}).observe(stage);
-}else{inView=true;entered=true}
-addEventListener('resize',()=>{measure();place(false)});
+ }),{threshold:.2}).observe(stage);
+}else{inView=true;entered=true;all.forEach(c=>c.style.setProperty('--k',1))}
+addEventListener('resize',()=>{measure();render()});
 document.addEventListener('visibilitychange',syncVideos);
-reduce.addEventListener?.('change',()=>{place(false)});
+reduce.addEventListener?.('change',()=>{render()});
 })();
