@@ -147,7 +147,29 @@
 @media(max-width:760px){.shorts-arc.is-wide .arc-caption{padding:34px 12px 12px}.shorts-arc.is-wide .arc-caption b{font-size:14px}}
 .shorts-arc.is-wide .arc-card:not(.is-landscape) .arc-media{background:#07090c}.shorts-arc.is-wide .arc-card:not(.is-landscape) .arc-media img,.shorts-arc.is-wide .arc-card:not(.is-landscape) .arc-media video{object-fit:contain}
 .work-category-note{color:var(--muted);font-size:14px;margin-top:10px;max-width:520px}
-/* Interviews row under the podcast features */
-.interviews-row{margin-top:clamp(56px,8vw,110px)}
-.interviews-row .work-category-note{margin:8px 0 0}
+/* Interviews under the podcast features: full (landscape) interviews, then vertical reels */
+.interviews-row{margin-top:clamp(64px,9vw,120px)}
+.iv-intro .eyebrow{margin-bottom:0}
+.iv-intro .work-category-note{margin:10px 0 0}
+.iv-block{margin-top:clamp(36px,5vw,64px)}
+.iv-sub{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:14px;margin-bottom:clamp(20px,3vw,32px);border-bottom:1px solid var(--line)}
+.iv-sub h3{font:500 clamp(18px,1.9vw,24px)/1.2 'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:-.01em;margin:0}
+.iv-count{font:11px 'Space Grotesk',Arial,sans-serif;letter-spacing:.16em;color:var(--muted)}
+.iv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:clamp(20px,2.6vw,36px)}
+.iv-grid[data-n="1"]{max-width:920px}
+.iv-card{display:flex;flex-direction:column;gap:14px;color:inherit;text-decoration:none}
+.iv-media{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;border-radius:14px;background:var(--panel);box-shadow:0 24px 60px -30px #000c}
+.iv-media img,.iv-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.7,.2,1),opacity .45s}
+.iv-media video{opacity:0}.iv-media video.is-playing{opacity:1}
+.iv-card:hover .iv-media img,.iv-card:hover .iv-media video,.iv-card:focus-visible .iv-media img{transform:scale(1.03)}
+.iv-media::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#07090c99,transparent 45%);pointer-events:none}
+.iv-play{position:absolute;left:18px;bottom:16px;z-index:1;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffffffe6;color:#0b0d11;font-size:13px;padding-left:3px;transition:transform .35s,opacity .35s}
+.iv-card:hover .iv-play,.iv-card:focus-visible .iv-play{transform:scale(1.08)}
+.iv-media:has(video.is-playing) .iv-play{opacity:0}
+.iv-meta{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.iv-meta b{font:500 clamp(16px,1.5vw,19px)/1.3 'Plus Jakarta Sans',Arial,sans-serif}
+.iv-meta small{flex:none;font:10px 'Space Grotesk',Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.iv-card:focus-visible{outline:none}.iv-card:focus-visible .iv-media{outline:2px solid var(--accent);outline-offset:4px}
+.iv-reels .shorts-arc{margin-top:-8px}
+@media (prefers-reduced-motion: reduce){.iv-media img,.iv-media video,.iv-play{transition:none}}
 .shorts-arc:not(.is-wide) .arc-card.is-landscape .arc-media video{object-fit:contain;background:#0b0d11}

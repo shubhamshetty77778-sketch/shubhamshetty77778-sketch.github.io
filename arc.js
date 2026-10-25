@@ -52,10 +52,15 @@ async function loadSource(){
  const src=root.dataset.source;if(!src)return;
  const coll=root.dataset.collection,key=root.dataset.key,base=src.replace(new RegExp(coll+'/[^/]+$'),'');
  try{
-  const data=await getJSON(src);
-  track.append(...(data[key]||[]).map(e=>makeCard(e,base,coll,root.dataset.label||'',coll)));
+  const data=await getJSON(src),orient=root.dataset.orient;
+  let list=data[key]||[];
+  if(orient==='portrait')list=list.filter(e=>!(e.width>e.height));
+  if(orient==='landscape')list=list.filter(e=>e.width>e.height);
+  track.append(...list.map(e=>makeCard(e,base,coll,root.dataset.label||'',coll)));
  }catch(e){}
- if(!track.children.length)root.hidden=true;
+ const block=root.closest('.iv-block'),n=track.children.length;
+ if(!n){root.hidden=true;if(block)block.hidden=true}
+ const cnt=block&&block.querySelector('.iv-count');if(cnt)cnt.textContent=String(n).padStart(2,'0');
 }
 await loadEvents();await loadSource();
 const all=[...track.querySelectorAll('.arc-card')];
@@ -266,4 +271,40 @@ document.addEventListener('visibilitychange',syncVideos);
 reduce.addEventListener?.('change',()=>{render()});
 }
 document.querySelectorAll('.shorts-arc').forEach(initArc);
+
+// Landscape videos from a synced list, shown as a grid of large screens (e.g. full interviews).
+// The preview plays while the pointer is over a screen, or while it is in view on touch screens.
+async function initGrid(block){
+ const src=block.dataset.source,coll=block.dataset.collection,key=block.dataset.key;
+ const base=src.replace(new RegExp(coll+'/[^/]+$'),''),grid=block.querySelector('.iv-grid');
+ const asset=p=>p&&p.startsWith('/')?base+p.slice(1):p;
+ let list=[];
+ try{list=((await getJSON(src))[key]||[]).filter(e=>e.width>e.height)}catch(e){}
+ if(!list.length){block.hidden=true;return}
+ grid.dataset.n=String(list.length);
+ const cnt=block.querySelector('.iv-count');if(cnt)cnt.textContent=String(list.length).padStart(2,'0');
+ const play=v=>{if(reduce.matches)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
+ const stop=v=>{if(!v.paused)v.pause();v.classList.remove('is-playing')};
+ const touch=matchMedia('(hover: none)').matches;
+ const io=touch&&'IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{
+  const v=e.target.querySelector('video');if(v)(e.isIntersecting?play:stop)(v)}),{threshold:.6}):null;
+ list.forEach(e=>{
+  const a=document.createElement('a');a.className='iv-card';a.dataset.cursor='PLAY';
+  a.href=base+'projects/event.html#'+coll+':'+encodeURIComponent(e.id);
+  const m=document.createElement('span');m.className='iv-media';
+  const img=document.createElement('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';m.append(img);
+  let v=null;
+  if(e.preview){v=document.createElement('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');m.append(v)}
+  const btn=document.createElement('span');btn.className='iv-play';btn.setAttribute('aria-hidden','true');btn.textContent='▶';m.append(btn);
+  const meta=document.createElement('span');meta.className='iv-meta';
+  const b=document.createElement('b');b.textContent=e.title;
+  const sm=document.createElement('small');sm.textContent='Full interview'+(e.duration?' · '+mmss(e.duration):'');
+  meta.append(b,sm);a.append(m,meta);grid.append(a);
+  if(v&&!touch){a.addEventListener('pointerenter',()=>play(v));a.addEventListener('pointerleave',()=>stop(v));a.addEventListener('focus',()=>play(v));a.addEventListener('blur',()=>stop(v))}
+  if(io)io.observe(a);
+  if(cursor){a.addEventListener('pointerenter',()=>cursor.classList.add('is-play'));a.addEventListener('pointerleave',()=>cursor.classList.remove('is-play'))}
+ });
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)grid.querySelectorAll('video').forEach(stop)});
+}
+document.querySelectorAll('.iv-long[data-source]').forEach(initGrid);
 })();
