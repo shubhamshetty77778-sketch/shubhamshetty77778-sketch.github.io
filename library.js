@@ -69,7 +69,6 @@ async function build(root){
   '<circle r="99" fill="#0d0c12"/><g class="lens-knurl">'+spin('18s',360)+ticks+'</g>'+
   '<circle r="86" fill="#15131c" stroke="#ffffff14"/>'+
     '<circle r="68" fill="#0a0910" stroke="#2c2742" stroke-width="1.5"/>'+
-  '<text class="lens-name" y="-60.5" text-anchor="middle">SS CINE 35mm 1:1.4</text>'+
   '<circle r="57" fill="url(#lens-glass)"/>'+
   '<g clip-path="url(#lens-clip)"><g class="lens-iris">'+irisTurn+blades+'</g></g>'+
   '<circle r="57" fill="none" stroke="#000" stroke-width="3"/>'+
