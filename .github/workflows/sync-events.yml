@@ -2,7 +2,8 @@ name: Sync videos from Drive
 
 # Rebuilds the Events section (videos named "Event…" in the Drive Portfolio folder)
 # the Brand Films section (every video in the Drive "Brand Films" folder)
-# and the Ad Films section (every video in the Drive "Ads" folder).
+# the Digital Ads section (every video in the Drive "Ads" folder)
+# and the Interviews row (every video in the Drive "Interview" folder).
 # Runs when the event list changes, every 6 hours, or from the Actions tab ("Run workflow").
 on:
   push:
@@ -14,6 +15,8 @@ on:
       - 'brand-films/exclude.json'
       - 'ads/sources.json'
       - 'ads/exclude.json'
+      - 'interviews/sources.json'
+      - 'interviews/exclude.json'
       - 'scripts/sync_videos.py'
       - '.github/workflows/sync-events.yml'
   schedule:
@@ -49,7 +52,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add events brand-films ads assets/events assets/brand-films assets/ads
+          git add events brand-films ads interviews assets/events assets/brand-films assets/ads assets/interviews
           if git diff --cached --quiet; then
             echo "Nothing to publish"
             exit 0

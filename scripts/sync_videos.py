@@ -35,6 +35,12 @@ COLLECTIONS = [
         'match': None,
         'strip': r'(ad\s*films?|ads?)(\s*\(\d+\))?', 'fallback': 'Digital ad', 'preview': 'native',
     },
+    {   # Interviews: every video in the "Interview" folder; shown under Podcasts & Interviews
+        'dir': 'interviews', 'out': 'interviews.json', 'key': 'interviews',
+        'folder': '1qrxLQg-9HSa7YB6_kL-ddgPxGScpmki-',
+        'match': None,
+        'strip': r'interviews?(\s*\(\d+\))?', 'fallback': 'Student interview', 'preview': 'native',
+    },
 ]
 
 
