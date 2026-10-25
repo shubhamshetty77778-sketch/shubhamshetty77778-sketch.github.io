@@ -1,0 +1,21 @@
+name: Probe video frames (temporary)
+on:
+  push:
+    branches: [probe-frames]
+jobs:
+  frames:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: |
+          curl -sSL -o v.mp4 "https://drive.usercontent.google.com/download?id=1SJu4TQ_hEqlVzwn3Z4JMLBB7JlsGPwyS&export=download&confirm=t"
+          ffprobe -v error -show_entries format=duration:stream=width,height -of compact v.mp4 | tee info.txt
+          D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 v.mp4)
+          mkdir f; for k in 1 2 3 4 5 6 7 8 9 10 11 12; do ffmpeg -v error -ss $(python3 -c "print($D*$k/13)") -i v.mp4 -frames:v 1 -vf scale=-2:360 f/$(printf %02d $k).jpg; done
+          ffmpeg -v error -i f/%02d.jpg -vf tile=6x2 sheet.jpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frames
+          path: |
+            sheet.jpg
+            info.txt
