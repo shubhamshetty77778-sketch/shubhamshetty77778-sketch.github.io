@@ -444,3 +444,8 @@
 .work-category{scroll-margin-top:var(--cat-offset,140px)}
 @media (max-width:760px){.cat-bar{padding:8px var(--pad)}.cat-track a{padding:7px 12px;font-size:12px}}
 @media (min-width:1200px){.cat-track{-webkit-mask:none;mask:none;justify-content:center}}
+
+/* "All stories. One flow." intro, centred */
+.work-intro{text-align:center;display:flex;flex-direction:column;align-items:center}
+.work-intro .eyebrow{justify-content:center}
+.work-intro>p{margin-left:auto;margin-right:auto;max-width:640px}
