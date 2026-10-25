@@ -2,6 +2,8 @@ name: Probe video frames (temporary)
 on:
   push:
     branches: [probe-frames]
+permissions:
+  contents: write
 jobs:
   frames:
     runs-on: ubuntu-latest
@@ -13,9 +15,9 @@ jobs:
           D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 v.mp4)
           mkdir f; for k in 1 2 3 4 5 6 7 8 9 10 11 12; do ffmpeg -v error -ss $(python3 -c "print($D*$k/13)") -i v.mp4 -frames:v 1 -vf scale=-2:360 f/$(printf %02d $k).jpg; done
           ffmpeg -v error -i f/%02d.jpg -vf tile=6x2 sheet.jpg
-      - uses: actions/upload-artifact@v4
-        with:
-          name: frames
-          path: |
-            sheet.jpg
-            info.txt
+      - uses: actions/checkout@v4
+        with: {path: repo}
+      - run: |
+          cp sheet.jpg info.txt repo/
+          cd repo && git config user.name bot && git config user.email bot@users.noreply.github.com
+          git add sheet.jpg info.txt && git commit -m frames && git push
