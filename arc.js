@@ -57,6 +57,8 @@ async function loadSource(){
   if(orient==='portrait')list=list.filter(e=>!(e.width>e.height));
   if(orient==='landscape')list=list.filter(e=>e.width>e.height);
   track.append(...list.map(e=>makeCard(e,base,coll,root.dataset.label||'',coll)));
+  // data-hide-title: leave out a placeholder title (e.g. "Student story") on the cards
+  const hide=root.dataset.hideTitle;if(hide)track.querySelectorAll('.arc-caption b').forEach(b=>{if(b.textContent===hide)b.remove()});
  }catch(e){}
  const block=root.closest('.iv-block'),n=track.children.length;
  if(!n){root.hidden=true;if(block)block.hidden=true}
@@ -313,7 +315,8 @@ async function initGrid(block){
   const meta=document.createElement('span');meta.className='iv-meta';
   const b=document.createElement('b');b.textContent=e.title;
   const sm=document.createElement('small');sm.textContent=(block.dataset.label||'Full interview')+(e.duration?' · '+mmss(e.duration):'');
-  meta.append(b,sm);a.append(m,meta);grid.append(a);
+  if(block.dataset.hideTitle&&e.title===block.dataset.hideTitle)meta.append(sm);else meta.append(b,sm);
+  a.append(m,meta);grid.append(a);
   if(v&&!touch){a.addEventListener('pointerenter',()=>play(v));a.addEventListener('pointerleave',()=>stop(v));a.addEventListener('focus',()=>play(v));a.addEventListener('blur',()=>stop(v))}
   if(io)io.observe(a);
   if(cursor){a.addEventListener('pointerenter',()=>cursor.classList.add('is-play'));a.addEventListener('pointerleave',()=>cursor.classList.remove('is-play'))}
