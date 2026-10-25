@@ -1,6 +1,7 @@
-name: Sync event videos from Drive
+name: Sync videos from Drive
 
-# Rebuilds the Events section from videos named "Event…" in the Drive Portfolio folder.
+# Rebuilds the Events section (videos named "Event…" in the Drive Portfolio folder)
+# and the Brand Films section (every video in the Drive "Brand Films" folder).
 # Runs when the event list changes, every 6 hours, or from the Actions tab ("Run workflow").
 on:
   push:
@@ -8,7 +9,9 @@ on:
     paths:
       - 'events/sources.json'
       - 'events/exclude.json'
-      - 'scripts/sync_events.py'
+      - 'brand-films/sources.json'
+      - 'brand-films/exclude.json'
+      - 'scripts/sync_videos.py'
       - '.github/workflows/sync-events.yml'
   schedule:
     - cron: '23 */6 * * *'
@@ -25,17 +28,17 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
       - name: Install ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
-      - name: Download event videos and make posters and previews
+      - name: Download videos and make posters and previews
         env:
           DRIVE_API_KEY: ${{ secrets.DRIVE_API_KEY }}
-        run: python3 scripts/sync_events.py
+        run: python3 scripts/sync_videos.py
 
       - name: Publish changes
         env:
@@ -43,12 +46,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add events assets/events
+          git add events brand-films assets/events assets/brand-films
           if git diff --cached --quiet; then
             echo "Nothing to publish"
             exit 0
           fi
-          git commit -m "Sync event videos from Drive"
+          git commit -m "Sync videos from Drive"
           git pull --rebase origin main
           git push origin HEAD:main
           # make sure GitHub Pages rebuilds with the new videos
