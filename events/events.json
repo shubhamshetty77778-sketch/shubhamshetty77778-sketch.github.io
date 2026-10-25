@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T09:21:59Z",
+  "updated": "2026-10-25T09:33:55Z",
   "events": [
     {
       "id": "12-BPG_hkSKi9WCRI3EiqZJUKyRyuOAp_",
@@ -84,18 +84,6 @@
       "height": 1280,
       "duration": 44.4,
       "size": 10508699
-    },
-    {
-      "id": "1m37mxMVSPP8hgWYXMAAZDlG04jeo7geM",
-      "title": "Event highlights",
-      "name": "Event..mp4",
-      "drive": "https://drive.google.com/file/d/1m37mxMVSPP8hgWYXMAAZDlG04jeo7geM/view",
-      "poster": "/assets/events/1m37mxMVSPP8hgWYXMAAZDlG04jeo7geM.jpg",
-      "preview": "/assets/events/1m37mxMVSPP8hgWYXMAAZDlG04jeo7geM.mp4",
-      "width": 720,
-      "height": 1280,
-      "duration": 42.9,
-      "size": 2054012
     },
     {
       "id": "1NkdzMckhma_yaZnB6fnT7YwGdy4phPeI",
