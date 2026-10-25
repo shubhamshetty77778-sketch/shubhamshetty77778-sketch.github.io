@@ -21,6 +21,11 @@ on:
       - 'more/sources.json'
       - 'social/sources.json'
       - 'more/exclude.json'
+      - 'more/extra.json'
+      - 'events/extra.json'
+      - 'brand-films/extra.json'
+      - 'ads/extra.json'
+      - 'interviews/extra.json'
       - 'scripts/sync_videos.py'
       - '.github/workflows/sync-events.yml'
   schedule:

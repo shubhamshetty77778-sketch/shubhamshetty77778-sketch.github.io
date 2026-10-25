@@ -4,6 +4,7 @@ Each collection below has:
   <dir>/sources.json  - the Drive files it contains (id, name, size, times), newest first.
                         Updated here when DRIVE_API_KEY is set, otherwise by the daily Drive check.
   <dir>/exclude.json  - optional {"ids": [...]} of Drive files to keep off the site.
+  <dir>/extra.json    - optional {"files": [...]} of single Drive videos added by link (shown first).
   <dir>/<out>         - what the website reads: title, poster, preview clip and size of each video.
   assets/<dir>/       - poster (<id>.jpg) and 8-second silent preview (<id>.mp4) for each video.
 
@@ -170,6 +171,11 @@ def sync(c):
         except Exception as e:
             log(f'[{c["dir"]}] could not list Drive ({e}); using sources.json')
     files = json.load(open(sources))['files']
+    # extra.json: single videos added from Drive links, kept alongside the folder's own videos
+    extra = os.path.join(d, 'extra.json')
+    if os.path.exists(extra):
+        seen = {f['id'] for f in files}
+        files = [f for f in json.load(open(extra)).get('files', []) if f['id'] not in seen] + files
     excluded = set(json.load(open(exclude)).get('ids', [])) if os.path.exists(exclude) else set()
     files = [f for f in files if f['id'] not in excluded]
     previous = {e['id']: e for e in json.load(open(out))[c['key']]} if os.path.exists(out) else {}
