@@ -258,3 +258,17 @@
 .yt-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 1s}
 .yt-bg.is-playing{opacity:1}
 .yt-bg iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(1.18);border:0}
+
+/* Podcast channel link under the Podcasts section */
+.channel-card{display:flex;align-items:center;gap:clamp(16px,2.4vw,32px);margin-top:clamp(28px,4vw,48px);padding:clamp(18px,2.4vw,28px) clamp(18px,2.8vw,36px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#ffffff0a,#ffffff03);color:inherit;text-decoration:none;transition:border-color .35s,background .35s,transform .35s}
+.channel-card:hover,.channel-card:focus-visible{border-color:#ffffff40;background:linear-gradient(120deg,#ffffff12,#ffffff05);transform:translateY(-2px)}
+.channel-card:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.channel-logo{flex:none;width:clamp(64px,6vw,88px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:var(--panel);box-shadow:0 0 0 1px #ffffff1f}
+.channel-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.channel-copy{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
+.channel-eyebrow{font:10px 'Space Grotesk',Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.channel-copy b{font:500 clamp(18px,2vw,26px)/1.2 'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:-.01em}
+.channel-note{color:var(--muted);font-size:14px;line-height:1.5}
+.channel-cta{flex:none;padding:11px 18px;border-radius:999px;border:1px solid #ffffff33;font:500 13px 'Plus Jakarta Sans',Arial,sans-serif;white-space:nowrap;transition:background .35s,border-color .35s,color .35s}
+.channel-card:hover .channel-cta,.channel-card:focus-visible .channel-cta{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (max-width:640px){.channel-card{flex-wrap:wrap}.channel-cta{width:100%;text-align:center}}
