@@ -1,0 +1,65 @@
+{
+  "updated": "2026-10-25T11:19:13Z",
+  "interviews": [
+    {
+      "id": "1K3u5Wm-KNIMgm5JIIXZGHwvJtWL4_8ly",
+      "title": "Student interview",
+      "name": "Interview.mp4",
+      "drive": "https://drive.google.com/file/d/1K3u5Wm-KNIMgm5JIIXZGHwvJtWL4_8ly/view",
+      "poster": "/assets/interviews/1K3u5Wm-KNIMgm5JIIXZGHwvJtWL4_8ly.jpg",
+      "preview": "/assets/interviews/1K3u5Wm-KNIMgm5JIIXZGHwvJtWL4_8ly.mp4",
+      "width": 720,
+      "height": 1280,
+      "duration": 60.5,
+      "size": 11053984
+    },
+    {
+      "id": "18I2GHq3ytzffaM2J-PzpRBxp9duebfak",
+      "title": "Student interview",
+      "name": "Interview.mp4",
+      "drive": "https://drive.google.com/file/d/18I2GHq3ytzffaM2J-PzpRBxp9duebfak/view",
+      "poster": "/assets/interviews/18I2GHq3ytzffaM2J-PzpRBxp9duebfak.jpg",
+      "preview": "/assets/interviews/18I2GHq3ytzffaM2J-PzpRBxp9duebfak.mp4",
+      "width": 720,
+      "height": 1280,
+      "duration": 56.8,
+      "size": 11121765
+    },
+    {
+      "id": "1qgLIiD0UAe_s7X9e_1J9Qgfk18SIjSgE",
+      "title": "Student interview",
+      "name": "Interview.mp4",
+      "drive": "https://drive.google.com/file/d/1qgLIiD0UAe_s7X9e_1J9Qgfk18SIjSgE/view",
+      "poster": "/assets/interviews/1qgLIiD0UAe_s7X9e_1J9Qgfk18SIjSgE.jpg",
+      "preview": "/assets/interviews/1qgLIiD0UAe_s7X9e_1J9Qgfk18SIjSgE.mp4",
+      "width": 720,
+      "height": 1280,
+      "duration": 61.6,
+      "size": 12603541
+    },
+    {
+      "id": "1DfzQhOP_iloFQZoKOiON7darI6mm6Guv",
+      "title": "Student interview",
+      "name": "Interview.mp4",
+      "drive": "https://drive.google.com/file/d/1DfzQhOP_iloFQZoKOiON7darI6mm6Guv/view",
+      "poster": "/assets/interviews/1DfzQhOP_iloFQZoKOiON7darI6mm6Guv.jpg",
+      "preview": "/assets/interviews/1DfzQhOP_iloFQZoKOiON7darI6mm6Guv.mp4",
+      "width": 720,
+      "height": 1280,
+      "duration": 33.5,
+      "size": 4240245
+    },
+    {
+      "id": "1SJu4TQ_hEqlVzwn3Z4JMLBB7JlsGPwyS",
+      "title": "Student interview",
+      "name": "Interview.mp4",
+      "drive": "https://drive.google.com/file/d/1SJu4TQ_hEqlVzwn3Z4JMLBB7JlsGPwyS/view",
+      "poster": "/assets/interviews/1SJu4TQ_hEqlVzwn3Z4JMLBB7JlsGPwyS.jpg",
+      "preview": "/assets/interviews/1SJu4TQ_hEqlVzwn3Z4JMLBB7JlsGPwyS.mp4",
+      "width": 1280,
+      "height": 720,
+      "duration": 519.5,
+      "size": 61050203
+    }
+  ]
+}
