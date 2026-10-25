@@ -40,7 +40,7 @@ COLLECTIONS = [
         'dir': 'interviews', 'out': 'interviews.json', 'key': 'interviews',
         'folder': '1qrxLQg-9HSa7YB6_kL-ddgPxGScpmki-',
         'match': None,
-        'strip': r'interviews?(\s*\(\d+\))?', 'fallback': 'Student interview', 'preview': 'native',
+        'strip': r'(interviews?|testimonials?)(\s*\(\d+\))?', 'fallback': 'Student story', 'preview': 'native',
     },
     {   # More Work: every video in the Drive "More Work" folder (inside Portfolio)
         'dir': 'more', 'out': 'more.json', 'key': 'videos',
@@ -87,6 +87,9 @@ def title_from(name, c):
     base = re.sub(r'\.[A-Za-z0-9]{2,4}$', '', name)
     rest = re.sub(r'^\s*' + c['strip'] + r'(?![a-z])', '', base, flags=re.I)
     rest = re.sub(r'^[\s.\-_:|–—]+|[\s.\-_:|–—]+$', '', rest)
+    # names from download sites or phones ("SaveVid.Net_AQN…", "VID_2026…", long codes) are not titles
+    if re.search(r'savevid|snapsave|^(vid|img|mov|pxl)[_-]?\d', rest, re.I) or (len(rest) > 24 and ' ' not in rest):
+        return c['fallback']
     return rest or c['fallback']
 
 
