@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T11:19:13Z",
+  "updated": "2026-10-25T11:30:28Z",
   "interviews": [
     {
       "id": "1K3u5Wm-KNIMgm5JIIXZGHwvJtWL4_8ly",
@@ -36,6 +36,18 @@
       "height": 1280,
       "duration": 61.6,
       "size": 12603541
+    },
+    {
+      "id": "1dco4lZXNzSNfB6GLQd5cA9lyso6Akemv",
+      "title": "Student interview",
+      "name": "Interview.mp4",
+      "drive": "https://drive.google.com/file/d/1dco4lZXNzSNfB6GLQd5cA9lyso6Akemv/view",
+      "poster": "/assets/interviews/1dco4lZXNzSNfB6GLQd5cA9lyso6Akemv.jpg",
+      "preview": "/assets/interviews/1dco4lZXNzSNfB6GLQd5cA9lyso6Akemv.mp4",
+      "width": 1276,
+      "height": 718,
+      "duration": 220.1,
+      "size": 19440390
     },
     {
       "id": "1DfzQhOP_iloFQZoKOiON7darI6mm6Guv",
