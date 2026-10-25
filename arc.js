@@ -273,7 +273,7 @@ reduce.addEventListener?.('change',()=>{render()});
 document.querySelectorAll('.shorts-arc').forEach(initArc);
 
 // Landscape videos from a synced list, shown as a grid of large screens (e.g. full interviews).
-// The preview plays while the pointer is over a screen, or while it is in view on touch screens.
+// The preview plays (muted) whenever a screen is in view.
 async function initGrid(block){
  const src=block.dataset.source,coll=block.dataset.collection,key=block.dataset.key;
  const base=src.replace(new RegExp(coll+'/[^/]+$'),''),grid=block.querySelector('.iv-grid');
@@ -285,8 +285,8 @@ async function initGrid(block){
  const cnt=block.querySelector('.iv-count');if(cnt)cnt.textContent=String(list.length).padStart(2,'0');
  const play=v=>{if(reduce.matches)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
  const stop=v=>{if(!v.paused)v.pause();v.classList.remove('is-playing')};
- const touch=matchMedia('(hover: none)').matches;
- const io=touch&&'IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{
+ const touch=true; // previews play whenever they are on screen
+ const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{
   const v=e.target.querySelector('video');if(v)(e.isIntersecting?play:stop)(v)}),{threshold:.6}):null;
  list.forEach(e=>{
   const a=document.createElement('a');a.className='iv-card';a.dataset.cursor='PLAY';

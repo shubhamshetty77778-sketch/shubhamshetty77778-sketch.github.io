@@ -42,7 +42,15 @@ COLLECTIONS = [
         'match': None,
         'strip': r'interviews?(\s*\(\d+\))?', 'fallback': 'Student interview', 'preview': 'native',
     },
+    {   # Featured long videos (the podcasts): fixed files, listed by hand in features/sources.json
+        'dir': 'features', 'out': 'features.json', 'key': 'features',
+        'folder': None,
+        'match': None,
+        'strip': r'$^', 'fallback': 'Feature', 'preview': 'native', 'preview_size': (1280, 720),
+    },
 ]
+
+BIG = 1_500_000_000   # larger files are read straight from Drive instead of downloaded whole
 
 
 def log(*a):
@@ -96,9 +104,19 @@ def download(fid, dest):
     return False
 
 
+def drive_url(fid):
+    if KEY:
+        return f'https://www.googleapis.com/drive/v3/files/{fid}?alt=media&key={KEY}'
+    return f'https://drive.usercontent.google.com/download?id={fid}&export=download&confirm=t'
+
+
+def net(path):
+    return ['-user_agent', UA['User-Agent']] if path.startswith('http') else []
+
+
 def probe(path):
     try:
-        out = subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries',
+        out = subprocess.check_output(['ffprobe', '-v', 'error', *net(path), '-select_streams', 'v:0', '-show_entries',
                                        'stream=width,height:stream_tags=rotate:format=duration', '-of', 'json', path])
         d = json.loads(out)
         s = d['streams'][0]
@@ -112,11 +130,11 @@ def probe(path):
 def render(src, fid, info, assets, shape, size=None):
     dur, portrait = info['duration'], info['height'] >= info['width']
     poster, preview = os.path.join(assets, fid + '.jpg'), os.path.join(assets, fid + '.mp4')
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{dur * 0.3:.2f}', '-i', src, '-frames:v', '1',
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', *net(src), '-ss', f'{dur * 0.3:.2f}', '-i', src, '-frames:v', '1',
                     '-vf', 'scale=-2:1000' if portrait else 'scale=1280:-2', '-q:v', '4', poster], check=True)
     w, h = (360, 640) if shape == 'vertical' or portrait else (size or (640, 360))
     start = max(0.0, min(dur * 0.18, dur - 8.5))
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{start:.2f}', '-t', '8', '-i', src, '-an', '-vf',
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', *net(src), '-ss', f'{start:.2f}', '-t', '8', '-i', src, '-an', '-vf',
                     f'scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:color=0x0b0d11,fps=24,format=yuv420p',
                     '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '30', '-profile:v', 'main', '-movflags', '+faststart',
                     preview], check=True)
@@ -129,7 +147,7 @@ def sync(c):
     if not os.path.exists(sources):
         log(f'[{c["dir"]}] no sources.json yet'); return
     os.makedirs(assets, exist_ok=True)
-    if KEY:
+    if KEY and c['folder']:
         try:
             listed = list_drive(c)
             json.dump({'folder': c['folder'], 'files': listed}, open(sources, 'w'), indent=2)
@@ -153,8 +171,12 @@ def sync(c):
         else:
             log(f'[{c["dir"]}] processing {fid} ({f["name"]}, {f.get("size", 0) // 1_000_000} MB)')
             with tempfile.TemporaryDirectory() as tmp:
-                src = os.path.join(tmp, 'video')
-                info = probe(src) if download(fid, src) else None
+                if (f.get('size') or 0) > BIG:
+                    src = drive_url(fid)   # seek inside the file on Drive; no full download
+                    info = probe(src)
+                else:
+                    src = os.path.join(tmp, 'video')
+                    info = probe(src) if download(fid, src) else None
                 if info:
                     render(src, fid, info, assets, c['preview'], c.get('preview_size'))
                     entry.update({'poster': f'/assets/{c["dir"]}/{fid}.jpg', 'preview': f'/assets/{c["dir"]}/{fid}.mp4',

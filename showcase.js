@@ -157,3 +157,36 @@ async function adFeed(block){
 document.querySelectorAll('.film-showcase[data-source]').forEach(filmShowcase);
 document.querySelectorAll('.ad-feed[data-source]').forEach(adFeed);
 })();
+
+/* Any video marked data-autoplay plays (muted) while it is on screen. A .yt-bg slot
+   gets a muted, looping YouTube player once it first comes into view. */
+(()=>{
+'use strict';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const vids=[...document.querySelectorAll('video[data-autoplay]')];
+const slots=[...document.querySelectorAll('.yt-bg[data-yt]')];
+if(!('IntersectionObserver' in window))return;
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+ const v=e.target;
+ if(e.isIntersecting&&!reduce.matches&&!document.hidden){
+  if(!v.src){v.src=v.dataset.src;v.addEventListener('error',()=>v.remove(),{once:true})}
+  const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{});
+ }else if(!v.paused)v.pause();
+}),{threshold:.35});
+vids.forEach(v=>io.observe(v));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)vids.forEach(v=>{if(!v.paused)v.pause()})});
+const yo=new IntersectionObserver(es=>es.forEach(e=>{
+ if(!e.isIntersecting||reduce.matches)return;
+ const s=e.target;yo.unobserve(s);
+ const id=s.dataset.yt,start=s.dataset.start||0;
+ const f=document.createElement('iframe');
+ f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute=1&controls=0&loop=1&playlist='+id+'&playsinline=1&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&start='+start;
+ f.title='';f.tabIndex=-1;f.setAttribute('aria-hidden','true');f.allow='autoplay; encrypted-media';
+ f.addEventListener('load',()=>setTimeout(()=>s.classList.add('is-playing'),1200),{once:true});
+ s.append(f);
+ // cover the frame like object-fit: cover (YouTube is 16:9)
+ const fit=()=>{const r=s.getBoundingClientRect(),w=Math.max(r.width,r.height*16/9);f.style.width=w+'px';f.style.height=(w*9/16)+'px'};
+ fit();if('ResizeObserver' in window)new ResizeObserver(fit).observe(s);else addEventListener('resize',fit);
+}),{threshold:.3});
+slots.forEach(s=>yo.observe(s));
+})();
