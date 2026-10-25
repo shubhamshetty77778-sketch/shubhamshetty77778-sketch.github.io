@@ -93,6 +93,8 @@ function measure(){
  // a short list of films (e.g. 4) still rotates around a clear centre
  if(wide&&pool.length>=3&&pool.length<=slots)slots=pool.length%2?pool.length:pool.length-1;
  if(wide&&pool.length%2===1&&pool.length<=slots)slots=pool.length;
+ // on phones a short list of reels rotates three at a time so every card can be reached
+ if(!wide&&mobile&&pool.length>3&&pool.length<=slots)slots=3;
  const step=stepDeg*Math.PI/180,radius=spacing/Math.sin(step);
  geo={slots,half:Math.floor(slots/2),cardW,stepDeg,step,radius};
  root.style.setProperty('--arc-w',cardW+'px');

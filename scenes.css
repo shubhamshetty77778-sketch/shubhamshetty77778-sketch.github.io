@@ -150,3 +150,4 @@
 /* Interviews row under the podcast features */
 .interviews-row{margin-top:clamp(56px,8vw,110px)}
 .interviews-row .work-category-note{margin:8px 0 0}
+.shorts-arc:not(.is-wide) .arc-card.is-landscape .arc-media video{object-fit:contain;background:#0b0d11}
