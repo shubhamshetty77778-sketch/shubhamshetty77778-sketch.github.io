@@ -280,3 +280,5 @@
 /* More Work: hidden until its Drive folder has videos */
 .more-work:not(:has(.iv-block:not([hidden]))){display:none}
 .more-work .iv-block:first-of-type{margin-top:clamp(28px,4vw,48px)}
+/* three or more wide videos: three across */
+.iv-grid:not([data-n="1"]):not([data-n="2"]){grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
