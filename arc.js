@@ -95,6 +95,8 @@ function measure(){
  if(wide&&pool.length%2===1&&pool.length<=slots)slots=pool.length;
  // on phones a short list of reels rotates three at a time so every card can be reached
  if(!wide&&mobile&&pool.length>3&&pool.length<=slots)slots=3;
+ // an even, short list on a wide screen rotates around a clear centre card
+ if(!wide&&!mobile&&pool.length>=4&&pool.length<=slots&&pool.length%2===0)slots=pool.length-1;
  const step=stepDeg*Math.PI/180,radius=spacing/Math.sin(step);
  geo={slots,half:Math.floor(slots/2),cardW,stepDeg,step,radius};
  root.style.setProperty('--arc-w',cardW+'px');
