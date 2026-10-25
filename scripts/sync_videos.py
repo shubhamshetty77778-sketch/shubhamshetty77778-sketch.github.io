@@ -28,6 +28,7 @@ COLLECTIONS = [
         'folder': '1LOAZT60MTeelynndrzET1UvZlEGo2KCy',
         'match': None,
         'strip': r'brand\s*films?(\s*\(\d+\))?', 'fallback': 'Brand film', 'preview': 'native',
+        'preview_size': (1280, 720), 'pv': 2,   # shown on a large screen, so sharper previews
     },
     {   # Digital Ads (Google and Meta ads): every video in the "Ads" folder
         'dir': 'ads', 'out': 'ads.json', 'key': 'ads',
@@ -108,12 +109,12 @@ def probe(path):
         return None
 
 
-def render(src, fid, info, assets, shape):
+def render(src, fid, info, assets, shape, size=None):
     dur, portrait = info['duration'], info['height'] >= info['width']
     poster, preview = os.path.join(assets, fid + '.jpg'), os.path.join(assets, fid + '.mp4')
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{dur * 0.3:.2f}', '-i', src, '-frames:v', '1',
                     '-vf', 'scale=-2:1000' if portrait else 'scale=1280:-2', '-q:v', '4', poster], check=True)
-    w, h = (360, 640) if shape == 'vertical' or portrait else (640, 360)
+    w, h = (360, 640) if shape == 'vertical' or portrait else (size or (640, 360))
     start = max(0.0, min(dur * 0.18, dur - 8.5))
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{start:.2f}', '-t', '8', '-i', src, '-an', '-vf',
                     f'scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:color=0x0b0d11,fps=24,format=yuv420p',
@@ -146,7 +147,8 @@ def sync(c):
         have = all(os.path.exists(os.path.join(assets, fid + x)) for x in ('.jpg', '.mp4'))
         entry = {'id': fid, 'title': title_from(f['name'], c), 'name': f['name'],
                  'drive': f'https://drive.google.com/file/d/{fid}/view'}
-        if old and have and old.get('size') == f.get('size') and old.get('width'):
+        if c.get('pv'): entry['pv'] = c['pv']
+        if old and have and old.get('size') == f.get('size') and old.get('width') and old.get('pv', 1) == c.get('pv', 1):
             entry.update({k: old[k] for k in ('poster', 'preview', 'width', 'height', 'duration', 'size')})
         else:
             log(f'[{c["dir"]}] processing {fid} ({f["name"]}, {f.get("size", 0) // 1_000_000} MB)')
@@ -154,7 +156,7 @@ def sync(c):
                 src = os.path.join(tmp, 'video')
                 info = probe(src) if download(fid, src) else None
                 if info:
-                    render(src, fid, info, assets, c['preview'])
+                    render(src, fid, info, assets, c['preview'], c.get('preview_size'))
                     entry.update({'poster': f'/assets/{c["dir"]}/{fid}.jpg', 'preview': f'/assets/{c["dir"]}/{fid}.mp4',
                                   'width': info['width'], 'height': info['height'],
                                   'duration': round(info['duration'], 1), 'size': f.get('size')})

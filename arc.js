@@ -298,7 +298,7 @@ async function initGrid(block){
   const btn=document.createElement('span');btn.className='iv-play';btn.setAttribute('aria-hidden','true');btn.textContent='▶';m.append(btn);
   const meta=document.createElement('span');meta.className='iv-meta';
   const b=document.createElement('b');b.textContent=e.title;
-  const sm=document.createElement('small');sm.textContent='Full interview'+(e.duration?' · '+mmss(e.duration):'');
+  const sm=document.createElement('small');sm.textContent=(block.dataset.label||'Full interview')+(e.duration?' · '+mmss(e.duration):'');
   meta.append(b,sm);a.append(m,meta);grid.append(a);
   if(v&&!touch){a.addEventListener('pointerenter',()=>play(v));a.addEventListener('pointerleave',()=>stop(v));a.addEventListener('focus',()=>play(v));a.addEventListener('blur',()=>stop(v))}
   if(io)io.observe(a);
@@ -306,5 +306,5 @@ async function initGrid(block){
  });
  document.addEventListener('visibilitychange',()=>{if(document.hidden)grid.querySelectorAll('video').forEach(stop)});
 }
-document.querySelectorAll('.iv-long[data-source]').forEach(initGrid);
+document.querySelectorAll('.iv-long[data-source],.ad-video[data-source]').forEach(initGrid);
 })();
