@@ -90,6 +90,9 @@ function measure(){
   cardW=Math.max(140,Math.min(300,span/across));
   stepDeg=mobile?17:(slots===5?14.5:12);spacing=cardW*(mobile?.86:.95);
  }
+ // a short list of films (e.g. 4) still rotates around a clear centre
+ if(wide&&pool.length>=3&&pool.length<=slots)slots=pool.length%2?pool.length:pool.length-1;
+ if(wide&&pool.length%2===1&&pool.length<=slots)slots=pool.length;
  const step=stepDeg*Math.PI/180,radius=spacing/Math.sin(step);
  geo={slots,half:Math.floor(slots/2),cardW,stepDeg,step,radius};
  root.style.setProperty('--arc-w',cardW+'px');
@@ -244,7 +247,9 @@ if(cursor){track.addEventListener('pointerover',e=>cursor.classList.toggle('is-p
 // First view: cards start folded at the centre and fan out along the curve.
 function enter(){entered=true;fanIn(pool);syncVideos()}
 
-measure();render();schedule();
+measure();
+if(wide){const first=pool.findIndex(c=>c.classList.contains('is-landscape'));if(first>0&&rotating())pos=target=first}  // open on a wide film
+render();schedule();
 all.forEach(c=>c.style.setProperty('--k',reduce.matches?1:0));
 if('IntersectionObserver' in window){
  new IntersectionObserver(es=>es.forEach(e=>{

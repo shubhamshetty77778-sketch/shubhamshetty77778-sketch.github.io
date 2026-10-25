@@ -4,7 +4,8 @@ const $=id=>document.getElementById(id);
 const base=document.querySelector('link[href$="style.css"]').getAttribute('href').replace(/style\.css$/,'');
 // #<id> is an event; #brand-films:<id> is a brand film
 const COLL={events:{src:'events/events.json',key:'events',label:'Events',eyebrow:'Social Media Content · Events',desc:'Event coverage from my portfolio.'},
- 'brand-films':{src:'brand-films/films.json',key:'films',label:'Brand Films',eyebrow:'Brand Films',desc:'A brand film from my portfolio.'}};
+ 'brand-films':{src:'brand-films/films.json',key:'films',label:'Brand Films',eyebrow:'Brand Films',desc:'A brand film from my portfolio.'},
+ ads:{src:'ads/ads.json',key:'ads',label:'Ad Films',eyebrow:'Ad Films',desc:'An ad film from my portfolio.'}};
 let list=[],loaded='';
 function parse(){const h=decodeURIComponent(location.hash.slice(1)),k=h.indexOf(':');return k>0&&COLL[h.slice(0,k)]?{c:h.slice(0,k),id:h.slice(k+1)}:{c:'events',id:h}}
 function load(){
@@ -26,7 +27,7 @@ function show(){
  $('ev-open').href=e.drive;$('ev-screen').hidden=false;$('ev-missing').hidden=true;
  $('ev-format').textContent=!e.width?'Video':(e.height>=e.width?'Vertical video':'Landscape video'+(e.width>=3800?' · 4K':e.width>=1900?' · Full HD':''));
  $('ev-length').textContent=e.duration?Math.floor(e.duration/60)+':'+String(Math.round(e.duration%60)).padStart(2,'0'):'—';
- const nx=list[(i+1)%list.length];$('ev-next').href='#'+(c==='events'?'':c+':')+nx.id;$('ev-next').firstChild.textContent=c==='events'?'Next event':'Next film';
+ const nx=list[(i+1)%list.length];$('ev-next').href='#'+(c==='events'?'':c+':')+nx.id;$('ev-next').firstChild.textContent=c==='events'?'Next event':c==='ads'?'Next ad':'Next film';
  scrollTo(0,0);
 }
 load();
