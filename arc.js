@@ -18,7 +18,7 @@ async function loadEvents(){
   const data=await fetch(src,{cache:'no-cache',signal:ctl.signal}).then(r=>r.json());clearTimeout(t);
   const made=(data.events||[]).map(e=>{
    const a=document.createElement('a');
-   a.className='arc-card';a.href=base+'projects/event.html#'+encodeURIComponent(e.id);a.dataset.theme='events';a.dataset.cursor='PLAY';
+   a.className='arc-card'+(e.width>e.height?' is-landscape':'');a.href=base+'projects/event.html#'+encodeURIComponent(e.id);a.dataset.theme='events';a.dataset.cursor='PLAY';
    const media=document.createElement('span');media.className='arc-media';
    const img=document.createElement('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';media.append(img);
    if(e.preview){const v=document.createElement('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.poster=asset(e.poster);v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');media.append(v)}
