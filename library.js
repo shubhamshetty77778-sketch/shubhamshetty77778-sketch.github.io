@@ -1,6 +1,6 @@
 /* "Library" bento for the More Work section, built from a Drive-synced list (more/more.json).
-   Cards: intro, minutes-of-edits stat, view-all button, featured screen that cycles through the wide edits,
-   a spinning orb, landscape / vertical shelves, an "open for projects" toggle, a total count, category chips,
+   Cards: intro, minutes-of-footage stat, browse button, featured screen that cycles through the wide edits,
+   a turning camera lens, landscape / vertical shelves, an "open for projects" toggle, a total count, category chips,
    and a bottom row of tiles that rotate through the rest of the videos. */
 (()=>{
 'use strict';
@@ -34,32 +34,49 @@ async function build(root){
  // intro
  grid.append(el('div','lib-card lib-intro',
   '<span class="lib-mark" aria-hidden="true">S</span>'+
-  '<p class="lib-lead">Edits that<br><em>hold attention.</em></p>'+
+  '<p class="lib-lead">Shot, cut<br><em>and finished.</em></p>'+
   '<p class="lib-sub"><b>Editing, VFX and cinematography</b><span>Films, events, reels and stage work</span></p>'));
 
  // minutes stat with round thumbnails
  const faces=list.slice(0,4).map(e=>'<img src="'+esc(asset(e.poster))+'" alt="" loading="lazy">').join('');
  grid.append(el('div','lib-card lib-count',
-  '<span class="lib-num lib-num-warm">'+minutes+'</span><span class="lib-cap">minutes of finished edits</span>'+
+  '<span class="lib-num lib-num-warm">'+minutes+'</span><span class="lib-cap">minutes of footage on show</span>'+
   '<span class="lib-faces" aria-hidden="true">'+faces+'<i>+'+(list.length-4)+'</i></span>'));
 
  // view all
  const cta=el('div','lib-card lib-cta');
- const go=el('a','lib-btn','<span aria-hidden="true">▶</span> View all videos');go.href='#more-shelf';
+ const go=el('a','lib-btn','<span aria-hidden="true">▶</span> Browse every video');go.href='#more-shelf';
  cta.append(go);grid.append(cta);
 
  // featured screen
  const feat=el('a','lib-card lib-feature');feat.dataset.cursor='PLAY';
  const featList=(wide.length?wide:list).slice(0,8);
  const layers=featList.map((e,i)=>{const m=media(e,'lib-layer'+(i?'':' is-on'));feat.append(m);return m});
- feat.append(el('span','lib-feature-copy','<span class="lib-tag"><span aria-hidden="true">▶</span> Featured edit</span><span class="lib-headline">Every frame<br><em>has a story.</em></span>'));
+ feat.append(el('span','lib-feature-copy','<span class="lib-tag"><span class="lib-rec" aria-hidden="true"></span> Now playing</span><span class="lib-headline">Every frame<br><em>has a story.</em></span>'));
  grid.append(feat);
 
- // orb
- grid.append(el('div','lib-orb',
-  '<svg viewBox="0 0 200 200" aria-hidden="true"><defs><path id="lib-ring" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>'+
-  '<text><textPath href="#lib-ring">CUT · GRADE · SOUND · MOTION · CUT · GRADE · SOUND · MOTION ·</textPath></text></svg>'+
-  '<span class="lib-core" aria-hidden="true"><span></span></span>'));
+ // camera lens: knurled barrel and focus scale turn, the iris opens and closes, glass catches the light
+ const ticks=Array.from({length:60},(_,i)=>'<rect x="-1.2" y="-97" width="2.4" height="7" rx="1" transform="rotate('+(i*6)+')"/>').join('');
+ const blades=Array.from({length:8},(_,i)=>'<g transform="rotate('+(i*45)+')"><path class="lens-blade" d="M-80,-120 L80,-120 L80,-17 L-80,-17 Z"/></g>').join('');
+ const spin=(dur,to)=>reduce.matches?'':'<animateTransform attributeName="transform" type="rotate" from="0" to="'+to+'" dur="'+dur+'" repeatCount="indefinite"/>';
+ const irisTurn=reduce.matches?'':'<animateTransform attributeName="transform" type="rotate" values="0;45;0" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="9s" repeatCount="indefinite"/>';
+ grid.append(el('div','lib-lens',
+  '<svg viewBox="-100 -100 200 200" aria-hidden="true"><defs>'+
+  '<radialGradient id="lens-glass" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#3a2f7a"/><stop offset=".45" stop-color="#141033"/><stop offset="1" stop-color="#05040c"/></radialGradient>'+
+  '<linearGradient id="lens-blade-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121117"/><stop offset="1" stop-color="#2c2936"/></linearGradient>'+
+  '<clipPath id="lens-clip"><circle r="57"/></clipPath>'+
+  '<path id="lens-scale" d="M0,-77 a77,77 0 1,1 -0.01,0"/></defs>'+
+  '<circle r="99" fill="#0d0c12"/><g class="lens-knurl">'+spin('18s',360)+ticks+'</g>'+
+  '<circle r="86" fill="#15131c" stroke="#ffffff14"/>'+
+  '<g class="lens-focus">'+spin('36s',-360)+'<text><textPath href="#lens-scale">∞ · 10 · 5 · 3 · 2 · 1.5 · 1.2 · 1 · 0.8 · 0.7 m · ∞ · 10 · 5 · 3 · 2 · 1.5 · 1.2 · 1 · 0.8 · 0.7 m ·</textPath></text></g>'+
+  '<circle r="68" fill="#0a0910" stroke="#2c2742" stroke-width="1.5"/>'+
+  '<text class="lens-name" y="-60.5" text-anchor="middle">SS CINE 35mm 1:1.4</text>'+
+  '<circle r="57" fill="url(#lens-glass)"/>'+
+  '<g clip-path="url(#lens-clip)"><g class="lens-iris">'+irisTurn+blades+'</g></g>'+
+  '<circle r="57" fill="none" stroke="#000" stroke-width="3"/>'+
+  '<g class="lens-shine"><path d="M-34,-36 A48,48 0 0,1 20,-46" stroke="#ffffff55" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+  '<circle cx="18" cy="16" r="5" fill="#8c6cff55"/><circle cx="28" cy="26" r="2.5" fill="#7fd8ff66"/></g>'+
+  '</svg>'));
 
  // shelves
  const shelf=(cls,items,icon,title,line,target)=>{
@@ -71,17 +88,17 @@ async function build(root){
  };
  grid.append(shelf('lib-long',wide,'▶','Landscape',wide.length+' wide-format videos','#more-landscape'));
  grid.append(shelf('lib-short',tall,'<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
-  'Vertical',tall.length+' videos built for the scroll','#more-vertical'));
+  'Vertical',tall.length+' videos made for phones','#more-vertical'));
 
  // open for projects
- grid.append(el('a','lib-card lib-open','<span>Open for<br>new projects</span><span class="lib-toggle" aria-hidden="true"><i></i></span>'));
+ grid.append(el('a','lib-card lib-open','<span>Available for<br>new projects</span><span class="lib-recbadge" aria-hidden="true"><i></i>REC</span>'));
  grid.lastChild.href=base+'contact.html';
 
  // total
- grid.append(el('div','lib-card lib-total','<span class="lib-num lib-num-cool">'+list.length+'</span><span class="lib-bracket">edits in the library</span>'));
+ grid.append(el('div','lib-card lib-total','<span class="lib-num lib-num-cool">'+list.length+'</span><span class="lib-bracket">videos in this collection</span>'));
 
  // categories
- const cats=el('div','lib-card lib-cats','<b>Categories</b><span class="lib-cap">Jump straight to a section.</span><span class="lib-play" aria-hidden="true">▶</span>');
+ const cats=el('div','lib-card lib-cats','<b>Explore</b><span class="lib-cap">Go to a section of the portfolio.</span>');
  const chips=el('span','lib-chips');
  [['Social Media','category-1'],['Brand Films','category-2'],['Interviews','category-3'],['Digital Ads','category-4'],['Podcasts','category-5'],['Short Films','category-6']]
   .forEach(([t,id],i)=>{if(!document.getElementById(id))return;const c=el('a','lib-chip'+(i===0?' is-hot':''),t);c.href='#'+id;c.style.setProperty('--i',i);chips.append(c)});
