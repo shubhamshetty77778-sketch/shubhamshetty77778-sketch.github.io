@@ -106,7 +106,7 @@ async function build(root){
  const rest=list.filter(e=>!featList.includes(e));const pool=rest.length>=4?rest:list;
  const tiles=[0,1,2,3].map(k=>{
   const t=el('a','lib-tile');t.dataset.cursor='PLAY';t.dataset.k=pool.length?k%pool.length:0;
-  const e=pool[k%pool.length];t.href=href(e);t.append(media(e,'lib-layer is-on'));grid.append(t);return t;
+  const e=pool[k%pool.length];t.href=href(e);t.setAttribute('aria-label','Play '+(e.title&&e.title!=='Video'?e.title:'video'));t.append(media(e,'lib-layer is-on'));grid.append(t);return t;
  });
 
  root.append(grid);
@@ -130,7 +130,7 @@ async function build(root){
   // one bottom tile swaps to the next video in line
   if(pool.length>4){
    const t=tiles[turn%4],e=pool[next%pool.length];next++;
-   const L=media(e,'lib-layer');t.append(L);t.href=href(e);
+   const L=media(e,'lib-layer');t.append(L);t.href=href(e);t.setAttribute('aria-label','Play '+(e.title&&e.title!=='Video'?e.title:'video'));
    requestAnimationFrame(()=>requestAnimationFrame(()=>{L.classList.add('is-on');const old=[...t.querySelectorAll('.lib-layer')].slice(0,-1);
     setTimeout(()=>old.forEach(o=>o.remove()),900)}));
   }
