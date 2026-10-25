@@ -1,0 +1,33 @@
+name: Fetch podcast channel logo (one-time)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fetch-channel-logo.yml']
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the channel avatar
+        run: |
+          set -e
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36'
+          curl -sL -A "$UA" -H 'Accept-Language: en-US' -b 'CONSENT=YES+1' https://www.youtube.com/@GUESSSIndiaPodcast -o page.html
+          IMG=$(grep -o '<meta property="og:image" content="[^"]*"' page.html | head -1 | sed 's/.*content="//;s/"$//')
+          echo "og:image = $IMG"
+          [ -n "$IMG" ]
+          IMG=$(echo "$IMG" | sed -E 's/=s[0-9]+-/=s400-/')
+          curl -sL -A "$UA" "$IMG" -o assets/guesss-channel.jpg
+          file assets/guesss-channel.jpg
+          rm -f page.html
+      - name: Commit and remove this one-time workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git rm -q .github/workflows/fetch-channel-logo.yml
+          git add assets/guesss-channel.jpg
+          git commit -m "Add GUESSS India Podcast channel logo"
+          git pull --rebase origin main
+          git push origin HEAD:main
