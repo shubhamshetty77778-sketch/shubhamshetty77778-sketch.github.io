@@ -213,7 +213,7 @@
 .fs-progress{position:absolute;left:0;right:0;bottom:0;z-index:2;height:2px;background:#ffffff26;opacity:0}
 .fs-thumb.is-active .fs-progress{opacity:1}
 .fs-progress::after{content:"";position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left}
-.fs-thumb.is-timing .fs-progress::after{animation:fs-fill var(--dwell,6500ms) linear forwards}
+.fs-thumb.is-timing .fs-progress::after{animation:fs-fill var(--dwell,3500ms) linear forwards}
 .film-showcase.is-paused .fs-thumb.is-active .fs-progress::after{transform:scaleX(1);opacity:.5}
 @keyframes fs-fill{to{transform:scaleX(1)}}
 @media (max-width:760px){

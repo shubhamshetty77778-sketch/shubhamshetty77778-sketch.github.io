@@ -30,7 +30,7 @@ async function filmShowcase(root){
  const list=all.filter(e=>!(e.height>e.width));
  if(!list.length){root.hidden=true;return}
  const label=root.dataset.label||'Film',cta=root.dataset.cta||'Watch film';
- const n=list.length,DWELL=6500;
+ const n=list.length,DWELL=3500;
 
  const stage=el('div','fs-stage');
  const glow=el('div','fs-glow');glow.setAttribute('aria-hidden','true');
