@@ -145,7 +145,7 @@ async function adFeed(block){
   const scr=el('span','ad-screen');
   const img=el('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';scr.append(img);
   if(e.preview){const v=el('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');scr.append(v)}
-  dev.append(scr,el('span','ad-island'));
+  dev.append(scr);
   const meta=el('span','ad-meta');meta.append(el('b',null,e.title),el('small',null,['Vertical',mmss(e.duration)].filter(Boolean).join(' · ')));
   a.append(dev,meta);row.append(a);
   if(io)io.observe(a);else play(a.querySelector('video'));
