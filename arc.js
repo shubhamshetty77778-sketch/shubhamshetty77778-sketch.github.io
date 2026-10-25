@@ -96,11 +96,11 @@ function measure(){
   cardW=Math.max(300,Math.min(1120,span/across));
   stepDeg=mobile?26:19;spacing=cardW*(mobile?.8:.82);
  }else if(root.dataset.size==='large'&&!mobile){    // fewer, larger reels across the full width
-  slots=5;
+  slots=w<1050?5:7;
   span=Math.min(w*.98,1560);
-  across=w<1050?3.6:4.25;
-  cardW=Math.max(200,Math.min(340,span/across,(innerHeight-300)*9/16/1.04));
-  stepDeg=14;spacing=cardW*.98;
+  across=w<1050?4.1:5.1;
+  cardW=Math.max(180,Math.min(280,span/across,(innerHeight-300)*9/16/1.04));
+  stepDeg=w<1050?14:12.5;spacing=cardW*.97;
  }else{                                             // vertical reels
   slots=mobile?5:(w<1050?5:7);
   span=mobile?w:Math.min(w*.97,1560);
