@@ -139,10 +139,11 @@ function schedule(){
  clearInterval(timer);
  timer=setInterval(()=>{
   if(!inView||hovering||dragging||reduce.matches||document.hidden)return;
-  if(root.contains(document.activeElement)&&document.activeElement!==document.body)return;
-  if(performance.now()-lastInteract<6000)return;
+  // hold still only while a keyboard user is on a card, or just after someone moved the arc
+  if(document.activeElement&&document.activeElement.classList.contains('arc-card')&&document.activeElement.matches(':focus-visible'))return;
+  if(performance.now()-lastInteract<4500)return;
   go(1,false);
- },4200);
+ },3800);
 }
 
 prev.addEventListener('click',()=>go(-1,true));
@@ -152,7 +153,8 @@ root.addEventListener('keydown',e=>{
  if(e.key==='ArrowRight'){e.preventDefault();go(1,true)}
  else if(e.key==='ArrowLeft'){e.preventDefault();go(-1,true)}
 });
-stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hovering=true});
+// pause only while the pointer rests on the centre card (the one being watched)
+track.addEventListener('pointerover',e=>{if(e.pointerType==='mouse')hovering=!!e.target.closest('.arc-card.is-center')});
 stage.addEventListener('pointerleave',()=>{hovering=false});
 
 // Clicking a side card glides it to the centre first; clicking the centre card opens it.
