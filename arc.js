@@ -54,9 +54,9 @@ const wrap=(n,m)=>((n%m)+m)%m;
 function measure(){
  const w=stage.clientWidth||root.clientWidth,mobile=innerWidth<=760;
  const slots=mobile?5:(w<1050?5:7);               // cards on the curve
- const span=mobile?w:Math.min(w*.8,1240);           // the arc stays inside this width
- const across=mobile?2.9:(slots===5?5:7.1);         // card widths that span it
- const cardW=Math.max(108,Math.min(220,span/across));
+ const span=mobile?w:Math.min(w*.92,1440);          // the arc stays inside this width
+ const across=mobile?2.45:(slots===5?4.5:6.5);      // card widths that span it
+ const cardW=Math.max(128,Math.min(270,span/across));
  const stepDeg=mobile?17:(slots===5?15:12.5),step=stepDeg*Math.PI/180;
  const spacing=cardW*(mobile?.86:.96),radius=spacing/Math.sin(step);
  geo={slots,half:Math.floor(slots/2),cardW,stepDeg,step,radius};
