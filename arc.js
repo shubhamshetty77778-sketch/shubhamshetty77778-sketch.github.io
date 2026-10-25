@@ -61,6 +61,13 @@ async function loadSource(){
  const block=root.closest('.iv-block'),n=track.children.length;
  if(!n){root.hidden=true;if(block)block.hidden=true}
  const cnt=block&&block.querySelector('.iv-count');if(cnt)cnt.textContent=String(n).padStart(2,'0');
+ // data-fill: repeat a short list around the loop so the curve is full on both sides
+ if(root.dataset.fill!=null&&n>=2){
+  const orig=[...track.children];root.dataset.base=String(n);
+  for(let k=0;track.children.length<10||track.children.length%n;k++){
+   const c=orig[k%n].cloneNode(true);c.classList.add('is-clone');track.append(c);
+  }
+ }
 }
 await loadEvents();await loadSource();
 const all=[...track.querySelectorAll('.arc-card')];
@@ -88,6 +95,12 @@ function measure(){
   across=mobile?1.08:(w<1050?1.65:1.9);
   cardW=Math.max(300,Math.min(1120,span/across));
   stepDeg=mobile?26:19;spacing=cardW*(mobile?.8:.82);
+ }else if(root.dataset.size==='large'&&!mobile){    // fewer, larger reels across the full width
+  slots=5;
+  span=Math.min(w*.98,1560);
+  across=w<1050?3.6:4.25;
+  cardW=Math.max(200,Math.min(340,span/across,(innerHeight-300)*9/16/1.04));
+  stepDeg=14;spacing=cardW*.98;
  }else{                                             // vertical reels
   slots=mobile?5:(w<1050?5:7);
   span=mobile?w:Math.min(w*.97,1560);
@@ -138,7 +151,8 @@ function render(){
  });
  const n=pool.length;
  controls.hidden=!rotating();
- if(rotating())count.textContent=String(wrap(Math.round(pos),n)+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
+ const base=+root.dataset.base||n;
+ if(rotating())count.textContent=String(wrap(Math.round(pos),n)%base+1).padStart(2,'0')+' / '+String(base).padStart(2,'0');
  const key=keys.join(',');if(key!==visibleKey){visibleKey=key;syncVideos()}
 }
 
