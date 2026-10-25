@@ -181,8 +181,12 @@
 .fs-glow img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
 .fs-glow img.is-active{opacity:1}
 .fs-screen{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;border-radius:clamp(12px,1.4vw,20px);background:#07090c;color:#fff;text-decoration:none;box-shadow:0 40px 90px -40px #000,0 0 0 1px #ffffff14}
-.fs-layer{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
-.fs-layer.is-active{opacity:1;z-index:1}
+.fs-layer{position:absolute;inset:0;opacity:0;will-change:transform}
+.fs-layer.is-active{opacity:1;z-index:2}
+.fs-layer.is-leaving{opacity:1;z-index:1}
+.fs-layer.is-moving{transition:transform .95s cubic-bezier(.72,0,.18,1),filter .95s ease}
+.fs-layer.is-leaving.is-moving{filter:brightness(.45)}
+.fs-layer.is-active.is-moving{box-shadow:-30px 0 60px #0009}
 .fs-layer img,.fs-layer video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fs-layer video{opacity:0;transition:opacity .6s}.fs-layer video.is-playing{opacity:1}
 .fs-layer.is-active img{animation:fs-drift 14s ease-out both}

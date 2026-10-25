@@ -68,10 +68,25 @@ async function filmShowcase(root){
  root.style.setProperty('--dwell',DWELL+'ms');
 
  let cur=-1,inView=false,hover=false,lastUser=0,timer=0,started=0;
+ let slideT=0;
+ // Slide: the new film pushes in from the side it comes from, the old one slides out the other way.
+ function slide(from,to,dir){
+  clearTimeout(slideT);
+  const inL=layers[to],outL=from>=0?layers[from]:null;
+  layers.forEach((L,k)=>{if(k!==to&&k!==from){L.className='fs-layer';L.style.transform=''}});
+  if(!outL||reduce.matches){layers.forEach((L,k)=>{L.className='fs-layer'+(k===to?' is-active':'');L.style.transform=''});return}
+  inL.className='fs-layer is-active is-entering';inL.style.transform='translateX('+(dir*100)+'%)';
+  outL.className='fs-layer is-leaving';outL.style.transform='translateX(0)';
+  void inL.offsetWidth;
+  inL.className='fs-layer is-active is-moving';inL.style.transform='translateX(0)';
+  outL.className='fs-layer is-leaving is-moving';outL.style.transform='translateX('+(-dir*35)+'%)';
+  slideT=setTimeout(()=>{outL.className='fs-layer';outL.style.transform='';inL.className='fs-layer is-active'},950);
+ }
  function show(i,user){
-  i=((i%n)+n)%n;if(i===cur&&!user)return;
+  const dir=i>cur?1:-1;
+  i=((i%n)+n)%n;if(i===cur)return;
   const prevI=cur;cur=i;const e=list[i];
-  layers.forEach((L,k)=>L.classList.toggle('is-active',k===i));
+  slide(prevI,i,dir);
   glows.forEach((g,k)=>g.classList.toggle('is-active',k===i));
   thumbs.forEach((t,k)=>{t.classList.toggle('is-active',k===i);t.setAttribute('aria-current',k===i?'true':'false')});
   idx.textContent=pad(i+1)+' / '+pad(n);
