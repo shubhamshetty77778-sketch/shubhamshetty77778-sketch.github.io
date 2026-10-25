@@ -1,32 +1,43 @@
-/* Social media arc: reels on a concave curve.
+/* Video arcs: cards on a concave curve (vertical reels, or wide 16:9 films).
    Positions are driven frame by frame from one continuous value, so gliding, dragging and
    settling are smooth; cards fade at the ends; visible cards play muted previews;
-   theme chips refilter the arc; the arc fans out when it first comes into view. */
-(async()=>{
+   theme chips refilter the arc; the arc fans out when it first comes into view.
+   Cards can come from the page or from a Drive-synced list (data-events / data-source). */
+(()=>{
 'use strict';
-const root=document.querySelector('.shorts-arc');
-if(!root)return;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const cursor=document.querySelector('.cursor');
+const mmss=s=>s?Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0'):'';
+
+function makeCard(e,base,theme,label,coll){
+ const asset=p=>p&&p.startsWith('/')?base+p.slice(1):p;
+ const a=document.createElement('a');
+ a.className='arc-card'+(e.width>e.height?' is-landscape':'');
+ a.href=base+'projects/event.html#'+(coll?coll+':':'')+encodeURIComponent(e.id);a.dataset.theme=theme;a.dataset.cursor='PLAY';
+ const media=document.createElement('span');media.className='arc-media';
+ const img=document.createElement('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';media.append(img);
+ if(e.preview){const v=document.createElement('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.poster=asset(e.poster);v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');media.append(v)}
+ const cap=document.createElement('span');cap.className='arc-caption';
+ const sm=document.createElement('small');sm.textContent=label+(coll&&e.duration?' · '+mmss(e.duration):'');
+ const b=document.createElement('b');b.textContent=e.title;cap.append(sm,b);
+ a.append(media,cap);return a;
+}
+async function getJSON(src){
+ const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),5000);
+ try{return await fetch(src,{cache:'no-cache',signal:ctl.signal}).then(r=>r.json())}finally{clearTimeout(t)}
+}
+
+async function initArc(root){
 const stage=root.querySelector('.arc-stage'),track=root.querySelector('.arc-track');
+const wide=root.classList.contains('is-wide');
 
 // Events come from the Drive sync (events/events.json); they are spread through the arc.
 async function loadEvents(){
  const src=root.dataset.events;if(!src)return;
  const base=src.replace(/events\/events\.json$/,'');
- const asset=p=>p&&p.startsWith('/')?base+p.slice(1):p;
  try{
-  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),4000);
-  const data=await fetch(src,{cache:'no-cache',signal:ctl.signal}).then(r=>r.json());clearTimeout(t);
-  const made=(data.events||[]).map(e=>{
-   const a=document.createElement('a');
-   a.className='arc-card'+(e.width>e.height?' is-landscape':'');a.href=base+'projects/event.html#'+encodeURIComponent(e.id);a.dataset.theme='events';a.dataset.cursor='PLAY';
-   const media=document.createElement('span');media.className='arc-media';
-   const img=document.createElement('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';media.append(img);
-   if(e.preview){const v=document.createElement('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.poster=asset(e.poster);v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');media.append(v)}
-   const cap=document.createElement('span');cap.className='arc-caption';
-   const sm=document.createElement('small');sm.textContent='Events';const b=document.createElement('b');b.textContent=e.title;cap.append(sm,b);
-   a.append(media,cap);return a;
-  });
+  const data=await getJSON(src);
+  const made=(data.events||[]).map(e=>makeCard(e,base,'events','Events',''));
   const fixed=[...track.querySelectorAll('.arc-card')],out=[],n=fixed.length+made.length;
   let i=0,j=0;
   for(let k=0;k<n;k++){ // even mix of events and other reels
@@ -36,7 +47,17 @@ async function loadEvents(){
   track.append(...out);
  }catch(e){/* the rest of the arc still works without events */}
 }
-await loadEvents();
+// A whole arc filled from a synced Drive folder (e.g. brand-films/films.json).
+async function loadSource(){
+ const src=root.dataset.source;if(!src)return;
+ const coll=root.dataset.collection,key=root.dataset.key,base=src.replace(new RegExp(coll+'/[^/]+$'),'');
+ try{
+  const data=await getJSON(src);
+  track.append(...(data[key]||[]).map(e=>makeCard(e,base,coll,root.dataset.label||'',coll)));
+ }catch(e){}
+ if(!track.children.length)root.hidden=true;
+}
+await loadEvents();await loadSource();
 const all=[...track.querySelectorAll('.arc-card')];
 
 // Keep chip counts and the reel total in step with what is actually on the arc.
@@ -44,10 +65,9 @@ root.querySelectorAll('.arc-chip').forEach(chip=>{
  const f=chip.dataset.filter,n=f==='all'?all.length:all.filter(c=>c.dataset.theme===f).length;
  const sp=chip.querySelector('span');if(sp)sp.textContent=n;chip.hidden=n===0;
 });
-const eyebrow=root.querySelector('.arc-head .eyebrow');if(eyebrow)eyebrow.textContent='SOCIAL MEDIA / '+all.length+' VIDEOS';
+const eyebrow=root.querySelector('.arc-head .eyebrow');if(eyebrow&&root.dataset.events)eyebrow.textContent='SOCIAL MEDIA / '+all.length+' VIDEOS';
 const prev=root.querySelector('.arc-prev'),next=root.querySelector('.arc-next'),count=root.querySelector('.arc-count');
 const controls=root.querySelector('.arc-controls'),chips=[...root.querySelectorAll('.arc-chip')];
-const cursor=document.querySelector('.cursor');
 
 let pool=all.slice(),pos=0,target=0,geo=null,inView=false,entered=false,hovering=false,timer=0,lastInteract=0;
 let raf=0,last=0,visibleKey='';
@@ -56,15 +76,24 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 function measure(){
  const w=stage.clientWidth||root.clientWidth,mobile=innerWidth<=760;
- const slots=mobile?5:(w<1050?5:7);               // cards on the curve
- const span=mobile?w:Math.min(w*.97,1560);          // the arc stays inside this width
- const across=mobile?2.15:(slots===5?4.1:5.9);      // card widths that span it
- const cardW=Math.max(140,Math.min(300,span/across));
- const stepDeg=mobile?17:(slots===5?14.5:12),step=stepDeg*Math.PI/180;
- const spacing=cardW*(mobile?.86:.95),radius=spacing/Math.sin(step);
+ let slots,span,across,cardW,stepDeg,spacing;
+ if(wide){                                          // 16:9 films: a big centre screen
+  slots=mobile?3:5;
+  span=mobile?w:Math.min(w*.98,1600);
+  across=mobile?1.22:(w<1050?2.1:2.45);
+  cardW=Math.max(280,Math.min(900,span/across));
+  stepDeg=mobile?26:18;spacing=cardW*(mobile?.8:.84);
+ }else{                                             // vertical reels
+  slots=mobile?5:(w<1050?5:7);
+  span=mobile?w:Math.min(w*.97,1560);
+  across=mobile?2.15:(slots===5?4.1:5.9);
+  cardW=Math.max(140,Math.min(300,span/across));
+  stepDeg=mobile?17:(slots===5?14.5:12);spacing=cardW*(mobile?.86:.95);
+ }
+ const step=stepDeg*Math.PI/180,radius=spacing/Math.sin(step);
  geo={slots,half:Math.floor(slots/2),cardW,stepDeg,step,radius};
  root.style.setProperty('--arc-w',cardW+'px');
- root.style.setProperty('--arc-h',Math.round(cardW*16/9*1.2+40)+'px');
+ root.style.setProperty('--arc-h',Math.round(cardW*(wide?9/16:16/9)*1.2+40)+'px');
 }
 const rotating=()=>pool.length>geo.slots;
 
@@ -82,8 +111,9 @@ function render(){
   const dd=clamp(d,-(geo.half+1),geo.half+1),th=dd*geo.step;
   const st=card.style;
   st.setProperty('--x',(geo.radius*Math.sin(th)).toFixed(2)+'px');
-  st.setProperty('--z',(geo.radius*(1-Math.cos(th))*.85).toFixed(2)+'px');
-  st.setProperty('--ry',(-dd*geo.stepDeg*.92).toFixed(3)+'deg');
+  const bend=wide?-1:1;                             // films curve away, reels curve towards you
+  st.setProperty('--z',(bend*geo.radius*(1-Math.cos(th))*.85).toFixed(2)+'px');
+  st.setProperty('--ry',(-bend*dd*geo.stepDeg*.92).toFixed(3)+'deg');
   st.setProperty('--s',(1+.04*clamp(1-ad,0,1)).toFixed(4));
   st.setProperty('--o',fade.toFixed(3));
   st.setProperty('--b',(1-Math.min(ad,3)*.07).toFixed(3));
@@ -225,4 +255,6 @@ if('IntersectionObserver' in window){
 addEventListener('resize',()=>{measure();render()});
 document.addEventListener('visibilitychange',syncVideos);
 reduce.addEventListener?.('change',()=>{render()});
+}
+document.querySelectorAll('.shorts-arc').forEach(initArc);
 })();

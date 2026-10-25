@@ -134,3 +134,14 @@
 @media(max-width:760px){.shorts-arc{margin-inline:-16px;padding-inline:16px;margin-bottom:50px}.arc-chips{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:0 16px 4px}.arc-chips::-webkit-scrollbar{display:none}.arc-chip{flex:none}.arc-card{border-radius:10px}.arc-caption{padding:30px 10px 10px}.arc-caption b{font-size:12px}}
 .cinema-hero,#about{overflow-x:clip}
 @media(prefers-reduced-motion:reduce){.arc-card,.arc-caption,.arc-media video{transition:none}}
+/* Wide arc for 16:9 brand films: one large centre screen with neighbours on the curve. */
+.shorts-arc.is-wide{margin-top:0;padding-top:4px}
+.shorts-arc.is-wide:before{background:radial-gradient(ellipse at 50% 100%,#ef885626,transparent 70%)}
+.shorts-arc.is-wide .arc-card{aspect-ratio:16/9;margin-top:calc(var(--arc-w,640px) * -.28125);border-radius:12px}
+.shorts-arc.is-wide .arc-card.is-landscape .arc-media{background:var(--panel)}
+.shorts-arc.is-wide .arc-card.is-landscape .arc-media img{object-fit:cover}
+.shorts-arc.is-wide .arc-caption{padding:60px 22px 20px}
+.shorts-arc.is-wide .arc-caption b{font-size:clamp(16px,1.6vw,22px)}
+.shorts-arc.is-wide .arc-card:not(.is-center) .arc-caption{opacity:0}
+.shorts-arc.is-wide .arc-card:not(.is-center):hover .arc-caption{opacity:1}
+@media(max-width:760px){.shorts-arc.is-wide .arc-caption{padding:34px 12px 12px}.shorts-arc.is-wide .arc-caption b{font-size:14px}}
