@@ -48,6 +48,12 @@ COLLECTIONS = [
         'match': None,
         'strip': r'more\s*work', 'fallback': 'Video', 'preview': 'native', 'preview_size': (1280, 720),
     },
+    {   # Social Media reels added one by one from Drive links (theme and title can be set per file)
+        'dir': 'social', 'out': 'social.json', 'key': 'reels',
+        'folder': None,
+        'match': None,
+        'strip': r'$^', 'fallback': 'Social media video', 'preview': 'vertical',
+    },
     {   # Featured long videos (the podcasts): fixed files, listed by hand in features/sources.json
         'dir': 'features', 'out': 'features.json', 'key': 'features',
         'folder': None,
@@ -172,8 +178,9 @@ def sync(c):
     for f in files:
         fid, old = f['id'], previous.get(f['id'])
         have = all(os.path.exists(os.path.join(assets, fid + x)) for x in ('.jpg', '.mp4'))
-        entry = {'id': fid, 'title': title_from(f['name'], c), 'name': f['name'],
+        entry = {'id': fid, 'title': f.get('title') or title_from(f['name'], c), 'name': f['name'],
                  'drive': f'https://drive.google.com/file/d/{fid}/view'}
+        if f.get('theme'): entry['theme'] = f['theme']
         if c.get('pv'): entry['pv'] = c['pv']
         if old and have and old.get('size') == f.get('size') and old.get('width') and old.get('pv', 1) == c.get('pv', 1):
             entry.update({k: old[k] for k in ('poster', 'preview', 'width', 'height', 'duration', 'size')})

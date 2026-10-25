@@ -46,6 +46,13 @@ async function loadEvents(){
   }
   track.append(...out);
  }catch(e){/* the rest of the arc still works without events */}
+ // reels added one by one from Drive links (social/social.json) go first, each under its own theme
+ const LABEL={cinematic:'Cinematic',interviews:'Interviews & Podcasts',presenter:'Presenter-led',campus:'Campus Life',events:'Events',promos:'Promos & Motion'};
+ try{
+  const data=await getJSON(base+'social/social.json');
+  const made=(data.reels||[]).filter(e=>e.poster).map(e=>{const t=LABEL[e.theme]?e.theme:'cinematic';const c=makeCard(e,base,t,LABEL[t],'social');if(!e.title||e.title==='Social media video')c.querySelector('.arc-caption b').remove();return c});
+  track.prepend(...made);
+ }catch(e){}
 }
 // A whole arc filled from a synced Drive folder (e.g. brand-films/films.json).
 async function loadSource(){
