@@ -55,27 +55,26 @@ async function build(root){
  feat.append(el('span','lib-feature-copy','<span class="lib-tag"><span class="lib-rec" aria-hidden="true"></span> Now playing</span><span class="lib-headline">Every frame<br><em>has a story.</em></span>'));
  grid.append(feat);
 
- // camera lens: knurled barrel and focus scale turn, the iris opens and closes, glass catches the light
+ // camera lens: knurled barrel turns, the iris opens and closes, glass catches the light
  const ticks=Array.from({length:60},(_,i)=>'<rect x="-1.2" y="-97" width="2.4" height="7" rx="1" transform="rotate('+(i*6)+')"/>').join('');
  const blades=Array.from({length:8},(_,i)=>'<g transform="rotate('+(i*45)+')"><path class="lens-blade" d="M-80,-120 L80,-120 L80,-17 L-80,-17 Z"/></g>').join('');
  const spin=(dur,to)=>reduce.matches?'':'<animateTransform attributeName="transform" type="rotate" from="0" to="'+to+'" dur="'+dur+'" repeatCount="indefinite"/>';
  const irisTurn=reduce.matches?'':'<animateTransform attributeName="transform" type="rotate" values="0;45;0" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="9s" repeatCount="indefinite"/>';
  grid.append(el('div','lib-lens',
   '<svg viewBox="-100 -100 200 200" aria-hidden="true"><defs>'+
-  '<radialGradient id="lens-glass" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#3a2f7a"/><stop offset=".45" stop-color="#141033"/><stop offset="1" stop-color="#05040c"/></radialGradient>'+
+  '<radialGradient id="lens-glass" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#3a3f4a"/><stop offset=".45" stop-color="#14171d"/><stop offset="1" stop-color="#040506"/></radialGradient>'+
   '<linearGradient id="lens-blade-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121117"/><stop offset="1" stop-color="#2c2936"/></linearGradient>'+
   '<clipPath id="lens-clip"><circle r="57"/></clipPath>'+
-  '<path id="lens-scale" d="M0,-77 a77,77 0 1,1 -0.01,0"/></defs>'+
+  '</defs>'+
   '<circle r="99" fill="#0d0c12"/><g class="lens-knurl">'+spin('18s',360)+ticks+'</g>'+
   '<circle r="86" fill="#15131c" stroke="#ffffff14"/>'+
-  '<g class="lens-focus">'+spin('36s',-360)+'<text><textPath href="#lens-scale">∞ · 10 · 5 · 3 · 2 · 1.5 · 1.2 · 1 · 0.8 · 0.7 m · ∞ · 10 · 5 · 3 · 2 · 1.5 · 1.2 · 1 · 0.8 · 0.7 m ·</textPath></text></g>'+
-  '<circle r="68" fill="#0a0910" stroke="#2c2742" stroke-width="1.5"/>'+
+    '<circle r="68" fill="#0a0910" stroke="#2c2742" stroke-width="1.5"/>'+
   '<text class="lens-name" y="-60.5" text-anchor="middle">SS CINE 35mm 1:1.4</text>'+
   '<circle r="57" fill="url(#lens-glass)"/>'+
   '<g clip-path="url(#lens-clip)"><g class="lens-iris">'+irisTurn+blades+'</g></g>'+
   '<circle r="57" fill="none" stroke="#000" stroke-width="3"/>'+
   '<g class="lens-shine"><path d="M-34,-36 A48,48 0 0,1 20,-46" stroke="#ffffff55" stroke-width="3" fill="none" stroke-linecap="round"/>'+
-  '<circle cx="18" cy="16" r="5" fill="#8c6cff55"/><circle cx="28" cy="26" r="2.5" fill="#7fd8ff66"/></g>'+
+  '<circle cx="18" cy="16" r="5" fill="#ff6b3555"/><circle cx="28" cy="26" r="2.5" fill="#ffc09a66"/></g>'+
   '</svg>'));
 
  // shelves

@@ -400,3 +400,27 @@
 .lib-recbadge i{width:9px;height:9px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 12px #ff3b3b;animation:lib-blink 1.4s steps(1) infinite}
 @media (max-width:900px){.lib-lens{display:none}}
 @media (prefers-reduced-motion: reduce){.lens-knurl,.lens-focus,.lens-iris,.lens-blade,.lens-shine,.lib-rec,.lib-recbadge i{animation:none}}
+
+/* More Work in the site's own colours (dark with the orange accent) */
+.more-work{--lib-panel:var(--panel);--lib-line:#ffffff14}
+.more-work::before{background:radial-gradient(50% 40% at 50% 18%,#ff6b351f,transparent 70%),radial-gradient(40% 30% at 50% 60%,#ff6b350d,transparent 70%)}
+.lib-head h2{background:none;-webkit-text-fill-color:currentColor;color:var(--text)}
+.lib-head h2 em{color:var(--accent)}
+.lib-card{background:linear-gradient(160deg,#1b1e25,var(--panel))}
+.lib-mark{background:linear-gradient(135deg,#ffb27a,#ff6b35);box-shadow:0 8px 24px -8px #ff6b3588;font-style:normal;font-family:'Plus Jakarta Sans',Arial,sans-serif;font-weight:600}
+.lib-lead em{color:var(--accent)}
+.lib-faces i{background:#23262e;color:var(--text)}
+.lib-btn{background:linear-gradient(180deg,#ff8a50,#ff5a1f);box-shadow:0 10px 30px -10px #ff6b35,inset 0 1px 0 #ffffff40}
+.lib-btn:hover,.lib-btn:focus-visible{box-shadow:0 16px 40px -10px #ff6b35,inset 0 1px 0 #ffffff40}
+.lib-feature::after{background:linear-gradient(180deg,#0b0d1155,#0b0d1199 60%,#0b0d11ee),radial-gradient(60% 50% at 50% 45%,transparent,#0b0d1188)}
+.lib-headline em{color:var(--text)}
+.lib-num-cool{background:linear-gradient(180deg,#f4f0e8,#a0a3aa);-webkit-background-clip:text;background-clip:text}
+.lib-bracket{color:var(--muted)}
+.lib-bracket::before,.lib-bracket::after{border-color:var(--accent)}
+.lib-short .lib-dot{background:linear-gradient(180deg,#3a3f4a,#23262e);box-shadow:inset 0 0 0 1px #ffffff26,0 6px 20px -8px #000}
+.lib-chip{background:#1e2128;color:var(--text)}
+.lib-chip:hover,.lib-chip:focus-visible{background:#262a32;box-shadow:inset 0 0 0 1px var(--accent),0 6px 14px #0006}
+.lib-tile::after{background:linear-gradient(180deg,transparent 55%,#0b0d11aa)}
+.lib-card:focus-visible,.lib-tile:focus-visible{outline-color:var(--accent)}
+.lib-lens{filter:drop-shadow(0 18px 30px #000c) drop-shadow(0 0 26px #ff6b3540)}
+.lens-blade{stroke:#4a4f5c}
