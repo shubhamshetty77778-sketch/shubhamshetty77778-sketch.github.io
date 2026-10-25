@@ -43,7 +43,7 @@ root.querySelectorAll('.arc-chip').forEach(chip=>{
  const f=chip.dataset.filter,n=f==='all'?all.length:all.filter(c=>c.dataset.theme===f).length;
  const sp=chip.querySelector('span');if(sp)sp.textContent=n;chip.hidden=n===0;
 });
-const eyebrow=root.querySelector('.arc-head .eyebrow');if(eyebrow)eyebrow.textContent='VERTICAL / '+all.length+' REELS';
+const eyebrow=root.querySelector('.arc-head .eyebrow');if(eyebrow)eyebrow.textContent='SHORT-FORM / '+all.length+' FILMS';
 const prev=root.querySelector('.arc-prev'),next=root.querySelector('.arc-next'),count=root.querySelector('.arc-count');
 const controls=root.querySelector('.arc-controls'),chips=[...root.querySelectorAll('.arc-chip')];
 const cursor=document.querySelector('.cursor');
