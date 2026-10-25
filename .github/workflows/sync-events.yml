@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'events/sources.json'
+      - 'events/exclude.json'
       - 'scripts/sync_events.py'
       - '.github/workflows/sync-events.yml'
   schedule:

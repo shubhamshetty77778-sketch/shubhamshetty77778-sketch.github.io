@@ -14,6 +14,7 @@ FOLDER_ID = '1VeaXvPleEwLOva3C3M8-EG88hO2gtusN'   # Drive: Portfolio
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCES = os.path.join(ROOT, 'events', 'sources.json')
 OUT = os.path.join(ROOT, 'events', 'events.json')
+EXCLUDE = os.path.join(ROOT, 'events', 'exclude.json')
 ASSETS = os.path.join(ROOT, 'assets', 'events')
 KEY = os.environ.get('DRIVE_API_KEY', '').strip()
 EVENT_NAME = re.compile(r'(^|[^a-z])events?([^a-z]|$)', re.I)
@@ -108,6 +109,9 @@ def main():
         except Exception as e:
             log(f'Could not list Drive ({e}); using events/sources.json')
     files = json.load(open(SOURCES))['files']
+    # videos named "Event" in Drive that should still stay out of the Events section
+    excluded = set(json.load(open(EXCLUDE)).get('ids', [])) if os.path.exists(EXCLUDE) else set()
+    files = [f for f in files if f['id'] not in excluded]
     previous = {e['id']: e for e in json.load(open(OUT))['events']} if os.path.exists(OUT) else {}
 
     events = []
