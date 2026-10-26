@@ -150,7 +150,7 @@ function render(){
   st.setProperty('--ry',(-bend*dd*geo.stepDeg*.92).toFixed(3)+'deg');
   st.setProperty('--s',(1+.04*clamp(1-ad,0,1)).toFixed(4));
   st.setProperty('--o',fade.toFixed(3));
-  st.setProperty('--b',(1-Math.min(ad,3)*.07).toFixed(3));
+  st.setProperty('--dim',(Math.min(ad,3)*.07).toFixed(3));
   st.zIndex=String(100-Math.round(ad*10));
   const hidden=fade<.05;
   if(card.dataset.hidden!==String(hidden)){card.dataset.hidden=String(hidden);card.tabIndex=hidden?-1:0;card.setAttribute('aria-hidden',String(hidden))}
@@ -169,10 +169,12 @@ function hideOthers(){
  all.filter(c=>!pool.includes(c)).forEach(c=>{c.style.setProperty('--o',0);c.style.setProperty('--k',0);c.dataset.hidden='true';c.tabIndex=-1;c.setAttribute('aria-hidden','true');c.classList.remove('is-center')});
 }
 
-function syncVideos(){
+function syncVideos(start){
+ const moving=raf&&pos!==target&&!start;
  all.forEach(card=>{
   const v=card.querySelector('video');if(!v)return;
   const show=inView&&!reduce.matches&&card.dataset.hidden==='false'&&pool.includes(card)&&!document.hidden;
+  if(show&&moving&&v.paused)return;   // wait until the glide ends before starting another preview
   if(show){
    if(!v.src)v.src=v.dataset.src;
    if(v.paused){const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})}
@@ -181,17 +183,28 @@ function syncVideos(){
 }
 
 // One animation loop: pos eases towards target with a critically damped glide.
+// Moves glide with an ease-in-out curve over a fixed time (no jolt at the start, a soft landing);
+// a new move started mid-glide carries on from the current position and speed.
+let tw=null;
+const easeIO=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const easeOut=x=>1-Math.pow(1-x,3);
+function startTween(dur,curve){
+ const now=performance.now();
+ tw={from:pos,to:target,t0:now,dur:reduce.matches?1:dur,curve:curve||easeIO};
+}
 function loop(t){
- const dt=Math.min(.05,(t-(last||t))/1000);last=t;
+ last=t;
  if(!dragging){
-  const k=reduce.matches?1:1-Math.exp(-dt/.16);
-  pos+= (target-pos)*k;
-  if(Math.abs(target-pos)<.0008)pos=target;
+  if(!tw||tw.to!==target)startTween(Math.min(1400,700+Math.abs(target-pos)*180));
+  const x=Math.min(1,(performance.now()-tw.t0)/tw.dur);
+  pos=tw.from+(tw.to-tw.from)*tw.curve(x);
+  if(x>=1){pos=target;tw=null}
  }
  render();
- if(dragging||pos!==target){raf=requestAnimationFrame(loop)}else{raf=0;last=0}
+ if(dragging||pos!==target){raf=requestAnimationFrame(loop)}else{raf=0;last=0;settled()}
 }
 function kick(){if(!raf){last=0;raf=requestAnimationFrame(loop)}}
+function settled(){syncVideos(true)}
 
 function go(dir,user){
  if(!rotating())return;
@@ -248,7 +261,8 @@ function release(){
  if(!down)return;
  if(dragging){
   target=Math.round(pos+clamp(down.v*.18,-3,3));
-  lastInteract=performance.now();dragging=false;stage.classList.remove('is-dragging');kick();
+  lastInteract=performance.now();dragging=false;stage.classList.remove('is-dragging');
+  startTween(Math.min(1000,520+Math.abs(target-pos)*200),easeOut);kick();
  }else suppress=false;
  down=null;
 }

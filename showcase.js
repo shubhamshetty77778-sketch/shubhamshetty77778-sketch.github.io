@@ -79,8 +79,8 @@ async function filmShowcase(root){
   outL.className='fs-layer is-leaving';outL.style.transform='translateX(0)';
   void inL.offsetWidth;
   inL.className='fs-layer is-active is-moving';inL.style.transform='translateX(0)';
-  outL.className='fs-layer is-leaving is-moving';outL.style.transform='translateX('+(-dir*35)+'%)';
-  slideT=setTimeout(()=>{outL.className='fs-layer';outL.style.transform='';inL.className='fs-layer is-active'},950);
+  outL.className='fs-layer is-leaving is-moving';outL.style.transform='translateX('+(-dir*30)+'%)';
+  slideT=setTimeout(()=>{outL.className='fs-layer';outL.style.transform='';inL.className='fs-layer is-active'},1200);
  }
  function show(i,user){
   const dir=i>cur?1:-1;
