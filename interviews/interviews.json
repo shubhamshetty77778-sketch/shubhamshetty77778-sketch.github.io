@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T12:33:29Z",
+  "updated": "2026-10-26T03:09:47Z",
   "interviews": [
     {
       "id": "1K3u5Wm-KNIMgm5JIIXZGHwvJtWL4_8ly",
@@ -72,6 +72,18 @@
       "height": 720,
       "duration": 519.5,
       "size": 61050203
+    },
+    {
+      "id": "1LJCoO8d8NVGKN8PUiiJ-VdxFffdFc4gW",
+      "title": "Student story",
+      "name": "SaveVid.Net_AQPYJpfyQqVthPCQyTmkkG_OynjaOC7err-Bh1QaP4_Qf35m4zMQwHGORT_CWnF6tdLQUPzD801fez__U7dwTVTQK4MOM7a1yzHzsYE.mp4",
+      "drive": "https://drive.google.com/file/d/1LJCoO8d8NVGKN8PUiiJ-VdxFffdFc4gW/view",
+      "poster": "/assets/interviews/1LJCoO8d8NVGKN8PUiiJ-VdxFffdFc4gW.jpg",
+      "preview": "/assets/interviews/1LJCoO8d8NVGKN8PUiiJ-VdxFffdFc4gW.mp4",
+      "width": 1276,
+      "height": 718,
+      "duration": 127.4,
+      "size": 8891757
     },
     {
       "id": "1HjN3roYRyhAj-oe_7UcRg0gc9HI0aEnM",
