@@ -460,3 +460,20 @@
 .fs-layer.is-leaving.is-moving::after{opacity:.55}
 .fs-layer.is-active.is-moving{box-shadow:none}
 .fs-layer{backface-visibility:hidden;transform:translateZ(0)}
+
+/* Work categories inside the editing timeline (top strip of the bottom bar) */
+.scrub-cats{flex:1;min-width:0;display:flex;justify-content:center;align-self:stretch;align-items:center}
+.scrub-cats .cat-track{gap:2px;-webkit-mask:none;mask:none;justify-content:center;max-width:100%;scroll-snap-type:x proximity}
+.scrub-cats .cat-track a{padding:5px 10px;border:0;border-radius:4px;font:500 10px 'Space Grotesk',sans-serif;letter-spacing:.04em;color:#a8adb7;background:transparent}
+.scrub-cats .cat-track a span{font-size:8px;color:#6f7581}
+.scrub-cats .cat-track a:hover,.scrub-cats .cat-track a:focus-visible{background:#2a2e36;color:#f1ece5}
+.scrub-cats .cat-track a.is-on{background:#34302d;color:#f2c9a3;box-shadow:inset 0 -2px 0 #d8a879}
+.scrub-cats .cat-track a.is-on span{color:#d8a879}
+@media (max-width:900px){
+ .scrubber-heading .scrubber-readout{display:none}
+ .scrub-cats{justify-content:flex-start}
+ .scrub-cats .cat-track{justify-content:flex-start;-webkit-mask:linear-gradient(90deg,#000 88%,transparent);mask:linear-gradient(90deg,#000 88%,transparent)}
+ .scrub-cats .cat-track a{padding:4px 8px;font-size:9px}
+ .scrub-cats .cat-track a span{display:none}
+}
+@media (max-width:600px){.scrubber-heading .sequence-tab{display:none}.scrub-cats{padding-left:2px}}

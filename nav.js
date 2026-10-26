@@ -13,20 +13,24 @@ const flow=document.querySelector('.work-flow');
 if(flow){
  const cats=[...flow.querySelectorAll('.work-category h2[id]')];
  const short={'Social Media Content':'Social Media','Interviews & Testimonials':'Interviews','More work.':'More Work'};
- const bar=document.createElement('div');bar.className='cat-bar';bar.setAttribute('role','navigation');bar.setAttribute('aria-label','Work categories');
+ // On the home page the categories live in the editing timeline at the bottom; elsewhere they get a sticky bar.
+ const scrub=document.querySelector('.page-scrubber .scrubber-heading');
+ const bar=document.createElement('div');bar.className=scrub?'scrub-cats':'cat-bar';bar.setAttribute('role','navigation');bar.setAttribute('aria-label','Work categories');
  const track=document.createElement('div');track.className='cat-track';bar.append(track);
  const links=cats.map((h,i)=>{
   const a=document.createElement('a');a.href='#'+h.id;
   const name=h.textContent.trim();a.innerHTML='<span>'+String(i+1).padStart(2,'0')+'</span>'+(short[name]||name);
   track.append(a);return a;
  });
- flow.prepend(bar);
- const setTop=()=>{bar.style.top=Math.round(headH())+'px';document.documentElement.style.setProperty('--cat-offset',Math.round(headH()+bar.offsetHeight+16)+'px')};
+ if(scrub){const hint=scrub.querySelector('.scrub-hint');if(hint)hint.replaceWith(bar);else scrub.insertBefore(bar,scrub.querySelector('.timeline-toggle'))}
+ else flow.prepend(bar);
+ const barH=()=>scrub?0:bar.offsetHeight;
+ const setTop=()=>{if(!scrub)bar.style.top=Math.round(headH())+'px';document.documentElement.style.setProperty('--cat-offset',Math.round(headH()+barH()+16)+'px')};
  setTop();addEventListener('resize',setTop);
  let userMoved=false,fixT=[];
  const markUser=()=>{userMoved=true};
  addEventListener('wheel',markUser,{passive:true});addEventListener('touchmove',markUser,{passive:true});addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp','PageDown','PageUp','Space','Home','End'].includes(e.code))markUser()});
- const target=h=>h.closest('.work-category').getBoundingClientRect().top+scrollY-headH()-bar.offsetHeight-8;
+ const target=h=>h.closest('.work-category').getBoundingClientRect().top+scrollY-headH()-barH()-8;
  // jump, then correct once the smooth scroll ends (videos above may still be loading and shift the page)
  const go=(h,smooth)=>{
   userMoved=false;fixT.forEach(clearTimeout);
@@ -37,11 +41,13 @@ if(flow){
  // highlight the section in view
  let cur=-1;
  const update=()=>{
-  const line=headH()+bar.offsetHeight+innerHeight*.25;
+  const line=headH()+barH()+innerHeight*.25;
   let k=0;cats.forEach((h,i)=>{if(h.closest('.work-category').getBoundingClientRect().top<=line)k=i});
   if(k!==cur){cur=k;links.forEach((a,i)=>{a.classList.toggle('is-on',i===k);if(i===k)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')});
    const a=links[k];track.scrollTo({left:a.offsetLeft-(track.clientWidth-a.offsetWidth)/2,behavior:reduce.matches?'auto':'smooth'})}
-  const r=flow.getBoundingClientRect();bar.classList.toggle('is-stuck',r.top<headH()+2&&r.bottom>headH()+bar.offsetHeight);
+  const r=flow.getBoundingClientRect();bar.classList.toggle('is-stuck',r.top<headH()+2&&r.bottom>headH()+barH());
+  const inWork=r.top<innerHeight*.6&&r.bottom>innerHeight*.4;bar.classList.toggle('in-work',inWork);
+  if(scrub&&!inWork&&cur!==-1){links.forEach(a=>{a.classList.remove('is-on');a.removeAttribute('aria-current')});cur=-1}
  };
  addEventListener('scroll',update,{passive:true});update();
 
@@ -49,7 +55,7 @@ if(flow){
  try{history.scrollRestoration='manual'}catch(e){}
  const KEY='ss-return:'+location.pathname;
  const save=()=>{
-  const line=headH()+bar.offsetHeight+8;let id=null,off=scrollY;
+  const line=headH()+barH()+8;let id=null,off=scrollY;
   cats.forEach(h=>{const top=h.closest('.work-category').getBoundingClientRect().top;if(top<=line+innerHeight*.25){id=h.id;off=-(top-line)}});
   const r=flow.getBoundingClientRect();if(r.top>line||r.bottom<line)id=null,off=scrollY;
   try{sessionStorage.setItem(KEY,JSON.stringify({id,off:Math.round(off),y:Math.round(scrollY),t:Date.now()}))}catch(e){}
