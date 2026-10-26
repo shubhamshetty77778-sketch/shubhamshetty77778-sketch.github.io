@@ -13,19 +13,22 @@ const flow=document.querySelector('.work-flow');
 if(flow){
  const cats=[...flow.querySelectorAll('.work-category h2[id]')];
  const short={'Social Media Content':'Social Media','Interviews & Testimonials':'Interviews','More work.':'More Work'};
- // On the home page the categories live in the editing timeline at the bottom; elsewhere they get a sticky bar.
+ // A sticky bar under the header inside Work, plus (on the home page) the same tabs in the editing timeline at the bottom.
  const scrub=document.querySelector('.page-scrubber .scrubber-heading');
- const bar=document.createElement('div');bar.className=scrub?'scrub-cats':'cat-bar';bar.setAttribute('role','navigation');bar.setAttribute('aria-label','Work categories');
- const track=document.createElement('div');track.className='cat-track';bar.append(track);
- const links=cats.map((h,i)=>{
-  const a=document.createElement('a');a.href='#'+h.id;
-  const name=h.textContent.trim();a.innerHTML='<span>'+String(i+1).padStart(2,'0')+'</span>'+(short[name]||name);
-  track.append(a);return a;
- });
- if(scrub){const hint=scrub.querySelector('.scrub-hint');if(hint)hint.replaceWith(bar);else scrub.insertBefore(bar,scrub.querySelector('.timeline-toggle'))}
- else flow.prepend(bar);
- const barH=()=>scrub?0:bar.offsetHeight;
- const setTop=()=>{if(!scrub)bar.style.top=Math.round(headH())+'px';document.documentElement.style.setProperty('--cat-offset',Math.round(headH()+barH()+16)+'px')};
+ const makeTabs=cls=>{
+  const box=document.createElement('div');box.className=cls;box.setAttribute('role','navigation');box.setAttribute('aria-label','Work categories');
+  const tr=document.createElement('div');tr.className='cat-track';box.append(tr);
+  const ls=cats.map((h,i)=>{const a=document.createElement('a');a.href='#'+h.id;const name=h.textContent.trim();
+   a.innerHTML='<span>'+String(i+1).padStart(2,'0')+'</span>'+(short[name]||name);tr.append(a);return a});
+  return {box,tr,ls};
+ };
+ const top=makeTabs('cat-bar');flow.prepend(top.box);
+ const bar=top.box;
+ const groups=[top];
+ if(scrub){const t=makeTabs('scrub-cats');const hint=scrub.querySelector('.scrub-hint');if(hint)hint.replaceWith(t.box);else scrub.insertBefore(t.box,scrub.querySelector('.timeline-toggle'));t.box.setAttribute('aria-label','Work categories (timeline)');groups.push(t)}
+ const links=top.ls;
+ const barH=()=>bar.offsetHeight;
+ const setTop=()=>{bar.style.top=Math.round(headH())+'px';document.documentElement.style.setProperty('--cat-offset',Math.round(headH()+barH()+16)+'px')};
  setTop();addEventListener('resize',setTop);
  let userMoved=false,fixT=[];
  const markUser=()=>{userMoved=true};
@@ -37,17 +40,18 @@ if(flow){
   scrollTo({top:target(h),behavior:smooth&&!reduce.matches?'smooth':'auto'});
   fixT=[900,1700,2600].map(t=>setTimeout(()=>{if(!userMoved&&Math.abs(scrollY-target(h))>24)scrollTo({top:target(h),behavior:'auto'})},t));
  };
- links.forEach((a,i)=>a.addEventListener('click',e=>{e.preventDefault();go(cats[i],true);history.replaceState(null,'','#'+cats[i].id)}));
+ groups.forEach(g=>g.ls.forEach((a,i)=>a.addEventListener('click',e=>{e.preventDefault();go(cats[i],true);history.replaceState(null,'','#'+cats[i].id)})));
  // highlight the section in view
  let cur=-1;
+ const setOn=k=>groups.forEach(g=>g.ls.forEach((a,i)=>{a.classList.toggle('is-on',i===k);if(i===k)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')}));
  const update=()=>{
+  const r=flow.getBoundingClientRect();bar.classList.toggle('is-stuck',r.top<headH()+2&&r.bottom>headH()+barH());
+  const inWork=r.top<innerHeight*.6&&r.bottom>innerHeight*.4;
+  if(!inWork){if(cur!==-1){cur=-1;setOn(-1)}return}
   const line=headH()+barH()+innerHeight*.25;
   let k=0;cats.forEach((h,i)=>{if(h.closest('.work-category').getBoundingClientRect().top<=line)k=i});
-  if(k!==cur){cur=k;links.forEach((a,i)=>{a.classList.toggle('is-on',i===k);if(i===k)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')});
-   const a=links[k];track.scrollTo({left:a.offsetLeft-(track.clientWidth-a.offsetWidth)/2,behavior:reduce.matches?'auto':'smooth'})}
-  const r=flow.getBoundingClientRect();bar.classList.toggle('is-stuck',r.top<headH()+2&&r.bottom>headH()+barH());
-  const inWork=r.top<innerHeight*.6&&r.bottom>innerHeight*.4;bar.classList.toggle('in-work',inWork);
-  if(scrub&&!inWork&&cur!==-1){links.forEach(a=>{a.classList.remove('is-on');a.removeAttribute('aria-current')});cur=-1}
+  if(k!==cur){cur=k;setOn(k);
+   groups.forEach(g=>{const a=g.ls[k];g.tr.scrollTo({left:a.offsetLeft-(g.tr.clientWidth-a.offsetWidth)/2,behavior:reduce.matches?'auto':'smooth'})})}
  };
  addEventListener('scroll',update,{passive:true});update();
 
