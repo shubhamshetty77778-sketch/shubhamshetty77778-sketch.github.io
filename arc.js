@@ -6,6 +6,9 @@
 (()=>{
 'use strict';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const lowData=(()=>{try{const c=navigator.connection;return !!(c&&(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||'')))}catch(e){return false}})();
+const phone=matchMedia('(max-width: 760px)');
+
 const cursor=document.querySelector('.cursor');
 const mmss=s=>s?Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0'):'';
 
@@ -162,7 +165,7 @@ function render(){
  controls.hidden=!rotating();
  const base=+root.dataset.base||n;
  if(rotating())count.textContent=String(wrap(Math.round(pos),n)%base+1).padStart(2,'0')+' / '+String(base).padStart(2,'0');
- const key=keys.join(',');if(key!==visibleKey){visibleKey=key;syncVideos()}
+ const key=keys.join(',')+(phone.matches?'|'+pool.findIndex(c=>c.classList.contains('is-center')):'');if(key!==visibleKey){visibleKey=key;syncVideos()}
 }
 
 function hideOthers(){
@@ -173,7 +176,8 @@ function syncVideos(start){
  const moving=raf&&pos!==target&&!start;
  all.forEach(card=>{
   const v=card.querySelector('video');if(!v)return;
-  const show=inView&&!reduce.matches&&card.dataset.hidden==='false'&&pool.includes(card)&&!document.hidden;
+  // on phones only the centre card plays (saves data and battery); nothing plays on data saver / slow networks
+  const show=inView&&!reduce.matches&&!lowData&&card.dataset.hidden==='false'&&pool.includes(card)&&!document.hidden&&(!phone.matches||card.classList.contains('is-center'));
   if(show&&moving&&v.paused)return;   // wait until the glide ends before starting another preview
   if(show){
    if(!v.src)v.src=v.dataset.src;
@@ -320,7 +324,7 @@ async function initGrid(block){
  if(!list.length){block.hidden=true;return}
  grid.dataset.n=String(list.length);
  const cnt=block.querySelector('.iv-count');if(cnt)cnt.textContent=String(list.length).padStart(2,'0');
- const play=v=>{if(reduce.matches)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
+ const play=v=>{if(reduce.matches||lowData)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
  const stop=v=>{if(!v.paused)v.pause();v.classList.remove('is-playing')};
  const touch=true; // previews play whenever they are on screen
  const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{

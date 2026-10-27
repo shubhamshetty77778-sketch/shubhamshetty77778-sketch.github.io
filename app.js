@@ -101,6 +101,7 @@ if(scrubber){
   },1300);
  }
  function revealOnScroll(){
+  if(matchMedia('(max-width: 760px)').matches)return;   // phones: keep the timeline small while reading
   if(Math.abs(scrollY-lastDockScroll)<1)return;
   lastDockScroll=scrollY;setTimelineCollapsed(false);queueDock();
  }

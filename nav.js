@@ -25,7 +25,7 @@ if(flow){
  const top=makeTabs('cat-bar');flow.prepend(top.box);
  const bar=top.box;
  const groups=[top];
- if(scrub){const t=makeTabs('scrub-cats');const hint=scrub.querySelector('.scrub-hint');if(hint)hint.replaceWith(t.box);else scrub.insertBefore(t.box,scrub.querySelector('.timeline-toggle'));t.box.setAttribute('aria-label','Work categories (timeline)');groups.push(t)}
+ if(scrub){document.body.classList.add('has-scrub-cats');const t=makeTabs('scrub-cats');const hint=scrub.querySelector('.scrub-hint');if(hint)hint.replaceWith(t.box);else scrub.insertBefore(t.box,scrub.querySelector('.timeline-toggle'));t.box.setAttribute('aria-label','Work categories (timeline)');groups.push(t)}
  const links=top.ls;
  const barH=()=>bar.offsetHeight;
  const setTop=()=>{bar.style.top=Math.round(headH())+'px';document.documentElement.style.setProperty('--cat-offset',Math.round(headH()+barH()+16)+'px')};

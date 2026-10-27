@@ -5,6 +5,9 @@
 (()=>{
 'use strict';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const lowData=(()=>{try{const c=navigator.connection;return !!(c&&(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||'')))}catch(e){return false}})();
+const phone=matchMedia('(max-width: 760px)');
+
 const cursor=document.querySelector('.cursor');
 const el=(tag,cls,html)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(html!=null)n.innerHTML=html;return n};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -112,14 +115,15 @@ async function build(root){
  root.append(grid);
 
  // ---- behaviour ----
- const play=v=>{if(!v||reduce.matches)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
+ const play=v=>{if(!v||reduce.matches||lowData)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
  const stop=v=>{if(v&&!v.paused)v.pause()};
  let inView=false,fi=0,next=4,timer=0,turn=0;
  feat.href=href(featList[0]);
  function syncVideos(){
   const on=inView&&!document.hidden;
   layers.forEach((L,i)=>{const v=L.querySelector('video');(on&&i===fi?play:stop)(v)});
-  tiles.forEach(t=>t.querySelectorAll('.lib-layer').forEach(L=>{const v=L.querySelector('video');(on&&L.classList.contains('is-on')?play:stop)(v)}));
+  // on phones the four tiles stay as stills; only the big screen plays
+  tiles.forEach(t=>t.querySelectorAll('.lib-layer').forEach(L=>{const v=L.querySelector('video');(on&&!phone.matches&&L.classList.contains('is-on')?play:stop)(v)}));
  }
  function step(){
   if(!inView||document.hidden||reduce.matches)return;

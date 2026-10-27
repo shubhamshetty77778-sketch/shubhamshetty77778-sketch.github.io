@@ -5,6 +5,9 @@
 (()=>{
 'use strict';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const lowData=(()=>{try{const c=navigator.connection;return !!(c&&(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||'')))}catch(e){return false}})();
+const phone=matchMedia('(max-width: 760px)');
+
 const cursor=document.querySelector('.cursor');
 const mmss=s=>s?Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0'):'';
 const pad=n=>String(n).padStart(2,'0');
@@ -20,7 +23,7 @@ async function load(node){
  const href=e=>base+'projects/event.html#'+coll+':'+encodeURIComponent(e.id);
  return {list,asset,href};
 }
-const play=v=>{if(!v||reduce.matches)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
+const play=v=>{if(!v||reduce.matches||lowData)return;if(!v.src)v.src=v.dataset.src;const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{})};
 const stop=v=>{if(!v)return;if(!v.paused)v.pause()};
 const playCursor=n=>{if(!cursor)return;n.addEventListener('pointerenter',()=>cursor.classList.add('is-play'));n.addEventListener('pointerleave',()=>cursor.classList.remove('is-play'))};
 
@@ -37,11 +40,13 @@ async function filmShowcase(root){
  const screen=el('a','fs-screen');screen.dataset.cursor='PLAY';
  const layers=list.map(e=>{
   const L=el('span','fs-layer');
-  const img=el('img');img.src=asset(e.poster);img.alt='';img.loading='lazy';img.decoding='async';L.append(img);
+  const img=el('img');img.dataset.src=asset(e.poster);img.alt='';img.decoding='async';L.append(img);
   if(e.preview){const v=el('video');v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.dataset.src=asset(e.preview);v.setAttribute('aria-hidden','true');L.append(v)}
   screen.append(L);return L;
  });
- const glows=list.map(e=>{const g=el('img');g.src=asset(e.poster);g.alt='';g.loading='lazy';glow.append(g);return g});
+ const glows=list.map(e=>{const g=el('img');g.dataset.src=asset(e.poster);g.alt='';glow.append(g);return g});
+ // stacked layers would all load at once; fetch a film's still only when it is shown or next in line
+ const need=k=>{[layers[k].querySelector('img'),glows[k]].forEach(im=>{if(im&&!im.src&&im.dataset.src)im.src=im.dataset.src})};
  const info=el('span','fs-info');
  const idx=el('span','fs-index'),title=el('b','fs-title'),meta=el('span','fs-meta');
  info.append(idx,title,meta);
@@ -85,7 +90,7 @@ async function filmShowcase(root){
  function show(i,user){
   const dir=i>cur?1:-1;
   i=((i%n)+n)%n;if(i===cur)return;
-  const prevI=cur;cur=i;const e=list[i];
+  const prevI=cur;cur=i;const e=list[i];need(i);need((i+1)%n);need((i-1+n)%n);
   slide(prevI,i,dir);
   glows.forEach((g,k)=>g.classList.toggle('is-active',k===i));
   thumbs.forEach((t,k)=>{t.classList.toggle('is-active',k===i);t.setAttribute('aria-current',k===i?'true':'false')});
@@ -178,12 +183,14 @@ document.querySelectorAll('.ad-feed[data-source]').forEach(adFeed);
 (()=>{
 'use strict';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const lowData=(()=>{try{const c=navigator.connection;return !!(c&&(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||'')))}catch(e){return false}})();
+
 const vids=[...document.querySelectorAll('video[data-autoplay]')];
 const slots=[...document.querySelectorAll('.yt-bg[data-yt]')];
 if(!('IntersectionObserver' in window))return;
 const io=new IntersectionObserver(es=>es.forEach(e=>{
  const v=e.target;
- if(e.isIntersecting&&!reduce.matches&&!document.hidden){
+ if(e.isIntersecting&&!reduce.matches&&!lowData&&!document.hidden){
   if(!v.src){v.src=v.dataset.src;v.addEventListener('error',()=>v.remove(),{once:true})}
   const p=v.play();if(p)p.then(()=>v.classList.add('is-playing')).catch(()=>{});
  }else if(!v.paused)v.pause();
