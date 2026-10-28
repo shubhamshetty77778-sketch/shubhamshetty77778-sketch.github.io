@@ -30,8 +30,13 @@ COLLECTION_FILES = [('events/events.json', 'events'), ('brand-films/films.json',
                     ('social/social.json', 'reels'), ('features/features.json', 'features')]
 
 
+LOG = []
+
+
 def log(*a):
-    print(*a, flush=True)
+    line = ' '.join(str(x) for x in a)
+    LOG.append(time.strftime('%H:%M:%S ') + line)
+    print(line, flush=True)
 
 
 def load_manifest():
@@ -109,7 +114,7 @@ def release():
         return gh('GET', f'https://api.github.com/repos/{repo}/releases/tags/{TAG}')
 
 
-def upload(rel, path, name):
+def upload(rel, path, name, ctype='video/mp4'):
     repo = os.environ['GITHUB_REPOSITORY']
     assets = gh('GET', f'https://api.github.com/repos/{repo}/releases/{rel["id"]}/assets?per_page=100')
     page = 2
@@ -127,7 +132,7 @@ def upload(rel, path, name):
                 req = urllib.request.Request(
                     f'https://uploads.github.com/repos/{repo}/releases/{rel["id"]}/assets?name={urllib.parse.quote(name)}',
                     data=f, method='POST',
-                    headers={'Authorization': 'Bearer ' + os.environ['GITHUB_TOKEN'], 'Content-Type': 'video/mp4',
+                    headers={'Authorization': 'Bearer ' + os.environ['GITHUB_TOKEN'], 'Content-Type': ctype,
                              'Content-Length': str(size), 'Accept': 'application/vnd.github+json'})
                 with urllib.request.urlopen(req, timeout=3600) as r:
                     return json.load(r)
@@ -167,7 +172,7 @@ def fetch(fid, dest, errors):
     if sv.KEY:
         urls.append(('api', f'https://www.googleapis.com/drive/v3/files/{fid}?alt=media&key={sv.KEY}'))
     urls.append(('web', f'https://drive.usercontent.google.com/download?id={fid}&export=download&confirm=t'))
-    for attempt in range(5):
+    for attempt in range(3):
         for name, url in urls:
             try:
                 req = urllib.request.Request(url, headers=sv.UA)
@@ -203,7 +208,8 @@ def fetch(fid, dest, errors):
                 errors.append(f'{name}: HTTP {e.code} {body}')
             except Exception as e:
                 errors.append(f'{name}: {e}'[:200])
-        wait = 30 * (2 ** attempt)
+        if attempt == 2: break
+        wait = 20 * (3 ** attempt)
         log(f'  Drive refused ({errors[-1]}); waiting {wait}s')
         time.sleep(wait)
     return False
@@ -236,7 +242,7 @@ def run(i, n):
             meta = sv.probe(path)
             if not meta:
                 failed[fid] = ' | '.join(errors[-3:]) or 'could not read the video'
-                log('  could not read this video; skipped: ' + failed[fid]); continue
+                log('  could not read this video; skipped: ' + failed[fid]); save_log(rel, i); continue
             dur = meta['duration']
             hd, sd = os.path.join(work, fid + '-hd.mp4'), os.path.join(work, fid + '-sd.mp4')
             encode(path, dur, hd, sd)
@@ -251,12 +257,22 @@ def run(i, n):
             json.dump({**done, '_failed': failed}, open(out_path, 'w'), indent=1)   # keep progress if the job is stopped
         except Exception as e:
             failed[fid] = str(e)[:300]
-            log(f'  failed: {e}')
+            log(f'  failed: {e}'); save_log(rel, i)
         finally:
             for f in glob.glob(os.path.join(work, fid + '*')):
                 try: os.remove(f)
                 except OSError: pass
     json.dump({**done, '_failed': failed}, open(out_path, 'w'), indent=1)
+    save_log(rel, i)
+
+
+def save_log(rel, i):
+    try:
+        p = os.path.join(tempfile.gettempdir(), f'log-{i}.txt')
+        open(p, 'w').write('\n'.join(LOG) + '\n')
+        upload(rel, p, f'log-{i}.txt', 'text/plain')
+    except Exception as e:
+        print('could not save log', e)
 
 
 def merge(parts):
