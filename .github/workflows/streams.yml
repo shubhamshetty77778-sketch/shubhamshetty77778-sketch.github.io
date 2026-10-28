@@ -1,0 +1,94 @@
+name: Make website video copies
+
+# Makes the HD and SD copies the website plays (scripts/make_streams.py).
+# Runs after each Drive sync, once a day, when this file or the script changes, or from the Actions tab.
+# Only videos without copies (or whose Drive file changed) are encoded, so most runs finish in seconds.
+on:
+  workflow_run:
+    workflows: ['Sync videos from Drive']
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/make_streams.py'
+      - '.github/workflows/streams.yml'
+  schedule:
+    - cron: '41 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: make-streams
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.p.outputs.shards }}
+      total: ${{ steps.p.outputs.total }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - id: p
+        run: |
+          python3 scripts/make_streams.py plan 6 > plan.json
+          cat plan.json
+          echo "total=$(python3 -c 'import json;print(json.load(open("plan.json"))["total"])')" >> "$GITHUB_OUTPUT"
+          echo "shards=$(python3 -c 'import json;print(json.dumps([i for i,s in enumerate(json.load(open("plan.json"))["shards"]) if s]))')" >> "$GITHUB_OUTPUT"
+
+  encode:
+    needs: plan
+    if: needs.plan.outputs.total != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Make room
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          sudo mkdir -p /mnt/streams && sudo chown "$USER" /mnt/streams
+          df -h / /mnt
+      - name: Encode and upload
+        env:
+          DRIVE_API_KEY: ${{ secrets.DRIVE_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          STREAM_WORK: /mnt/streams
+        run: python3 scripts/make_streams.py run ${{ matrix.shard }} 6
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: part-${{ matrix.shard }}
+          path: streams-part-${{ matrix.shard }}.json
+          if-no-files-found: ignore
+
+  publish:
+    needs: [plan, encode]
+    if: always() && needs.plan.outputs.total != '0'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/download-artifact@v4
+        with: { path: parts, pattern: 'part-*', merge-multiple: true }
+      - name: Update streams.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/make_streams.py merge parts/*.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add streams.json
+          if git diff --cached --quiet; then echo "Nothing new"; exit 0; fi
+          git commit -m "Website video copies updated"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 5; done
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null || true
