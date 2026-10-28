@@ -161,6 +161,54 @@ def encode(src, dur, hd, sd):
     subprocess.run(cmd, check=True)
 
 
+def fetch(fid, dest, errors):
+    """Download the Drive original, waiting and retrying when Drive asks us to slow down."""
+    urls = []
+    if sv.KEY:
+        urls.append(('api', f'https://www.googleapis.com/drive/v3/files/{fid}?alt=media&key={sv.KEY}'))
+    urls.append(('web', f'https://drive.usercontent.google.com/download?id={fid}&export=download&confirm=t'))
+    for attempt in range(5):
+        for name, url in urls:
+            try:
+                req = urllib.request.Request(url, headers=sv.UA)
+                with urllib.request.urlopen(req, timeout=900) as r, open(dest, 'wb') as out:
+                    ctype = r.headers.get('Content-Type') or ''
+                    if 'text/html' in ctype:
+                        page = r.read(400000).decode('utf-8', 'replace')
+                        m = re.search(r'name="uuid" value="([^"]+)"', page)
+                        if m and name == 'web':   # big files: Drive asks to confirm once more
+                            url2 = url + '&uuid=' + m.group(1)
+                            with urllib.request.urlopen(urllib.request.Request(url2, headers=sv.UA), timeout=900) as r2:
+                                if 'text/html' in (r2.headers.get('Content-Type') or ''):
+                                    raise ValueError('Drive returned a web page')
+                                while True:
+                                    chunk = r2.read(1 << 20)
+                                    if not chunk: break
+                                    out.write(chunk)
+                        else:
+                            raise ValueError('Drive returned a web page: ' + re.sub(r'\s+', ' ', re.sub('<[^>]+>', ' ', page))[:160])
+                    else:
+                        while True:
+                            chunk = r.read(1 << 20)
+                            if not chunk: break
+                            out.write(chunk)
+                if sv.probe(dest):
+                    return True
+                errors.append(f'{name}: downloaded file is not a readable video')
+            except urllib.error.HTTPError as e:
+                body = ''
+                try: body = e.read(300).decode('utf-8', 'replace')
+                except Exception: pass
+                body = re.sub(r'\s+', ' ', body)[:160]
+                errors.append(f'{name}: HTTP {e.code} {body}')
+            except Exception as e:
+                errors.append(f'{name}: {e}'[:200])
+        wait = 30 * (2 ** attempt)
+        log(f'  Drive refused ({errors[-1]}); waiting {wait}s')
+        time.sleep(wait)
+    return False
+
+
 def info(path, dur):
     d = sv.probe(path) or {}
     size = os.path.getsize(path)
@@ -172,7 +220,7 @@ def run(i, n):
     mine = plan(n)['shards'][i]
     log(f'shard {i}/{n}: {len(mine)} videos')
     out_path = os.path.join(ROOT, f'streams-part-{i}.json')
-    done = {}
+    done, failed = {}, {}
     if not mine:
         json.dump(done, open(out_path, 'w')); return
     rel = release()
@@ -183,31 +231,32 @@ def run(i, n):
         log(f'== {fid} ({vids[fid]["duration"]:.0f}s)')
         src = os.path.join(work, fid + '.src')
         try:
-            if vids[fid]['size'] and vids[fid]['size'] > 9_000_000_000:
-                path = sv.drive_url(fid)
-            else:
-                path = src if sv.download(fid, src) else sv.drive_url(fid)
+            errors = []
+            path = src if fetch(fid, src, errors) else sv.drive_url(fid)
             meta = sv.probe(path)
             if not meta:
-                log('  could not read this video; skipped'); continue
+                failed[fid] = ' | '.join(errors[-3:]) or 'could not read the video'
+                log('  could not read this video; skipped: ' + failed[fid]); continue
             dur = meta['duration']
             hd, sd = os.path.join(work, fid + '-hd.mp4'), os.path.join(work, fid + '-sd.mp4')
             encode(path, dur, hd, sd)
             if os.path.getsize(hd) > MAX_ASSET:
+                failed[fid] = 'HD copy over 2 GB'
                 log('  HD copy too big for a release file; skipped'); continue
             upload(rel, hd, fid + '-hd.mp4')
             upload(rel, sd, fid + '-sd.mp4')
             done[fid] = {'d': round(dur, 1), 'src': vids[fid]['size'], 'hd': info(hd, dur), 'sd': info(sd, dur),
                          't': int(time.time())}
             log(f'  done: HD {done[fid]["hd"]} SD {done[fid]["sd"]}')
-            json.dump(done, open(out_path, 'w'), indent=1)   # keep progress even if the job is stopped
+            json.dump({**done, '_failed': failed}, open(out_path, 'w'), indent=1)   # keep progress if the job is stopped
         except Exception as e:
+            failed[fid] = str(e)[:300]
             log(f'  failed: {e}')
         finally:
             for f in glob.glob(os.path.join(work, fid + '*')):
                 try: os.remove(f)
                 except OSError: pass
-    json.dump(done, open(out_path, 'w'), indent=1)
+    json.dump({**done, '_failed': failed}, open(out_path, 'w'), indent=1)
 
 
 def merge(parts):
@@ -222,7 +271,10 @@ def merge(parts):
         except Exception:
             continue
         for k, v in d.items():
+            if k == '_failed':
+                man.setdefault('failed', {}).update(v); continue
             man['videos'][k] = v; added += 1
+            man.get('failed', {}).pop(k, None)
     man['videos'] = dict(sorted(man['videos'].items()))
     json.dump(man, open(MANIFEST, 'w'), indent=1)
     log(f'streams.json: {len(man["videos"])} videos ({added} new or updated)')
