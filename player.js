@@ -20,6 +20,8 @@ function attach(frame,id,opts){
  const box=frame._ssBox||frame.closest('.youtube-frame')||frame.parentElement;if(!box)return Promise.resolve();frame._ssBox=box;
  if(box._ssPlayer){box._ssPlayer.destroy();box._ssPlayer=null}
  ids.set(box,id);
+ const det0=box.closest('details');
+ if(det0){det0.open=true;det0.classList.add('is-direct');document.body.classList.add('ss-direct')}
  return getManifest().then(m=>{
   if(ids.get(box)!==id)return;                       // another video was chosen meanwhile
   const e=m&&m.videos&&m.videos[id];
@@ -142,10 +144,21 @@ function build(box,frame,id,e,root,opts){
  }
  // play when the screen is opened, pause when closed or scrolled far away
  const det=box.closest('details');
- const onToggle=()=>{if(dead)return;if(det.open){const p=v.play();if(p)p.catch(()=>{})}else v.pause()};
+ const onToggle=()=>{if(dead)return;if(det.open)start();else v.pause()};
  if(det)det.addEventListener('toggle',onToggle);
  setLevel(startLevel());label();
- if(opts.autoplay||(det&&det.open&&opts.resume)){const p=v.play();if(p)p.catch(()=>{})}
+ const sound=document.createElement('button');sound.type='button';sound.className='ss-sound';sound.hidden=true;sound.textContent='Tap for sound';
+ wrap.append(sound);
+ sound.addEventListener('click',()=>{v.muted=false;sound.hidden=true;const p=v.play();if(p)p.catch(()=>{})});
+ v.addEventListener('volumechange',()=>{if(!v.muted)sound.hidden=true});
+ function start(){
+  const p=v.play();if(!p)return;
+  p.catch(err=>{if(dead||!err||err.name!=='NotAllowedError')return;v.muted=true;sound.hidden=false;v.play().catch(()=>{sound.hidden=true})});
+ }
+ if(opts.autoplay!==false&&(!det||det.open))start();
+ // bring the film into view if the page opened with it low on the screen
+ if(opts.autoplay!==false&&(!det||det.open))requestAnimationFrame(()=>{const r=wrap.getBoundingClientRect();
+  if(r.top>innerHeight*.35)wrap.scrollIntoView({block:r.height>innerHeight*.8?'end':'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})});
  return {video:v,destroy:()=>{dead=true;destroy(false)}};
 }
 

@@ -519,3 +519,12 @@
 .ss-q{position:absolute;top:10px;right:10px;z-index:2;padding:6px 10px;border:1px solid #ffffff2e;border-radius:3px;background:#0b0d11b3;color:#f1ece5d9;font:500 11px 'Space Grotesk',sans-serif;letter-spacing:.04em;cursor:pointer;opacity:0;transition:opacity .25s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .ss-player:hover .ss-q,.ss-player.is-paused .ss-q,.ss-q:focus-visible{opacity:1}
 @media (hover:none){.ss-q{min-height:36px}.ss-player.is-paused .ss-q,.ss-player.show-q .ss-q{opacity:.9}}
+
+/* video pages open straight onto the playing film */
+.ss-direct .case-media{display:none}
+.film-screen.is-direct>summary{display:none}
+.film-screen.is-direct{margin-top:0}
+.ss-sound{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);z-index:2;padding:10px 16px;border:1px solid #ffffff3d;border-radius:3px;background:#0b0d11cc;color:#f1ece5;font:500 12px 'Space Grotesk',sans-serif;letter-spacing:.04em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ss-sound[hidden]{display:none}
+.ss-direct section:has(> .film-screen){padding-top:4px}
+.ss-direct .page-intro{padding-bottom:clamp(16px,3vw,32px)}
