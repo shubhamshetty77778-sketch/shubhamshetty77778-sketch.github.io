@@ -509,3 +509,13 @@
  [data-scrub-clip="services"]{--clip-image:url(/assets/city-sm.jpg)!important}
  [data-scrub-clip="contact"]{--clip-image:url(/assets/landscape-sm.jpg)!important}
 }
+
+/* direct video player (player.js) */
+.youtube-frame.has-ss-player{aspect-ratio:auto;background:transparent}
+.ss-player{position:relative;aspect-ratio:var(--ar,16 / 9);width:min(100%,calc(82vh * var(--r,1.7778)));margin-inline:auto;background:#050609;border-radius:4px;overflow:hidden}
+.ss-player video,.ss-freeze{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#050609;display:block}
+.ss-freeze{pointer-events:none}
+.ss-freeze[hidden]{display:none}
+.ss-q{position:absolute;top:10px;right:10px;z-index:2;padding:6px 10px;border:1px solid #ffffff2e;border-radius:3px;background:#0b0d11b3;color:#f1ece5d9;font:500 11px 'Space Grotesk',sans-serif;letter-spacing:.04em;cursor:pointer;opacity:0;transition:opacity .25s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ss-player:hover .ss-q,.ss-player.is-paused .ss-q,.ss-q:focus-visible{opacity:1}
+@media (hover:none){.ss-q{min-height:36px}.ss-player.is-paused .ss-q,.ss-player.show-q .ss-q{opacity:.9}}
