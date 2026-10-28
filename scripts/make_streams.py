@@ -240,8 +240,9 @@ def run(i, n):
         json.dump(done, open(out_path, 'w')); return
     rel = release()
     work = os.environ.get('STREAM_WORK') or tempfile.gettempdir()
-    for n, fid in enumerate(mine):
-        if n >= PER_RUN:
+    made, quota = 0, 0
+    for fid in mine:
+        if made >= PER_RUN:
             log(f'{PER_RUN} videos done this run; the rest follow on the next runs'); break
         if time.time() - T0 > BUDGET:
             log('time budget used; the rest will be made on the next run'); break
@@ -264,10 +265,15 @@ def run(i, n):
             upload(rel, sd, fid + '-sd.mp4')
             done[fid] = {'d': round(dur, 1), 'src': vids[fid]['size'], 'hd': info(hd, dur), 'sd': info(sd, dur),
                          't': int(time.time())}
+            made += 1; quota = 0
             log(f'  done: HD {done[fid]["hd"]} SD {done[fid]["sd"]}')
             json.dump({**done, '_failed': failed}, open(out_path, 'w'), indent=1)   # keep progress if the job is stopped
         except QuotaError:
-            log('  Drive download quota reached; stopping until the next run'); break
+            # Drive limits downloads per file; another video may still be allowed
+            quota += 1
+            if quota >= 4:
+                log('  Drive refused several videos in a row; stopping until the next run'); break
+            log('  Drive download quota reached for this video; trying the next one'); continue
         except Exception as e:
             failed[fid] = str(e)[:300]
             log(f'  failed: {e}'); save_log(rel, i)
