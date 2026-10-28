@@ -1,7 +1,7 @@
 name: Make website video copies
 
 # Makes the HD and SD copies the website plays (scripts/make_streams.py).
-# Runs after each Drive sync, once a day, when this file or the script changes, or from the Actions tab.
+# Runs after each Drive sync, every hour while copies are missing, when this file or the script changes, or from the Actions tab.
 # Only videos without copies (or whose Drive file changed) are encoded, so most runs finish in seconds.
 on:
   workflow_run:
@@ -13,7 +13,7 @@ on:
       - 'scripts/make_streams.py'
       - '.github/workflows/streams.yml'
   schedule:
-    - cron: '41 21 * * *'
+    - cron: '17 * * * *'   # hourly: Drive allows only so many downloads at a time
   workflow_dispatch:
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
         with: { ref: main }
       - id: p
         run: |
-          python3 scripts/make_streams.py plan 6 > plan.json
+          python3 scripts/make_streams.py plan 4 > plan.json
           cat plan.json
           echo "total=$(python3 -c 'import json;print(json.load(open("plan.json"))["total"])')" >> "$GITHUB_OUTPUT"
           echo "shards=$(python3 -c 'import json;print(json.dumps([i for i,s in enumerate(json.load(open("plan.json"))["shards"]) if s]))')" >> "$GITHUB_OUTPUT"
@@ -63,7 +63,7 @@ jobs:
           DRIVE_API_KEY: ${{ secrets.DRIVE_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           STREAM_WORK: /mnt/streams
-        run: python3 scripts/make_streams.py run ${{ matrix.shard }} 6
+        run: python3 scripts/make_streams.py run ${{ matrix.shard }} 4
       - uses: actions/upload-artifact@v4
         if: always()
         with:

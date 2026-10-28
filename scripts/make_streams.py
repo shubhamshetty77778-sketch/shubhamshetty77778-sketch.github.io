@@ -166,6 +166,13 @@ def encode(src, dur, hd, sd):
     subprocess.run(cmd, check=True)
 
 
+class QuotaError(Exception):
+    pass
+
+
+PER_RUN = int(os.environ.get('STREAM_PER_RUN', '3'))   # Drive limits downloads, so a few videos per run
+
+
 def fetch(fid, dest, errors):
     """Download the Drive original, waiting and retrying when Drive asks us to slow down."""
     urls = []
@@ -208,6 +215,8 @@ def fetch(fid, dest, errors):
                 errors.append(f'{name}: HTTP {e.code} {body}')
             except Exception as e:
                 errors.append(f'{name}: {e}'[:200])
+        if any('Quota exceeded' in x for x in errors[-len(urls):]):
+            raise QuotaError('Drive download quota reached')
         if attempt == 2: break
         wait = 20 * (3 ** attempt)
         log(f'  Drive refused ({errors[-1]}); waiting {wait}s')
@@ -231,7 +240,9 @@ def run(i, n):
         json.dump(done, open(out_path, 'w')); return
     rel = release()
     work = os.environ.get('STREAM_WORK') or tempfile.gettempdir()
-    for fid in mine:
+    for n, fid in enumerate(mine):
+        if n >= PER_RUN:
+            log(f'{PER_RUN} videos done this run; the rest follow on the next runs'); break
         if time.time() - T0 > BUDGET:
             log('time budget used; the rest will be made on the next run'); break
         log(f'== {fid} ({vids[fid]["duration"]:.0f}s)')
@@ -255,6 +266,8 @@ def run(i, n):
                          't': int(time.time())}
             log(f'  done: HD {done[fid]["hd"]} SD {done[fid]["sd"]}')
             json.dump({**done, '_failed': failed}, open(out_path, 'w'), indent=1)   # keep progress if the job is stopped
+        except QuotaError:
+            log('  Drive download quota reached; stopping until the next run'); break
         except Exception as e:
             failed[fid] = str(e)[:300]
             log(f'  failed: {e}'); save_log(rel, i)
