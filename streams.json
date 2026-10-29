@@ -34,6 +34,23 @@
    },
    "t": 1793254846
   },
+  "11E_4LNwu0K63Qp1PMWd-OSYcx8npW3cH": {
+   "d": 119.3,
+   "src": 18221179,
+   "hd": {
+    "w": 720,
+    "h": 1280,
+    "kbps": 2100,
+    "mb": 31.3
+   },
+   "sd": {
+    "w": 480,
+    "h": 854,
+    "kbps": 668,
+    "mb": 10.0
+   },
+   "t": 1793255071
+  },
   "125JWTUPDv_0kkASMdAl4jy5oXZfUm4t0": {
    "d": 60.9,
    "src": 22660143,
@@ -119,6 +136,40 @@
    },
    "t": 1793177573
   },
+  "16ga4dy7Eoe5W_2gwyqBJKfM48YBU8vBr": {
+   "d": 64.6,
+   "src": 0,
+   "hd": {
+    "w": 360,
+    "h": 640,
+    "kbps": 727,
+    "mb": 5.9
+   },
+   "sd": {
+    "w": 360,
+    "h": 640,
+    "kbps": 429,
+    "mb": 3.5
+   },
+   "t": 1793255026
+  },
+  "16zvX5Ns-0VeTf-_1oQbFi5myalRPouwV": {
+   "d": 58.3,
+   "src": 0,
+   "hd": {
+    "w": 720,
+    "h": 1280,
+    "kbps": 3148,
+    "mb": 23.0
+   },
+   "sd": {
+    "w": 480,
+    "h": 854,
+    "kbps": 1002,
+    "mb": 7.3
+   },
+   "t": 1793255077
+  },
   "19NzU46aYQVEZV0faG_UEXohyRCyk8j06": {
    "d": 76.7,
    "src": 12561308,
@@ -135,6 +186,23 @@
     "mb": 7.0
    },
    "t": 1793177409
+  },
+  "19RtXxuOEsru0UP671BhKO-a02RTaWUnC": {
+   "d": 20.8,
+   "src": 0,
+   "hd": {
+    "w": 720,
+    "h": 1280,
+    "kbps": 1781,
+    "mb": 4.6
+   },
+   "sd": {
+    "w": 480,
+    "h": 854,
+    "kbps": 603,
+    "mb": 1.6
+   },
+   "t": 1793254982
   },
   "1AhSTleeglw18-ZWWEzMmrK_sDlbz4f8O": {
    "d": 62.5,
@@ -186,6 +254,23 @@
     "mb": 45.1
    },
    "t": 1793250212
+  },
+  "1DqOxSgIFkUWEm2QXUWqZ-g49GKEfUcoS": {
+   "d": 61.9,
+   "src": 0,
+   "hd": {
+    "w": 360,
+    "h": 640,
+    "kbps": 656,
+    "mb": 5.1
+   },
+   "sd": {
+    "w": 360,
+    "h": 640,
+    "kbps": 379,
+    "mb": 2.9
+   },
+   "t": 1793254991
   },
   "1Eiolw20OBggZhFA5D54Zrpuz8Jk-loS5": {
    "d": 58.1,
@@ -357,6 +442,23 @@
    },
    "t": 1793177449
   },
+  "1VH6W1hikNdoRLhHdhQ5UsjWd3375sNMI": {
+   "d": 127.4,
+   "src": 5206437,
+   "hd": {
+    "w": 640,
+    "h": 360,
+    "kbps": 768,
+    "mb": 12.2
+   },
+   "sd": {
+    "w": 640,
+    "h": 360,
+    "kbps": 447,
+    "mb": 7.1
+   },
+   "t": 1793254974
+  },
   "1XSiX-MGjOS-CEtEoe6gxw_6IfdzQWD0S": {
    "d": 9.9,
    "src": 915186,
@@ -425,6 +527,23 @@
    },
    "t": 1793249755
   },
+  "1fZOLb_zhjmPpqI1x_xgfGUjp2ke4GBt3": {
+   "d": 29.4,
+   "src": 0,
+   "hd": {
+    "w": 720,
+    "h": 1280,
+    "kbps": 2685,
+    "mb": 9.9
+   },
+   "sd": {
+    "w": 480,
+    "h": 854,
+    "kbps": 874,
+    "mb": 3.2
+   },
+   "t": 1793255045
+  },
   "1fnn_OhBbtz5DLFGreywqzoZyXxGcVAD8": {
    "d": 45.5,
    "src": 0,
@@ -441,6 +560,40 @@
     "mb": 3.0
    },
    "t": 1793177253
+  },
+  "1g_Hbqi_U8Bw9RbmMT22qFEsx2RHMNAs9": {
+   "d": 93.1,
+   "src": 12225686,
+   "hd": {
+    "w": 1280,
+    "h": 720,
+    "kbps": 1670,
+    "mb": 19.5
+   },
+   "sd": {
+    "w": 854,
+    "h": 480,
+    "kbps": 580,
+    "mb": 6.8
+   },
+   "t": 1793255092
+  },
+  "1hrsooohAAlk-vegARzIiM3sK0chHEB_K": {
+   "d": 112.6,
+   "src": 21857050,
+   "hd": {
+    "w": 1276,
+    "h": 718,
+    "kbps": 2311,
+    "mb": 32.5
+   },
+   "sd": {
+    "w": 854,
+    "h": 480,
+    "kbps": 688,
+    "mb": 9.7
+   },
+   "t": 1793255069
   },
   "1k8h1fNg5v8BlOLckb1A949pAS4yCRKw6": {
    "d": 61.3,
@@ -510,6 +663,23 @@
    },
    "t": 1793177505
   },
+  "1nSSQDgMAzFpr4ouogq6sw6BYb1pHavf9": {
+   "d": 9.7,
+   "src": 0,
+   "hd": {
+    "w": 720,
+    "h": 1280,
+    "kbps": 5337,
+    "mb": 6.5
+   },
+   "sd": {
+    "w": 480,
+    "h": 854,
+    "kbps": 1019,
+    "mb": 1.2
+   },
+   "t": 1793254964
+  },
   "1qoCG8tI-H3qcbIYVf7UY4tzUzaoWdJ0w": {
    "d": 19.4,
    "src": 0,
@@ -543,6 +713,23 @@
     "mb": 4.8
    },
    "t": 1793177730
+  },
+  "1qyFgSp8W-4Y2cMqYfFgLHODv5Qn6v9d-": {
+   "d": 41.5,
+   "src": 0,
+   "hd": {
+    "w": 720,
+    "h": 1280,
+    "kbps": 1293,
+    "mb": 6.7
+   },
+   "sd": {
+    "w": 480,
+    "h": 854,
+    "kbps": 441,
+    "mb": 2.3
+   },
+   "t": 1793255048
   },
   "1tggNHKkh4unLH4ooh7xyNkf9N6O-HQOF": {
    "d": 52.8,
@@ -594,6 +781,23 @@
     "mb": 14.4
    },
    "t": 1793250277
+  },
+  "1zKDG3XI40-K4TpjwpT5tCLzXJti4KXpF": {
+   "d": 160.3,
+   "src": 22409977,
+   "hd": {
+    "w": 1276,
+    "h": 718,
+    "kbps": 1714,
+    "mb": 34.4
+   },
+   "sd": {
+    "w": 854,
+    "h": 480,
+    "kbps": 554,
+    "mb": 11.1
+   },
+   "t": 1793255025
   }
  },
  "base": "https://github.com/shubhamshetty77778-sketch/shubhamshetty77778-sketch.github.io/releases/download/videos/",
