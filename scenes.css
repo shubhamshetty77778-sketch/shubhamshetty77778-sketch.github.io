@@ -554,3 +554,53 @@
 
 /* tool logos in their own colours */
 .holo-face img[src*="-color.svg"]{filter:none;opacity:1}
+
+/* ---------- Services: depth, light and parallax (services-3d.js sets the tilt) ---------- */
+.service-ui{perspective:1000px;perspective-origin:50% 35%;box-shadow:inset 0 0 0 1px #ffffff0d,0 50px 90px -50px #000}
+.service-ui::before{content:'';position:absolute;left:-30%;right:-30%;bottom:-8%;height:70%;z-index:0;pointer-events:none;
+ background:linear-gradient(#ffffff0a 1px,transparent 1px) 0 0/100% 28px,linear-gradient(90deg,#ffffff0a 1px,transparent 1px) 0 0/28px 100%;
+ transform:rotateX(70deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(transparent,#000 75%);mask-image:linear-gradient(transparent,#000 75%);
+ animation:svc-floor 14s linear infinite}
+@keyframes svc-floor{to{background-position:0 28px,0 0}}
+.service-ui::after{content:'';position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:inherit;
+ background:linear-gradient(112deg,transparent 38%,#ffffff14 46%,#ffffff06 51%,transparent 58%) no-repeat;background-size:260% 100%;
+ animation:svc-sheen 9s ease-in-out infinite}
+@keyframes svc-sheen{0%,20%{background-position:120% 0}60%,100%{background-position:-20% 0}}
+.loops-paused::before,.loops-paused::after{animation-play-state:paused}
+.ui-aura{animation:svc-aura 11s ease-in-out infinite alternate}
+@keyframes svc-aura{to{translate:-5% 4%;scale:1.12}}
+.ui-demonstration{z-index:1;transform-style:preserve-3d;
+ transform:rotateX(calc(var(--svc-rx,8deg) + var(--svc-srx,0deg))) rotateY(calc(var(--svc-ry,-13deg) + var(--svc-sry,0deg))) scale(.9);
+ transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.ui-demonstration>*{translate:0 0 10px}
+.ui-demonstration>.ui-panel{translate:0 0 46px;box-shadow:0 30px 50px -18px #000e,0 0 0 1px #ffffff10,inset 0 1px 0 #ffffff17}
+.ui-demonstration>.ui-timeline,.ui-demonstration>.ae-timeline,.ui-demonstration>.ui-podcast-main,.ui-demonstration>.ui-planning{translate:0 0 22px}
+.ui-demonstration>.ui-curve,.ui-demonstration>.ui-audio-pop,.ui-demonstration>.ui-story-notes,.ui-demonstration>.camera-readout,.ui-demonstration>.ui-export{translate:0 0 58px}
+.ui-demonstration>.ui-status{translate:0 0 72px;box-shadow:0 14px 26px -10px #000c}
+.ui-demonstration>.ui-preview{translate:0 0 0;box-shadow:0 28px 46px -16px #000d,0 0 0 1px #ffffff14;overflow:hidden}
+.ui-demonstration>.camera-object{translate:0 0 30px;animation:camera-hover 6s ease-in-out infinite,svc-turn 12s ease-in-out infinite}
+@keyframes svc-turn{0%,100%{rotate:y -10deg}50%{rotate:y 14deg}}
+/* real footage inside the edit preview */
+.ui-preview{isolation:isolate}
+.ui-preview-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;opacity:0;transition:opacity .8s}
+.ui-preview-video.is-on{opacity:.92}
+.ui-preview::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 45%,#0009),linear-gradient(120deg,#2d899e33,#7154ae44);pointer-events:none}
+/* real frames in the social formats */
+.ui-format-previews{transform-style:preserve-3d}
+.ui-format-previews i{position:relative;overflow:hidden;color:#fff;text-shadow:0 1px 3px #000;background:#0d0f13 center/cover no-repeat;box-shadow:0 18px 28px -12px #000d;animation:svc-format 7.5s ease-in-out infinite}
+.ui-format-previews i:nth-child(1){background-image:linear-gradient(#0003,#0007),url('/assets/svc/wide.jpg')}
+.ui-format-previews i:nth-child(2){background-image:linear-gradient(#0003,#0007),url('/assets/svc/tall.jpg');animation-delay:-2.5s}
+.ui-format-previews i:nth-child(3){background-image:linear-gradient(#0003,#0007),url('/assets/svc/square.jpg');animation-delay:-5s}
+@keyframes svc-format{0%,100%{translate:0 0 0}50%{translate:0 -6px 18px}}
+@media(max-width:760px){
+ /* small screens: keep text crisp, so no tilt; depth comes from light, shadow and the floor */
+ .ui-demonstration{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .service-ui::before,.service-ui::after,.ui-aura,.ui-format-previews i{animation:none!important}
+ .ui-demonstration{transition:none}
+}
+.ui-format-previews i:nth-child(1){width:104px;height:59px}
+.ui-format-previews i:nth-child(2){width:42px;height:75px}
+.ui-format-previews i:nth-child(3){width:60px;height:60px}
+@media(max-width:760px){.ui-format-previews i:nth-child(1){width:84px;height:48px}.ui-format-previews i:nth-child(2){width:34px;height:61px}.ui-format-previews i:nth-child(3){width:48px;height:48px}}
