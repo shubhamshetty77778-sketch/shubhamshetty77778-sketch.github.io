@@ -239,12 +239,10 @@ root.addEventListener('keydown',e=>{
 track.addEventListener('pointerover',e=>{if(e.pointerType==='mouse')hovering=!!e.target.closest('.arc-card.is-center')});
 stage.addEventListener('pointerleave',()=>{hovering=false});
 
-// Clicking a side card glides it to the centre first; clicking the centre card opens it.
+// Clicking any card opens and plays that video straight away (a drag or swipe only turns the arc).
 track.addEventListener('click',e=>{
  const card=e.target.closest('.arc-card');if(!card)return;
  if(suppress){e.preventDefault();suppress=false;return}
- const d=parseFloat(card.dataset.d);
- if(Math.abs(d)>.5&&rotating()){e.preventDefault();go(Math.round(d),true)}
 });
 
 // Drag / swipe follows the pointer exactly, then settles with momentum.

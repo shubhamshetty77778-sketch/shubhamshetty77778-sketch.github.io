@@ -61,7 +61,8 @@ def all_videos():
         if not os.path.exists(p): continue
         for e in json.load(open(p)).get(key, []):
             if e.get('id'):
-                vids[e['id']] = {'duration': e.get('duration') or 60, 'size': sizes.get(e['id'], e.get('size') or 0)}
+                vids[e['id']] = {'duration': e.get('duration') or 60, 'size': sizes.get(e['id'], e.get('size') or 0),
+                                 'coll': path.split('/')[0]}
     for page in glob.glob(os.path.join(ROOT, 'projects', '*.html')):
         for fid in re.findall(r'drive\.google\.com/file/d/([A-Za-z0-9_-]{20,})/', open(page, encoding='utf-8').read()):
             vids.setdefault(fid, {'duration': 120, 'size': sizes.get(fid, 0)})
@@ -80,11 +81,14 @@ def todo(vids, man):
 
 def plan(n):
     vids, man = all_videos(), load_manifest()
-    need = sorted(todo(vids, man), key=lambda f: -vids[f]['duration'])
+    # sections near the top of the home page first, so what visitors click most plays directly soonest
+    first = ['events', 'social', 'brand-films', 'interviews', 'ads', 'more', 'features']
+    rank = lambda f: first.index(vids[f].get('coll')) if vids[f].get('coll') in first else len(first)
+    need = sorted(todo(vids, man), key=lambda f: (rank(f), -vids[f]['duration']))
     bins = [[] for _ in range(n)]
     load = [0.0] * n
-    for f in need:
-        i = load.index(min(load)); bins[i].append(f); load[i] += vids[f]['duration']
+    for k, f in enumerate(need):
+        i = k % n; bins[i].append(f); load[i] += vids[f]['duration']
     return {'shards': bins, 'minutes': [round(x / 60) for x in load], 'total': len(need)}
 
 
@@ -170,7 +174,7 @@ class QuotaError(Exception):
     pass
 
 
-PER_RUN = int(os.environ.get('STREAM_PER_RUN', '3'))   # Drive limits downloads, so a few videos per run
+PER_RUN = int(os.environ.get('STREAM_PER_RUN', '5'))   # Drive limits downloads, so a few videos per run
 
 
 def fetch(fid, dest, errors):
