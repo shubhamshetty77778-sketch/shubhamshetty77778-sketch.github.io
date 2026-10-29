@@ -539,3 +539,15 @@
 .back-pin{position:fixed;left:var(--pad,22px);z-index:40;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid #ffffff2e;border-radius:3px;background:#0b0d11d9;color:#f1ece5;font:500 13px 'Space Grotesk',sans-serif;letter-spacing:.04em;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .back-pin[hidden]{display:none}
 .back-pin:hover{border-color:#ffffff66}
+/* top row of four: Photoshop, Claude, Higgsfield, Illustrator, evenly spaced */
+.reference-opening .holo-2{left:calc(20% - 27px);right:auto}
+.reference-opening .holo-3{right:calc(20% - 27px)}
+.reference-opening .holo-claude{left:calc(40% - 27px)}
+.reference-opening .holo-higgs{left:calc(60% - 27px);top:8%}
+.holo-face img[src$="higgsfield.png"]{filter:none;opacity:1}
+@media(max-width:760px){
+ .reference-opening .holo-2{left:calc(20% - 22px)}
+ .reference-opening .holo-3{right:calc(20% - 22px)}
+ .reference-opening .holo-claude{left:calc(40% - 22px)}
+ .reference-opening .holo-higgs{left:calc(60% - 22px);top:12%}
+}
