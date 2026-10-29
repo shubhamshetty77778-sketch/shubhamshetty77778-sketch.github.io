@@ -82,10 +82,12 @@ if(flow){
 }
 
 // ---- 2. back links return to where you were ----
-document.querySelectorAll('a[data-back]').forEach(a=>a.addEventListener('click',e=>{
+document.addEventListener('click',e=>{
+ const a=e.target.closest&&e.target.closest('a[data-back]');if(!a)return;
+ const src=a.dataset.backFrom&&document.querySelector(a.dataset.backFrom);if(src)a.href=src.href;
  try{
   const ref=document.referrer&&new URL(document.referrer);
   if(ref&&ref.origin===location.origin&&/\/(index|work)\.html$|\/$/.test(ref.pathname)&&history.length>1){e.preventDefault();history.back()}
  }catch(err){}
-}));
+});
 })();

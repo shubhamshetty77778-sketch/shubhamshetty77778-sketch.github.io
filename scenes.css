@@ -528,3 +528,14 @@
 .ss-sound[hidden]{display:none}
 .ss-direct section:has(> .film-screen){padding-top:4px}
 .ss-direct .page-intro{padding-bottom:clamp(16px,3vw,32px)}
+
+/* back link on video pages, and the end-of-film choices */
+.back-top{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;color:var(--muted,#a0a3aa);font:500 13px 'Space Grotesk',sans-serif;letter-spacing:.04em;text-decoration:none;transition:color .2s}
+.back-top:hover,.back-top:focus-visible{color:var(--text,#f4f0e8)}
+.ss-end{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;padding:20px;background:#0b0d11b8;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.ss-end[hidden]{display:none}
+.ss-end a,.ss-end button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border:1px solid #ffffff3d;border-radius:3px;background:#15181ecc;color:#f1ece5;font:500 13px 'Space Grotesk',sans-serif;letter-spacing:.03em;text-decoration:none;cursor:pointer}
+.ss-end a:hover,.ss-end button:hover,.ss-end a:focus-visible,.ss-end button:focus-visible{border-color:#ffffff80;background:#22262ecc}
+.back-pin{position:fixed;left:var(--pad,22px);z-index:40;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid #ffffff2e;border-radius:3px;background:#0b0d11d9;color:#f1ece5;font:500 13px 'Space Grotesk',sans-serif;letter-spacing:.04em;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.back-pin[hidden]{display:none}
+.back-pin:hover{border-color:#ffffff66}

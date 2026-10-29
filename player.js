@@ -149,6 +149,19 @@ function build(box,frame,id,e,root,opts){
  setLevel(startLevel());label();
  const sound=document.createElement('button');sound.type='button';sound.className='ss-sound';sound.hidden=true;sound.textContent='Tap for sound';
  wrap.append(sound);
+ // when the film ends: Back to where you were, or the next video
+ const endBox=document.createElement('div');endBox.className='ss-end';endBox.hidden=true;
+ const back=document.createElement('a');back.className='ss-end-back';back.setAttribute('data-back','');back.innerHTML='<span aria-hidden="true">←</span> Back';
+ const bs=backSource();if(bs){back.href=bs.getAttribute('href');if(bs.id)back.dataset.backFrom='#'+bs.id}else back.href=(document.querySelector('a.wordmark')||{}).href||'/';
+ const replay=document.createElement('button');replay.type='button';replay.className='ss-end-replay';replay.textContent='Watch again';
+ replay.addEventListener('click',()=>{v.currentTime=0;start()});
+ endBox.append(back,replay);
+ const nextSrc=document.querySelector('#ev-next')||document.querySelector('.next-project a.button');
+ if(nextSrc&&document.querySelector('#ev-next')){const nx=document.createElement('a');nx.className='ss-end-next';nx.href=nextSrc.getAttribute('href');nx.innerHTML='Next video <span aria-hidden="true">→</span>';
+  nx.addEventListener('click',e=>{e.preventDefault();nextSrc.click()});endBox.append(nx)}
+ wrap.append(endBox);
+ v.addEventListener('ended',()=>{endBox.hidden=false});
+ v.addEventListener('play',()=>{endBox.hidden=true});v.addEventListener('seeking',()=>{if(!v.ended)endBox.hidden=true});
  sound.addEventListener('click',()=>{v.muted=false;sound.hidden=true;const p=v.play();if(p)p.catch(()=>{})});
  v.addEventListener('volumechange',()=>{if(!v.muted)sound.hidden=true});
  function start(){
@@ -163,6 +176,22 @@ function build(box,frame,id,e,root,opts){
 }
 
 window.SSPlayer={attach};
+// "← Back" at the top of video pages; returns to the same place on the home page
+function backSource(){return document.querySelector('#ev-back')||document.querySelector('.next-project a[data-back]')}
+function addBackTop(){
+ const src=backSource(),intro=document.querySelector('.page-intro');
+ if(!src||!intro||intro.querySelector('.back-top'))return;
+ const a=document.createElement('a');a.className='back-top';a.href=src.getAttribute('href');a.setAttribute('data-back','');
+ if(src.id)a.dataset.backFrom='#'+src.id;
+ a.innerHTML='<span aria-hidden="true">←</span> Back';intro.prepend(a);
+ // a copy stays pinned under the header once the page scrolls past the top one, so Back is always one tap away
+ const pin=a.cloneNode(true);pin.className='back-pin';pin.setAttribute('aria-hidden','true');pin.tabIndex=-1;pin.hidden=true;
+ document.body.append(pin);
+ const place=()=>{const h=document.querySelector('header');pin.style.top=Math.round((h?h.getBoundingClientRect().bottom:64)+10)+'px'};
+ if('IntersectionObserver' in window){new IntersectionObserver(es=>es.forEach(e=>{place();pin.hidden=e.isIntersecting||e.boundingClientRect.top>0})).observe(a)}
+ addEventListener('resize',place);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addBackTop);else addBackTop();
 // pages with a fixed Drive player
 function scan(){
  document.querySelectorAll('.youtube-frame iframe[src*="drive.google.com/file/d/"]').forEach(f=>{
