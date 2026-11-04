@@ -32,12 +32,16 @@ table.recent td{padding:9px 10px 9px 0;border-top:1px solid #ffffff0d;vertical-a
 table.recent td:first-child{white-space:nowrap;color:#c9c6bf}
 .muted{color:#a0a3aa;font-size:13px}
 .empty{color:#a0a3aa;padding:12px 0}
+.kpis.eng{grid-template-columns:repeat(4,1fr)}.kpis.eng .kpi b{font-size:26px}
+.tag{display:inline-block;font:500 11px 'Space Grotesk',sans-serif;padding:2px 7px;border-radius:999px;background:#ffffff12;color:#d6d3cc;margin-top:3px}.tag.new{background:#6bd6b626;color:#8fe3c8}
+.detail{color:#a0a3aa;font-size:13px;margin-top:3px}.detail b{color:#e9e6df;font-weight:500}
+table.vids td:first-child{white-space:normal;color:#f4f0e8}
 .range{display:flex;gap:8px;margin:-14px 0 24px;flex-wrap:wrap}
 .range button{background:#15181e;border:1px solid #ffffff1c;color:#d6d3cc;border-radius:999px;padding:8px 14px;font:500 13px 'Space Grotesk',sans-serif;cursor:pointer;min-height:38px}
 .range button[aria-pressed=true]{background:#f4f0e8;color:#0b0d11;border-color:#f4f0e8}
-@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi.main{grid-column:1/-1}.three{grid-template-columns:1fr}
- table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
-@media(max-width:480px){table.recent th:nth-child(4),table.recent td:nth-child(4){display:none}}
+@media(max-width:820px){.kpis,.kpis.eng{grid-template-columns:repeat(2,1fr)}.kpi.main{grid-column:1/-1}.three{grid-template-columns:1fr}
+table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
+@media(max-width:480px){table.recent:not(.vids) th:nth-child(3),table.recent:not(.vids) td:nth-child(3){display:none}}
 </style></head>
 <body class="stats"><main>
 <a class="home" href="/index.html">← Back to the website</a>
@@ -47,14 +51,16 @@ table.recent td:first-child{white-space:nowrap;color:#c9c6bf}
 <div class="range" role="group" aria-label="Period for the lists below">
  <button type="button" data-days="1">Today</button><button type="button" data-days="7">7 days</button><button type="button" data-days="30" aria-pressed="true">30 days</button><button type="button" data-days="0">All time</button>
 </div>
+<div class="kpis eng" id="eng"></div>
 <section class="card chart"><h2>Visitors per day, last 30 days</h2><div id="chart"></div></section>
 <div class="three">
  <section class="card"><h2>Pages they opened</h2><ul class="rank" id="pages"></ul></section>
  <section class="card"><h2>Where they came from</h2><ul class="rank" id="sources"></ul></section>
  <section class="card"><h2>Devices</h2><ul class="rank" id="devices"></ul></section>
 </div>
-<section class="card" style="margin-top:16px"><h2>Recent visitors</h2><table class="recent"><thead><tr><th>When</th><th>Page</th><th>Device</th><th>From</th><th>Time zone</th></tr></thead><tbody id="recent"></tbody></table></section>
-<p class="muted">Each person is counted once a day. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). The list updates every hour.</p>
+<section class="card" style="margin-top:16px"><h2>Videos they played</h2><table class="recent vids"><thead><tr><th>Video</th><th>Plays</th><th>Time watched</th><th>Watched on average</th></tr></thead><tbody id="videos"></tbody></table></section>
+<section class="card"><h2>Recent visits</h2><table class="recent"><thead><tr><th>When</th><th>Visitor</th><th>Time on site</th><th>Pages and videos</th><th>From</th></tr></thead><tbody id="recent"></tbody></table></section>
+<p class="muted">Visitors are counted once a day per device; a visit is one browsing session. Time on site counts only while the site is on screen. Videos count when played in the site's own player. "Returning" means the same phone or browser has been here before. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). Updates every hour.</p>
 </main>
 <script>
 (()=>{
@@ -65,7 +71,7 @@ const IST=330*60*1000;                       // dates are counted in India time
 const dayKey=t=>new Date(t*1000+IST).toISOString().slice(0,10);
 const today=dayKey(Date.now()/1000);
 const shift=(k,n)=>{const d=new Date(k+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
-let visits=[],days=30;
+let visits=[],sessions={},days=30;
 function within(v,n){if(!n)return true;return dayKey(v.t)>shift(today,-n)}
 function kpis(){
  const c=n=>visits.filter(v=>within(v,n)).length;
@@ -92,16 +98,47 @@ function rank(id,key){
  const rows=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8),top=rows.length?rows[0][1]:1;
  $(id).innerHTML=rows.length?rows.map(([k,n])=>`<li><span>${esc(k)}</span><b>${n}</b><span class="meter"><i style="width:${n/top*100}%"></i></span></li>`).join(''):'<li class="empty">No visits in this period</li>';
 }
-function recent(){
- const vs=visits.filter(v=>within(v,days)).slice().reverse().slice(0,30);
- const fmt=t=>new Date(t*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
- $('recent').innerHTML=vs.length?vs.map(v=>`<tr><td>${fmt(v.t)}</td><td>${esc(v.page||'—')}</td><td>${esc(v.device||'—')}</td><td>${esc(v.src||'—')}</td><td>${esc(v.tz||'—')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No visits in this period</td></tr>';
+const spent=s=>{s=Math.round(s||0);return s<60?s+' s':s<3600?Math.floor(s/60)+' min '+(s%60)+' s':Math.floor(s/3600)+' h '+Math.floor(s%3600/60)+' min'};
+const mmss=s=>{s=Math.round(s||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const ord=n=>n+(n%100>=11&&n%100<=13?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
+function visitRows(){                     // one row per visit: reports joined to their arrival, plus arrivals with no report
+ const bySid={};visits.forEach(v=>{if(v.sid)bySid[v.sid]=v});
+ const rows=Object.entries(sessions).map(([sid,s])=>({t:(bySid[sid]||{}).t||s.t0,a:bySid[sid],s}));
+ visits.forEach(v=>{if(!v.sid||!sessions[v.sid])rows.push({t:v.t,a:v,s:null})});
+ return rows.sort((x,y)=>x.t-y.t);
 }
-function lists(){rank('pages','page');rank('sources','src');rank('devices','device');recent()}
+function engagement(){
+ const rs=visitRows().filter(r=>within(r,days)&&r.s);
+ const fresh=rs.filter(r=>r.s.n===1).length,back=rs.filter(r=>(r.s.n||0)>1).length;
+ const secs=rs.map(r=>r.s.secs||0),avg=secs.length?secs.reduce((a,b)=>a+b,0)/secs.length:0;
+ const watched=rs.reduce((t,r)=>t+(r.s.videos||[]).reduce((u,v)=>u+(v.s||0),0),0);
+ $('eng').innerHTML=[['New visitors',fresh],['Returning visitors',back],['Average time on site',secs.length?spent(avg):'—'],['Video time watched',watched?spent(watched):'—']]
+  .map(([l,n])=>`<div class="kpi"><b>${n}</b><span>${l}</span></div>`).join('');
+}
+function videos(){
+ const agg={};
+ visitRows().filter(r=>within(r,days)&&r.s).forEach(r=>(r.s.videos||[]).forEach(v=>{if((v.s||0)<1)return;
+  const a=agg[v.t]||(agg[v.t]={plays:0,s:0,pct:[]});a.plays++;a.s+=v.s;if(v.d)a.pct.push(Math.min(100,100*v.s/v.d))}));
+ const rows=Object.entries(agg).sort((a,b)=>b[1].s-a[1].s);
+ $('videos').innerHTML=rows.length?rows.map(([t,a])=>`<tr><td>${esc(t)}</td><td>${a.plays}</td><td>${spent(a.s)}</td><td>${a.pct.length?Math.round(a.pct.reduce((x,y)=>x+y,0)/a.pct.length)+'%':'—'}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No full videos played in this period</td></tr>';
+}
+function recent(){
+ const rs=visitRows().filter(r=>within(r,days)).reverse().slice(0,40);
+ const fmt=t=>new Date(t*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+ $('recent').innerHTML=rs.length?rs.map(({t,a,s})=>{
+  const dev=(s&&s.device)||(a&&a.device)||'',src=(s&&s.from)||(a&&a.src)||'—',tz=(s&&s.tz)||(a&&a.tz)||'';
+  const n=(s&&s.n)||(a&&a.n);
+  const who=n===1?'<span class="tag new">New</span>':n?`<span class="tag">Returning · ${ord(n)} visit</span>`:'';
+  const pages=s&&s.pages&&s.pages.length?s.pages.map(esc).join(' → '):esc((a&&a.page)||'—');
+  const vids=s?(s.videos||[]).filter(v=>(v.s||0)>=1).map(v=>`<div class="detail">▶ <b>${esc(v.t)}</b> · ${mmss(v.s)}${v.d?' of '+mmss(v.d)+' ('+Math.min(100,Math.round(100*v.s/v.d))+'%)':''}</div>`).join(''):'';
+  return `<tr><td>${fmt(t)}</td><td>${esc(dev||'—')}${who?'<br>'+who:''}</td><td>${s?spent(s.secs):'<span class="muted">—</span>'}</td><td>${pages}${vids}</td><td>${esc(src)}${tz?'<div class="detail">'+esc(tz)+'</div>':''}</td></tr>`}).join('')
+  :'<tr><td colspan="5" class="empty">No visits in this period</td></tr>';
+}
+function lists(){engagement();rank('pages','page');rank('sources','src');rank('devices','device');videos();recent()}
 document.querySelectorAll('.range button').forEach(b=>b.addEventListener('click',()=>{
  days=+b.dataset.days;document.querySelectorAll('.range button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));lists()}));
 fetch('/visits/log.json?'+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{visits:[]}).catch(()=>({visits:[]})).then(d=>{
- visits=(d.visits||[]).sort((a,b)=>a.t-b.t);
+ visits=(d.visits||[]).sort((a,b)=>a.t-b.t);sessions=d.sessions||{};
  const first=visits.length?new Date(visits[0].t*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}):null;
  const upd=d.updated?new Date(d.updated*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):null;
  $('sub').textContent=visits.length?`Counting since ${first}. Last updated ${upd}.`:'No visits recorded yet. The first ones appear within an hour of someone opening the site.';

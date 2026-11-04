@@ -2,7 +2,7 @@ name: Visitor counts and emails
 
 # Every hour: collect new visits (sent by visits.js to ntfy) into visits/log.json and email an alert if anyone came.
 # Every evening (about 9:15 pm India time): email the day's summary.
-# Changing this file or the script sends a test email (fails the run if the Gmail secrets are missing or refused).
+# A push whose commit message contains "[test email]" sends a test email (fails if the Gmail secrets are missing or refused).
 on:
   schedule:
     - cron: '7 * * * *'
@@ -32,7 +32,7 @@ jobs:
           SEND_ALERTS: ${{ github.event_name == 'push' && '0' || '1' }}
         run: python3 scripts/visits.py collect
       - name: Test email (when this setup changes)
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[test email]')
         env:
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
