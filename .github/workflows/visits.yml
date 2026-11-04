@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['scripts/visits.py', '.github/workflows/visits.yml']
+    paths: ['scripts/visits.py', '.github/workflows/visits.yml', 'visits/test-email.txt']
 
 permissions:
   contents: write
