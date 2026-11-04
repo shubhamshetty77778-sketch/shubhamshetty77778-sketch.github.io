@@ -11,7 +11,7 @@ Email is sent through Gmail SMTP with an app password, set as repository secrets
   MAIL_PASSWORD  its 16-character app password
 Until those exist the log and the stats page still work; emails are skipped.
 """
-import json, os, re, smtplib, sys, urllib.request
+import json, os, re, smtplib, sys, time, urllib.request
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from email.mime.text import MIMEText
@@ -80,11 +80,24 @@ def send(subject, body):
         return False
     msg = MIMEText(body, 'plain', 'utf-8')
     msg['Subject'], msg['From'], msg['To'] = subject, f'Portfolio visits <{user}>', TO
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=60) as s:
-        s.login(user, pw)
-        s.sendmail(user, [TO], msg.as_string())
-    print('email sent:', subject)
-    return True
+    errors = []
+    for attempt in ('starttls', 'ssl', 'starttls'):
+        try:
+            if attempt == 'ssl':
+                s = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=60)
+            else:
+                s = smtplib.SMTP('smtp.gmail.com', 587, timeout=60); s.ehlo(); s.starttls(); s.ehlo()
+            with s:
+                s.login(user, pw)
+                s.sendmail(user, [TO], msg.as_string())
+            print('email sent:', subject)
+            return True
+        except smtplib.SMTPAuthenticationError as e:
+            raise RuntimeError(f'Gmail did not accept the address or app password ({e.smtp_code})') from e
+        except Exception as e:
+            errors.append(f'{attempt}: {e}')
+            time.sleep(5)
+    raise RuntimeError('could not reach Gmail: ' + ' | '.join(errors))
 
 
 def collect():
