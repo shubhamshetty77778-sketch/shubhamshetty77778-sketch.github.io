@@ -160,8 +160,9 @@ def test():
               'Your portfolio will now email you when someone visits (checked every hour) and send a summary each evening.\n\n'
               f"Visits recorded so far: {len(data['visits'])}.\nSee them any time: {SITE}/visits.html\n")
     except Exception as e:
-        u, p = os.environ['MAIL_USERNAME'].strip(), os.environ['MAIL_PASSWORD'].replace(' ', '').strip()
-        print(f'::notice::Sender looks like an email: {bool(re.fullmatch(r"[^@\s]+@[^@\s]+", u))}; app password length: {len(p)} (should be 16), letters only: {p.isalpha()}')
+        p = os.environ['MAIL_PASSWORD'].replace(' ', '').strip()
+        if not (len(p) == 16 and p.isalpha()):
+            print('::warning::MAIL_PASSWORD is not a Google app password (16 letters).')
         print('::error::Gmail refused: ' + str(e)[:300]); sys.exit(1)
     print('::notice::Test email sent to ' + TO)
 
