@@ -6,9 +6,65 @@
 "page": "Every Frame Has a Story",
 "device": "phone",
 "src": "direct link",
-"tz": "Asia/Calcutta"
+"tz": "Asia/Calcutta",
+"mailed": true
+},
+{
+"id": "Pw7u7caN7C5N",
+"t": 1793798608,
+"sid": "usv91rkj",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "direct link",
+"tz": "Asia/Calcutta",
+"n": 1
+},
+{
+"id": "gUDHGOt1NAOh",
+"t": 1793801189,
+"sid": "x2nl93j3",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "direct link",
+"tz": "Asia/Calcutta",
+"n": 1
 }
 ],
-"sessions": {},
-"updated": 1793798421
+"sessions": {
+"usv91rkj": {
+"day": "2026-11-04",
+"first": "2026-11-04",
+"n": 1,
+"from": "direct link",
+"device": "phone",
+"tz": "Asia/Calcutta",
+"secs": 71,
+"span": 2705,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1793798646,
+"t1": 1793801313,
+"mailed": true
+},
+"x2nl93j3": {
+"day": "2026-11-04",
+"first": "2026-11-04",
+"n": 1,
+"from": "direct link",
+"device": "phone",
+"tz": "Asia/Calcutta",
+"secs": 33,
+"span": 583,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1793801218,
+"t1": 1793801774,
+"mailed": false
+}
+},
+"updated": 1793801964
 }
