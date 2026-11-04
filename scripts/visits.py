@@ -82,20 +82,23 @@ def send(subject, body):
     msg['Subject'], msg['From'], msg['To'] = subject, f'Portfolio visits <{user}>', TO
     errors = []
     for attempt in ('starttls', 'ssl', 'starttls'):
+        stage = 'connect'
         try:
             if attempt == 'ssl':
                 s = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=60)
             else:
-                s = smtplib.SMTP('smtp.gmail.com', 587, timeout=60); s.ehlo(); s.starttls(); s.ehlo()
+                s = smtplib.SMTP('smtp.gmail.com', 587, timeout=60); stage = 'hello'; s.ehlo(); stage = 'tls'; s.starttls(); s.ehlo()
             with s:
+                stage = 'login'
                 s.login(user, pw)
+                stage = 'send'
                 s.sendmail(user, [TO], msg.as_string())
             print('email sent:', subject)
             return True
         except smtplib.SMTPAuthenticationError as e:
             raise RuntimeError(f'Gmail did not accept the address or app password ({e.smtp_code})') from e
         except Exception as e:
-            errors.append(f'{attempt}: {e}')
+            errors.append(f'{attempt} at {stage}: {type(e).__name__} {e}')
             time.sleep(5)
     raise RuntimeError('could not reach Gmail: ' + ' | '.join(errors))
 
@@ -152,6 +155,8 @@ def test():
     if not os.environ.get('MAIL_USERNAME', '').strip() or not os.environ.get('MAIL_PASSWORD', '').strip():
         missing = [n for n in ('MAIL_USERNAME', 'MAIL_PASSWORD') if not os.environ.get(n, '').strip()]
         print('::error::Secrets not found: ' + ', '.join(missing)); sys.exit(1)
+    u, p = os.environ['MAIL_USERNAME'].strip(), os.environ['MAIL_PASSWORD'].replace(' ', '').strip()
+    print(f'::notice::Sender looks like an email: {bool(re.fullmatch(r"[^@\s]+@[^@\s]+", u))}; app password length: {len(p)} (should be 16), letters only: {p.isalpha()}')
     try:
         ok = send('Visitor emails are set up',
               'Your portfolio will now email you when someone visits (checked every hour) and send a summary each evening.\n\n'
