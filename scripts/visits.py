@@ -155,13 +155,13 @@ def test():
     if not os.environ.get('MAIL_USERNAME', '').strip() or not os.environ.get('MAIL_PASSWORD', '').strip():
         missing = [n for n in ('MAIL_USERNAME', 'MAIL_PASSWORD') if not os.environ.get(n, '').strip()]
         print('::error::Secrets not found: ' + ', '.join(missing)); sys.exit(1)
-    u, p = os.environ['MAIL_USERNAME'].strip(), os.environ['MAIL_PASSWORD'].replace(' ', '').strip()
-    print(f'::notice::Sender looks like an email: {bool(re.fullmatch(r"[^@\s]+@[^@\s]+", u))}; app password length: {len(p)} (should be 16), letters only: {p.isalpha()}')
     try:
         ok = send('Visitor emails are set up',
               'Your portfolio will now email you when someone visits (checked every hour) and send a summary each evening.\n\n'
               f"Visits recorded so far: {len(data['visits'])}.\nSee them any time: {SITE}/visits.html\n")
     except Exception as e:
+        u, p = os.environ['MAIL_USERNAME'].strip(), os.environ['MAIL_PASSWORD'].replace(' ', '').strip()
+        print(f'::notice::Sender looks like an email: {bool(re.fullmatch(r"[^@\s]+@[^@\s]+", u))}; app password length: {len(p)} (should be 16), letters only: {p.isalpha()}')
         print('::error::Gmail refused: ' + str(e)[:300]); sys.exit(1)
     print('::notice::Test email sent to ' + TO)
 
