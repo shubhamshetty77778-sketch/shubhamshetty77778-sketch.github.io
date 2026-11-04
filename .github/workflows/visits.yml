@@ -1,0 +1,46 @@
+name: Visitor counts and emails
+
+# Every hour: collect new visits (sent by visits.js to ntfy) into visits/log.json and email an alert if anyone came.
+# Every evening (about 9:15 pm India time): email the day's summary.
+on:
+  schedule:
+    - cron: '7 * * * *'
+    - cron: '43 15 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['scripts/visits.py', '.github/workflows/visits.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: visits
+  cancel-in-progress: false
+
+jobs:
+  visits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect new visits and send the hourly alert
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          SEND_ALERTS: ${{ github.event_name == 'push' && '0' || '1' }}
+        run: python3 scripts/visits.py collect
+      - name: Evening summary
+        if: github.event.schedule == '43 15 * * *'
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: python3 scripts/visits.py digest
+      - name: Save the log
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add visits/log.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "Nothing new"; exit 0; fi
+          git commit -m "Visitor log updated"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 5; done

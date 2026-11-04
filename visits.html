@@ -1,0 +1,111 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Visitors | Shubham Shetty</title><meta name="theme-color" content="#0B0D11"><link rel="icon" href="data:,"><link rel="stylesheet" href="/style.css?v=20261104-1">
+<style>
+body.stats{background:#0b0d11;color:#f4f0e8;margin:0;font-family:'Plus Jakarta Sans',sans-serif}
+.stats main{max-width:1080px;margin:0 auto;padding:48px 22px 80px}
+.stats a.home{color:#a0a3aa;text-decoration:none;font:500 13px 'Space Grotesk',sans-serif}
+.stats a.home:hover{color:#f4f0e8}
+.stats h1{font:500 clamp(34px,6vw,56px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.03em;margin:18px 0 6px}
+.stats .sub{color:#a0a3aa;margin:0 0 34px;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.kpi{background:#15181e;border:1px solid #ffffff12;border-radius:12px;padding:16px 18px}
+.kpi b{display:block;font:500 34px/1 'Space Grotesk',sans-serif;letter-spacing:-.02em}
+.kpi span{display:block;margin-top:8px;color:#a0a3aa;font-size:13px}
+.kpi.main{background:linear-gradient(140deg,#ff6b3526,#15181e 60%);border-color:#ff6b3540}
+.card{background:#15181e;border:1px solid #ffffff12;border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.card h2{font:500 15px 'Space Grotesk',sans-serif;margin:0 0 14px;color:#e9e6df}
+.chart svg{width:100%;height:220px;display:block}
+.chart .bar{fill:#ff6b35}.chart .bar.zero{fill:#ffffff14}
+.chart .axis{fill:#7d8089;font:11px 'Space Grotesk',sans-serif}
+.chart .grid{stroke:#ffffff10}
+.chart .val{fill:#f4f0e8;font:500 11px 'Space Grotesk',sans-serif}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.three .card{margin:0}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #ffffff0d;font-size:14px}
+.rank li:first-child{border-top:0}
+.rank .meter{grid-column:1/-1;height:4px;border-radius:2px;background:#ffffff0d;overflow:hidden;margin-top:-2px}
+.rank .meter i{display:block;height:100%;background:#ff6b35b3}
+.rank b{font:500 14px 'Space Grotesk',sans-serif}
+table.recent{width:100%;border-collapse:collapse;font-size:14px}
+table.recent th{text-align:left;font:500 12px 'Space Grotesk',sans-serif;color:#a0a3aa;padding:0 10px 10px 0}
+table.recent td{padding:9px 10px 9px 0;border-top:1px solid #ffffff0d;vertical-align:top}
+table.recent td:first-child{white-space:nowrap;color:#c9c6bf}
+.muted{color:#a0a3aa;font-size:13px}
+.empty{color:#a0a3aa;padding:12px 0}
+.range{display:flex;gap:8px;margin:-14px 0 24px;flex-wrap:wrap}
+.range button{background:#15181e;border:1px solid #ffffff1c;color:#d6d3cc;border-radius:999px;padding:8px 14px;font:500 13px 'Space Grotesk',sans-serif;cursor:pointer;min-height:38px}
+.range button[aria-pressed=true]{background:#f4f0e8;color:#0b0d11;border-color:#f4f0e8}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi.main{grid-column:1/-1}.three{grid-template-columns:1fr}
+ table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
+@media(max-width:480px){table.recent th:nth-child(4),table.recent td:nth-child(4){display:none}}
+</style></head>
+<body class="stats"><main>
+<a class="home" href="/index.html">← Back to the website</a>
+<h1>Visitors</h1>
+<p class="sub" id="sub">Loading…</p>
+<div class="kpis" id="kpis"></div>
+<div class="range" role="group" aria-label="Period for the lists below">
+ <button type="button" data-days="1">Today</button><button type="button" data-days="7">7 days</button><button type="button" data-days="30" aria-pressed="true">30 days</button><button type="button" data-days="0">All time</button>
+</div>
+<section class="card chart"><h2>Visitors per day, last 30 days</h2><div id="chart"></div></section>
+<div class="three">
+ <section class="card"><h2>Pages they opened</h2><ul class="rank" id="pages"></ul></section>
+ <section class="card"><h2>Where they came from</h2><ul class="rank" id="sources"></ul></section>
+ <section class="card"><h2>Devices</h2><ul class="rank" id="devices"></ul></section>
+</div>
+<section class="card" style="margin-top:16px"><h2>Recent visitors</h2><table class="recent"><thead><tr><th>When</th><th>Page</th><th>Device</th><th>From</th><th>Time zone</th></tr></thead><tbody id="recent"></tbody></table></section>
+<p class="muted">Each person is counted once a day. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). The list updates every hour.</p>
+</main>
+<script>
+(()=>{
+try{localStorage.setItem('ss-owner','1')}catch(e){}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const IST=330*60*1000;                       // dates are counted in India time
+const dayKey=t=>new Date(t*1000+IST).toISOString().slice(0,10);
+const today=dayKey(Date.now()/1000);
+const shift=(k,n)=>{const d=new Date(k+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+let visits=[],days=30;
+function within(v,n){if(!n)return true;return dayKey(v.t)>shift(today,-n)}
+function kpis(){
+ const c=n=>visits.filter(v=>within(v,n)).length;
+ const yest=visits.filter(v=>dayKey(v.t)===shift(today,-1)).length;
+ $('kpis').innerHTML=[['Today',c(1),'main'],['Yesterday',yest],['Last 7 days',c(7)],['Last 30 days',c(30)],['All time',visits.length]]
+  .map(([l,n,cls])=>`<div class="kpi ${cls||''}"><b>${n}</b><span>${l}</span></div>`).join('');
+}
+function chart(){
+ const keys=[...Array(30)].map((_,i)=>shift(today,i-29));
+ const counts=keys.map(k=>visits.filter(v=>dayKey(v.t)===k).length);
+ const max=Math.max(4,...counts),W=900,H=220,pad=24,bw=(W-pad)/30;
+ const y=n=>H-28-(n/max)*(H-48);
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visitors per day for the last 30 days">`;
+ [0,.5,1].forEach(f=>{const v=Math.round(max*f),yy=y(v);s+=`<line class="grid" x1="${pad}" x2="${W}" y1="${yy}" y2="${yy}"/><text class="axis" x="0" y="${yy+4}">${v}</text>`});
+ counts.forEach((n,i)=>{const x=pad+i*bw+3,h=Math.max(2,(H-28)-y(n));
+  s+=`<rect class="bar ${n?'':'zero'}" x="${x}" y="${(H-28)-h}" width="${bw-6}" height="${h}" rx="3"><title>${keys[i]}: ${n}</title></rect>`;
+  if(n)s+=`<text class="val" x="${x+(bw-6)/2}" y="${(H-28)-h-5}" text-anchor="middle">${n}</text>`;
+  if(i%5===4||i===29){const d=new Date(keys[i]+'T00:00:00Z');s+=`<text class="axis" x="${x+(bw-6)/2}" y="${H-8}" text-anchor="middle">${d.getUTCDate()} ${d.toLocaleString('en',{month:'short',timeZone:'UTC'})}</text>`}});
+ $('chart').innerHTML=s+'</svg>';
+}
+function rank(id,key){
+ const vs=visits.filter(v=>within(v,days)),c={};
+ vs.forEach(v=>{const k=v[key]||'unknown';c[k]=(c[k]||0)+1});
+ const rows=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8),top=rows.length?rows[0][1]:1;
+ $(id).innerHTML=rows.length?rows.map(([k,n])=>`<li><span>${esc(k)}</span><b>${n}</b><span class="meter"><i style="width:${n/top*100}%"></i></span></li>`).join(''):'<li class="empty">No visits in this period</li>';
+}
+function recent(){
+ const vs=visits.filter(v=>within(v,days)).slice().reverse().slice(0,30);
+ const fmt=t=>new Date(t*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+ $('recent').innerHTML=vs.length?vs.map(v=>`<tr><td>${fmt(v.t)}</td><td>${esc(v.page||'—')}</td><td>${esc(v.device||'—')}</td><td>${esc(v.src||'—')}</td><td>${esc(v.tz||'—')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No visits in this period</td></tr>';
+}
+function lists(){rank('pages','page');rank('sources','src');rank('devices','device');recent()}
+document.querySelectorAll('.range button').forEach(b=>b.addEventListener('click',()=>{
+ days=+b.dataset.days;document.querySelectorAll('.range button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));lists()}));
+fetch('/visits/log.json?'+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{visits:[]}).catch(()=>({visits:[]})).then(d=>{
+ visits=(d.visits||[]).sort((a,b)=>a.t-b.t);
+ const first=visits.length?new Date(visits[0].t*1000).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}):null;
+ const upd=d.updated?new Date(d.updated*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):null;
+ $('sub').textContent=visits.length?`Counting since ${first}. Last updated ${upd}.`:'No visits recorded yet. The first ones appear within an hour of someone opening the site.';
+ kpis();chart();lists();
+});
+})();
+</script></body></html>
