@@ -2,6 +2,7 @@ name: Visitor counts and emails
 
 # Every hour: collect new visits (sent by visits.js to ntfy) into visits/log.json and email an alert if anyone came.
 # Every evening (about 9:15 pm India time): email the day's summary.
+# Changing this file or the script sends a test email (fails the run if the Gmail secrets are missing or refused).
 on:
   schedule:
     - cron: '7 * * * *'
