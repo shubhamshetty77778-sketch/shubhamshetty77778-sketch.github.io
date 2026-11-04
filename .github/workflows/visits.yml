@@ -30,6 +30,12 @@ jobs:
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           SEND_ALERTS: ${{ github.event_name == 'push' && '0' || '1' }}
         run: python3 scripts/visits.py collect
+      - name: Test email (when this setup changes)
+        if: github.event_name == 'push'
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: python3 scripts/visits.py test
       - name: Evening summary
         if: github.event.schedule == '43 15 * * *'
         env:

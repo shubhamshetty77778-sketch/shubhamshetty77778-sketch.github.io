@@ -133,5 +133,15 @@ def digest():
     send(f"Portfolio today: {len(tv)} visitor{'s' if len(tv) != 1 else ''}", '\n'.join(lines) + '\n')
 
 
+def test():
+    """One-off check that email works; fails the run if the secrets are missing or Gmail refuses them."""
+    data = load()
+    ok = send('Visitor emails are set up',
+              'Your portfolio will now email you when someone visits (checked every hour) and send a summary each evening.\n\n'
+              f"Visits recorded so far: {len(data['visits'])}.\nSee them any time: {SITE}/visits.html\n")
+    if not ok:
+        sys.exit('MAIL_USERNAME / MAIL_PASSWORD secrets not found')
+
+
 if __name__ == '__main__':
-    {'collect': collect, 'digest': digest}[sys.argv[1]]()
+    {'collect': collect, 'digest': digest, 'test': test}[sys.argv[1]]()
