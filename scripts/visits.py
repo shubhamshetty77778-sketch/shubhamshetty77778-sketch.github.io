@@ -136,11 +136,16 @@ def digest():
 def test():
     """One-off check that email works; fails the run if the secrets are missing or Gmail refuses them."""
     data = load()
-    ok = send('Visitor emails are set up',
+    if not os.environ.get('MAIL_USERNAME', '').strip() or not os.environ.get('MAIL_PASSWORD', '').strip():
+        missing = [n for n in ('MAIL_USERNAME', 'MAIL_PASSWORD') if not os.environ.get(n, '').strip()]
+        print('::error::Secrets not found: ' + ', '.join(missing)); sys.exit(1)
+    try:
+        ok = send('Visitor emails are set up',
               'Your portfolio will now email you when someone visits (checked every hour) and send a summary each evening.\n\n'
               f"Visits recorded so far: {len(data['visits'])}.\nSee them any time: {SITE}/visits.html\n")
-    if not ok:
-        sys.exit('MAIL_USERNAME / MAIL_PASSWORD secrets not found')
+    except Exception as e:
+        print('::error::Gmail refused: ' + str(e)[:300]); sys.exit(1)
+    print('::notice::Test email sent to ' + TO)
 
 
 if __name__ == '__main__':
