@@ -17,7 +17,8 @@
 "device": "phone",
 "src": "direct link",
 "tz": "Asia/Calcutta",
-"n": 1
+"n": 1,
+"mailed": true
 },
 {
 "id": "gUDHGOt1NAOh",
@@ -63,8 +64,8 @@
 "videos": [],
 "t0": 1793801218,
 "t1": 1793801774,
-"mailed": false
+"mailed": true
 }
 },
-"updated": 1793801964
+"updated": 1793807730
 }
