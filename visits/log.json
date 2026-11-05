@@ -93,7 +93,24 @@
 "t0": 1793864224,
 "t1": 1793873125,
 "mailed": true
+},
+"w0daa3ki": {
+"day": "2026-11-05",
+"first": "2026-11-05",
+"n": 2,
+"from": "direct link",
+"device": "computer",
+"tz": "Asia/Calcutta",
+"secs": 112,
+"span": 2158,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1793877367,
+"t1": 1793879517,
+"mailed": false
 }
 },
-"updated": 1793876569
+"updated": 1793879833
 }
