@@ -39,7 +39,8 @@
 "device": "computer",
 "src": "direct link",
 "tz": "Asia/Calcutta",
-"n": 1
+"n": 1,
+"mailed": true
 }
 ],
 "sessions": {
@@ -101,16 +102,16 @@
 "from": "direct link",
 "device": "computer",
 "tz": "Asia/Calcutta",
-"secs": 112,
-"span": 2158,
+"secs": 114,
+"span": 4598,
 "pages": [
 "Every Frame Has a Story"
 ],
 "videos": [],
 "t0": 1793877367,
-"t1": 1793879517,
-"mailed": false
+"t1": 1793881957,
+"mailed": true
 }
 },
-"updated": 1793879833
+"updated": 1793884068
 }
