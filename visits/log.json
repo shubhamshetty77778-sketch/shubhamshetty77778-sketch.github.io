@@ -41,6 +41,69 @@
 "tz": "Asia/Calcutta",
 "n": 1,
 "mailed": true
+},
+{
+"id": "MfbjGSWm4OSN",
+"t": 1793937906,
+"sid": "g8n1oj1d",
+"page": "Every Frame Has a Story",
+"device": "computer",
+"src": "facebook.com",
+"tz": "America/Los Angeles",
+"n": 1
+},
+{
+"id": "PtiC59obf9sh",
+"t": 1793937907,
+"sid": "niq5mq7y",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "facebook.com",
+"tz": "America/Los Angeles",
+"n": 1
+},
+{
+"id": "14ROj5Ts819Y",
+"t": 1793937981,
+"sid": "k99fxj0c",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "l.instagram.com",
+"tz": "Asia/Calcutta",
+"n": 1
+},
+{
+"id": "7flFt9e9mXD7",
+"t": 1793937998,
+"sid": "tv3lvp7k",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "m.facebook.com",
+"tz": "America/Los Angeles",
+"n": 1,
+"mailed": true
+},
+{
+"id": "M4vEHvfeon5a",
+"t": 1793938015,
+"sid": "izsmsuzv",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "m.facebook.com",
+"tz": "America/Los Angeles",
+"n": 1,
+"mailed": true
+},
+{
+"id": "UhCGWTci5rCh",
+"t": 1793938036,
+"sid": "9qyuvf2f",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "m.facebook.com",
+"tz": "America/Los Angeles",
+"n": 1,
+"mailed": true
 }
 ],
 "sessions": {
@@ -111,7 +174,58 @@
 "t0": 1793877367,
 "t1": 1793881957,
 "mailed": true
+},
+"g8n1oj1d": {
+"day": "2026-11-06",
+"first": "2026-11-06",
+"n": 1,
+"from": "facebook.com",
+"device": "computer",
+"tz": "America/Los Angeles",
+"secs": 2,
+"span": 31,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1793937926,
+"t1": 1793937935,
+"mailed": true
+},
+"niq5mq7y": {
+"day": "2026-11-06",
+"first": "2026-11-06",
+"n": 1,
+"from": "facebook.com",
+"device": "phone",
+"tz": "America/Los Angeles",
+"secs": 7,
+"span": 34,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1793937933,
+"t1": 1793937940,
+"mailed": true
+},
+"k99fxj0c": {
+"day": "2026-11-06",
+"first": "2026-11-06",
+"n": 1,
+"from": "l.instagram.com",
+"device": "phone",
+"tz": "Asia/Calcutta",
+"secs": 100,
+"span": 185,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1793938036,
+"t1": 1793938162,
+"mailed": true
 }
 },
-"updated": 1793884068
+"updated": 1793941026
 }
