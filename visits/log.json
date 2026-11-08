@@ -50,7 +50,8 @@
 "device": "computer",
 "src": "facebook.com",
 "tz": "America/Los Angeles",
-"n": 1
+"n": 1,
+"mailed": true
 },
 {
 "id": "PtiC59obf9sh",
@@ -60,7 +61,8 @@
 "device": "phone",
 "src": "facebook.com",
 "tz": "America/Los Angeles",
-"n": 1
+"n": 1,
+"mailed": true
 },
 {
 "id": "14ROj5Ts819Y",
@@ -70,7 +72,8 @@
 "device": "phone",
 "src": "l.instagram.com",
 "tz": "Asia/Calcutta",
-"n": 1
+"n": 1,
+"mailed": true
 },
 {
 "id": "7flFt9e9mXD7",
@@ -104,6 +107,16 @@
 "tz": "America/Los Angeles",
 "n": 1,
 "mailed": true
+},
+{
+"id": "GyBW58zgzrks",
+"t": 1794146416,
+"sid": "svu1017n",
+"page": "Every Frame Has a Story",
+"device": "phone",
+"src": "direct link",
+"tz": "Asia/Kolkata",
+"n": 1
 }
 ],
 "sessions": {
@@ -225,7 +238,24 @@
 "t0": 1793938036,
 "t1": 1793938162,
 "mailed": true
+},
+"svu1017n": {
+"day": "2026-11-08",
+"first": "2026-11-08",
+"n": 1,
+"from": "direct link",
+"device": "phone",
+"tz": "Asia/Kolkata",
+"secs": 3,
+"span": 3,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1794146416,
+"t1": 1794146416,
+"mailed": true
 }
 },
-"updated": 1793941026
+"updated": 1794148806
 }
