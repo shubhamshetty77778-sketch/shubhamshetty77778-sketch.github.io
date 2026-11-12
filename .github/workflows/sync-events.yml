@@ -20,6 +20,8 @@ on:
       - 'features/sources.json'
       - 'more/sources.json'
       - 'social/sources.json'
+      - 'social/extra.json'
+      - 'social/exclude.json'
       - 'more/exclude.json'
       - 'more/extra.json'
       - 'events/extra.json'

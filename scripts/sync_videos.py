@@ -184,14 +184,14 @@ def sync(c):
     for f in files:
         fid, old = f['id'], previous.get(f['id'])
         have = all(os.path.exists(os.path.join(assets, fid + x)) for x in ('.jpg', '.mp4'))
-        entry = {'id': fid, 'title': f.get('title') or title_from(f['name'], c), 'name': f['name'],
+        entry = {'id': fid, 'title': f.get('title') or title_from(f.get('name') or '', c), 'name': f.get('name') or '',
                  'drive': f'https://drive.google.com/file/d/{fid}/view'}
         if f.get('theme'): entry['theme'] = f['theme']
         if c.get('pv'): entry['pv'] = c['pv']
         if old and have and old.get('size') == f.get('size') and old.get('width') and old.get('pv', 1) == c.get('pv', 1):
             entry.update({k: old[k] for k in ('poster', 'preview', 'width', 'height', 'duration', 'size')})
         else:
-            log(f'[{c["dir"]}] processing {fid} ({f["name"]}, {f.get("size", 0) // 1_000_000} MB)')
+            log(f'[{c["dir"]}] processing {fid} ({f.get("name") or f.get("title") or "added from the app"}, {(f.get("size") or 0) // 1_000_000} MB)')
             with tempfile.TemporaryDirectory() as tmp:
                 if (f.get('size') or 0) > BIG:
                     src = drive_url(fid)   # seek inside the file on Drive; no full download

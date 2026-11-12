@@ -1,0 +1,435 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Studio | Shubham Shetty</title>
+<meta name="theme-color" content="#0b0d11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Studio">
+<link rel="manifest" href="/studio.webmanifest">
+<link rel="apple-touch-icon" href="/assets/studio/apple-touch-icon.png">
+<link rel="icon" href="/assets/studio/icon-192.png">
+<style>
+@font-face{font-family:Grotesk;src:url(/assets/font-5.ttf);font-weight:500}
+@font-face{font-family:Grotesk;src:url(/assets/font-6.ttf);font-weight:600}
+@font-face{font-family:Jakarta;src:url(/assets/font-0.ttf);font-weight:400}
+@font-face{font-family:Jakarta;src:url(/assets/font-1.ttf);font-weight:500}
+:root{--bg:#0b0d11;--panel:#15181e;--panel2:#1c2027;--line:#ffffff14;--text:#f4f0e8;--muted:#9a9ea7;--accent:#ff6b35;--ok:#7fd8b0;--warn:#f2c36b;--bad:#ff7a6b;
+ --top:env(safe-area-inset-top,0px);--bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.45 Jakarta,system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+header.top{position:sticky;top:0;z-index:5;background:#0b0d11f2;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:calc(var(--top) + 14px) 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+header.top img{width:30px;height:30px;border-radius:8px}
+header.top h1{font:600 19px Grotesk,sans-serif;margin:0;flex:1;letter-spacing:-.01em}
+.icon-btn{background:none;border:0;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.icon-btn:active{background:var(--panel)}
+main{flex:1;padding:16px 16px calc(96px + var(--bottom))}
+.screen[hidden]{display:none}
+h2{font:600 22px Grotesk,sans-serif;margin:6px 2px 4px;letter-spacing:-.01em}
+.lead{color:var(--muted);margin:0 2px 16px;font-size:14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin:0 -16px;padding-inline:16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 14px;font:500 13px Grotesk,sans-serif;min-height:40px;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--panel);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{border:0;background:none;border-radius:9px;padding:9px;font:500 13px Grotesk,sans-serif;color:var(--muted);min-height:38px}
+.seg button[aria-pressed=true]{background:var(--panel2);color:var(--text)}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px}
+.thumb{width:64px;height:64px;border-radius:10px;background:var(--panel2) center/cover no-repeat;position:relative;overflow:hidden}
+.thumb.tall{background-size:cover}
+.item b{display:block;font:500 15px Grotesk,sans-serif;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.item .meta{color:var(--muted);font-size:12.5px;margin-top:3px}
+.badge{display:inline-block;font:500 11px Grotesk,sans-serif;border-radius:999px;padding:2px 8px;margin-right:6px;background:#ffffff12;color:#d6d3cc}
+.badge.wait{background:#f2c36b22;color:var(--warn)}
+.badge.page{background:#7fb0ff1f;color:#9cc0ff}
+.act{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:0 12px;height:38px;font:500 13px Grotesk,sans-serif}
+.act.danger{color:var(--bad)}
+.act.good{color:var(--ok)}
+.empty{color:var(--muted);text-align:center;padding:30px 10px;font-size:14px}
+label.f{display:block;font:500 13px Grotesk,sans-serif;color:var(--muted);margin:16px 2px 7px}
+textarea,input[type=text],input[type=password],select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;outline:none}
+textarea{min-height:110px;resize:vertical}
+textarea:focus,input:focus,select:focus{border-color:#ffffff40}
+.hint{color:var(--muted);font-size:12.5px;margin:7px 2px 0}
+.primary{width:100%;border:0;background:var(--accent);color:#16110d;border-radius:14px;padding:15px;font:600 16px Grotesk,sans-serif;margin-top:20px;min-height:52px}
+.primary:disabled{opacity:.5}
+.secondary{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:14px;font:500 15px Grotesk,sans-serif;margin-top:10px;min-height:50px}
+.sections{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sections button{text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;min-height:56px;font:500 14px Grotesk,sans-serif}
+.sections button small{display:block;color:var(--muted);font:400 11.5px Jakarta,sans-serif;margin-top:2px}
+.sections button[aria-pressed=true]{border-color:var(--accent);background:#ff6b3514}
+.found{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.found div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px}
+.found .bad{color:var(--bad)}
+.run{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.dot{width:12px;height:12px;border-radius:50%;margin-top:4px;background:var(--muted)}
+.dot.ok{background:var(--ok)}.dot.bad{background:var(--bad)}.dot.go{background:var(--warn);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.run b{font:500 14px Grotesk,sans-serif}.run span{display:block;color:var(--muted);font-size:12.5px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(3,1fr);background:#111419f2;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 8px calc(6px + var(--bottom))}
+nav.tabs button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;font:500 11.5px Grotesk,sans-serif;min-height:54px;border-radius:12px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current=page]{color:var(--text)}
+nav.tabs button.add-tab span.plus{width:44px;height:30px;border-radius:10px;background:var(--accent);color:#16110d;display:grid;place-items:center}
+nav.tabs[hidden]{display:none}
+.sheet-bg{position:fixed;inset:0;background:#0009;z-index:20;display:flex;align-items:flex-end}
+.sheet-bg[hidden]{display:none}
+.sheet{width:100%;background:var(--panel);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + var(--bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet h3{font:600 18px Grotesk,sans-serif;margin:0 0 6px}
+.sheet p{color:var(--muted);margin:0 0 14px;font-size:14px}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(84px + var(--bottom));z-index:30;background:var(--text);color:var(--bg);border-radius:14px;padding:13px 16px;font:500 14px Grotesk,sans-serif;box-shadow:0 12px 30px #0008;transition:opacity .25s,transform .25s}
+.toast[hidden]{display:block;opacity:0;transform:translateY(10px);pointer-events:none}
+.login{max-width:460px;margin:0 auto}
+.login ol{padding-left:20px;color:#d6d3cc;font-size:14px}
+.login ol li{margin-bottom:9px}
+.login a{color:#ffb08f}
+.err{color:var(--bad);font-size:13.5px;margin-top:10px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.menu{position:absolute;right:14px;top:calc(var(--top) + 58px);background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:6px;min-width:220px;box-shadow:0 16px 40px #000a;z-index:10}
+.menu[hidden]{display:none}
+.menu a,.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:12px;border-radius:10px;color:var(--text);text-decoration:none;font-size:14.5px}
+.menu a:active,.menu button:active{background:var(--panel)}
+.install{background:var(--panel);border:1px dashed #ffffff30;border-radius:14px;padding:14px;margin-top:18px;font-size:13.5px;color:#d6d3cc}
+@media(min-width:700px){main{max-width:640px;margin:0 auto;width:100%}}
+</style></head>
+<body><div class="app">
+<header class="top"><img src="/assets/studio/icon-192.png" alt=""><h1>Studio</h1>
+ <button class="icon-btn" id="refresh" aria-label="Refresh" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+ <button class="icon-btn" id="menuBtn" aria-label="Menu" aria-expanded="false" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+</header>
+<div class="menu" id="menu" hidden>
+ <a href="/index.html" target="_blank" rel="noopener">Open the website</a>
+ <a href="/visits.html">Visitors</a>
+ <button type="button" id="signOut">Sign out of this phone</button>
+</div>
+<main>
+
+<!-- sign in -->
+<section class="screen login" id="s-login" hidden>
+ <h2>Sign in</h2>
+ <p class="lead">The app saves your changes to the website's files on GitHub. It needs a key from GitHub once; the key stays on this phone only.</p>
+ <ol>
+  <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → new fine-grained token</a> (signed in to the account that owns the website).</li>
+  <li>Name it "Studio app" and pick an expiry (a year is fine).</li>
+  <li>Repository access: <b>Only select repositories</b> → shubhamshetty77778-sketch.github.io.</li>
+  <li>Permissions → Repository: <b>Contents: Read and write</b>, and <b>Actions: Read-only</b> (to see progress).</li>
+  <li>Generate the token, copy it, and paste it below.</li>
+ </ol>
+ <label class="f" for="token">GitHub token</label>
+ <input type="password" id="token" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+ <div class="err" id="loginErr" hidden></div>
+ <button class="primary" id="signIn">Sign in</button>
+</section>
+
+<!-- videos -->
+<section class="screen" id="s-videos" hidden>
+ <h2>Videos</h2>
+ <p class="lead" id="vidLead">Pick a section to see what's on the website.</p>
+ <div class="chips" id="secChips" role="group" aria-label="Section"></div>
+ <div class="seg" role="group" aria-label="Show"><button type="button" data-view="live" aria-pressed="true">On the website</button><button type="button" data-view="hidden" aria-pressed="false">Removed</button></div>
+ <div class="list" id="vidList"></div>
+</section>
+
+<!-- add -->
+<section class="screen" id="s-add" hidden>
+ <h2>Add videos</h2>
+ <p class="lead">Paste Google Drive links. The video must be shared as "Anyone with the link".</p>
+ <label class="f" for="links">Drive links (one per line)</label>
+ <textarea id="links" placeholder="https://drive.google.com/file/d/…/view" autocapitalize="off" spellcheck="false"></textarea>
+ <div class="found" id="found"></div>
+ <label class="f">Section</label>
+ <div class="sections" id="addSecs" role="group" aria-label="Section"></div>
+ <div id="themeWrap" hidden><label class="f" for="theme">Type of reel</label><select id="theme"></select></div>
+ <label class="f" for="title">Title (optional)</label>
+ <input type="text" id="title" placeholder="Shown on the website. Leave empty to use the file name">
+ <p class="hint" id="titleHint">With several links, each gets this title. Leave it empty to name them from their files.</p>
+ <button class="primary" id="addBtn" disabled>Add to website</button>
+ <div class="install" id="installTip" hidden></div>
+</section>
+
+<!-- activity -->
+<section class="screen" id="s-activity" hidden>
+ <h2>Activity</h2>
+ <p class="lead">New videos appear on the website once these steps finish, usually 5 to 15 minutes.</p>
+ <div id="pending"></div>
+ <div id="runs"></div>
+</section>
+</main>
+
+<nav class="tabs" id="tabs" hidden>
+ <button type="button" data-tab="videos" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.5 5 2.5-5 2.5z" fill="currentColor"/></svg>Videos</button>
+ <button type="button" data-tab="add" class="add-tab"><span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:18px;height:18px"><path d="M12 5v14M5 12h14"/></svg></span>Add</button>
+ <button type="button" data-tab="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Activity</button>
+</nav>
+
+<div class="sheet-bg" id="sheet" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+ <h3 id="sheetTitle"></h3><p id="sheetText"></p>
+ <button class="primary" id="sheetOk"></button><button class="secondary" id="sheetCancel">Cancel</button>
+</div></div>
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+try{localStorage.setItem('ss-owner','1')}catch(e){}              // the owner's phone is not counted as a visitor
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/studio-sw.js',{scope:'/studio'}).catch(()=>{});
+
+const REPO='shubhamshetty77778-sketch/shubhamshetty77778-sketch.github.io';
+const API='https://api.github.com/repos/'+REPO;
+const SECTIONS=[
+ {key:'social',label:'Social media',note:'Reels on the arc',dir:'social',out:'social.json',list:'reels',themes:true,fixed:true},
+ {key:'events',label:'Event highlights',note:'Also on the arc',dir:'events',out:'events.json',list:'events'},
+ {key:'brand-films',label:'Brand films',note:'Big screen',dir:'brand-films',out:'films.json',list:'films'},
+ {key:'interviews',label:'Interviews',note:'& testimonials',dir:'interviews',out:'interviews.json',list:'interviews'},
+ {key:'ads',label:'Digital ads',note:'Google & Meta',dir:'ads',out:'ads.json',list:'ads'},
+ {key:'more',label:'More work',note:'The library',dir:'more',out:'more.json',list:'videos'},
+];
+const THEMES=[['cinematic','Cinematic'],['interviews','Interviews & Podcasts'],['presenter','Presenter-led'],['campus','Campus Life'],['promos','Promos & Motion']];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let token='';try{token=localStorage.getItem('studio-token')||''}catch(e){}
+
+// ---------- GitHub ----------
+const enc=s=>{const b=new TextEncoder().encode(s);let o='';for(let i=0;i<b.length;i+=8192)o+=String.fromCharCode.apply(null,b.subarray(i,i+8192));return btoa(o)};
+const dec=b=>new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+async function gh(path,opt={}){
+ const r=await fetch(API+path,{...opt,cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}});
+ if(r.status===401){signOut('Your GitHub key has expired or was removed. Sign in again.');throw new Error('signed out')}
+ return r;
+}
+async function readJSON(path,fallback){
+ const r=await gh('/contents/'+path+'?ref=main');
+ if(r.status===404)return {data:fallback,sha:null};
+ if(!r.ok)throw new Error('GitHub said '+r.status+' for '+path);
+ const j=await r.json();
+ let data=fallback;try{data=JSON.parse(dec(j.content))}catch(e){}
+ return {data,sha:j.sha};
+}
+// change a JSON file with a function; retries if someone else changed it at the same time
+async function change(path,fallback,fn,message){
+ for(let attempt=0;attempt<3;attempt++){
+  const {data,sha}=await readJSON(path,fallback);
+  const next=fn(JSON.parse(JSON.stringify(data)));
+  if(next===null)return false;                                  // nothing to change
+  const body={message:message+' (from the Studio app)',content:enc(JSON.stringify(next,null,2)+'\n'),branch:'main'};
+  if(sha)body.sha=sha;
+  const r=await gh('/contents/'+path,{method:'PUT',body:JSON.stringify(body),headers:{'Content-Type':'application/json'}});
+  if(r.ok)return true;
+  if(r.status===409||r.status===422){await new Promise(f=>setTimeout(f,800));continue}
+  if(r.status===403||r.status===404)throw new Error('This key can\'t change the website. Give it "Contents: Read and write" for this repository.');
+  throw new Error('GitHub said '+r.status);
+ }
+ throw new Error('GitHub was busy. Try again in a moment.');
+}
+
+// ---------- shell ----------
+function show(tab){
+ ['login','videos','add','activity'].forEach(t=>$('s-'+t).hidden=t!==tab);
+ document.querySelectorAll('#tabs button').forEach(b=>{if(b.dataset.tab===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+ $('tabs').hidden=tab==='login';$('menuBtn').hidden=$('refresh').hidden=tab==='login';
+ if(tab==='videos')loadSection();
+ if(tab==='activity')loadActivity();
+ scrollTo(0,0);
+}
+let toastT=0;
+function toast(msg,ms=3200){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,ms)}
+function ask(title,text,ok,danger){
+ return new Promise(res=>{
+  $('sheetTitle').textContent=title;$('sheetText').textContent=text;$('sheetOk').textContent=ok;
+  $('sheetOk').style.background=danger?'var(--bad)':'';$('sheet').hidden=false;
+  const done=v=>{$('sheet').hidden=true;$('sheetOk').onclick=$('sheetCancel').onclick=$('sheet').onclick=null;res(v)};
+  $('sheetOk').onclick=()=>done(true);$('sheetCancel').onclick=()=>done(false);
+  $('sheet').onclick=e=>{if(e.target===$('sheet'))done(false)};
+ });
+}
+function signOut(msg){try{localStorage.removeItem('studio-token')}catch(e){}token='';$('menu').hidden=true;show('login');if(msg){$('loginErr').textContent=msg;$('loginErr').hidden=false}}
+
+// ---------- sign in ----------
+$('signIn').onclick=async()=>{
+ const t=$('token').value.trim();const err=$('loginErr');err.hidden=true;
+ if(!t){err.textContent='Paste the token from GitHub first.';err.hidden=false;return}
+ $('signIn').disabled=true;$('signIn').innerHTML='<span class="spin"></span>Checking…';
+ try{
+  const r=await fetch(API,{headers:{Authorization:'Bearer '+t,Accept:'application/vnd.github+json'}});
+  if(r.status===401)throw new Error('GitHub didn\'t accept this token. Copy it again and paste the whole thing.');
+  if(r.status===404)throw new Error('This token can\'t see the website\'s repository. In the token settings, choose this repository under "Only select repositories".');
+  const j=await r.json();
+  if(!j.permissions||!j.permissions.push)throw new Error('This token can only read. Give it "Contents: Read and write".');
+  token=t;try{localStorage.setItem('studio-token',t)}catch(e){}
+  $('token').value='';show('videos');toast('Signed in. You can add and remove videos now.');
+ }catch(e){err.textContent=e.message;err.hidden=false}
+ $('signIn').disabled=false;$('signIn').textContent='Sign in';
+};
+
+// ---------- videos ----------
+let current=SECTIONS[0],view='live';
+$('secChips').innerHTML=SECTIONS.map((s,i)=>`<button type="button" class="chip" data-i="${i}" aria-pressed="${i===0}">${esc(s.label)}</button>`).join('');
+$('secChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;current=SECTIONS[+b.dataset.i];
+ $('secChips').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));loadSection()};
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{view=b.dataset.view;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));loadSection()});
+const mmss=s=>s?Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0'):'';
+const poster=p=>p?(p.startsWith('/')||p.startsWith('http')?p:'/'+p):'';
+
+async function fixedCards(){                        // the social cards written into the home page itself
+ const html=await fetch('/index.html?'+Date.now(),{cache:'no-store'}).then(r=>r.text());
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const root=doc.querySelector('[data-events]');
+ return [...(root?root.querySelectorAll('.arc-track .arc-card'):[])].map(a=>({href:a.getAttribute('href'),
+  title:(a.querySelector('.arc-caption b')||{}).textContent||(a.getAttribute('aria-label')||'Video'),
+  poster:(a.querySelector('img')||{}).getAttribute?a.querySelector('img').getAttribute('src'):'',theme:a.dataset.theme||''}));
+}
+let loadToken=0;
+async function loadSection(){
+ const my=++loadToken,s=current,list=$('vidList');
+ list.innerHTML='<div class="empty"><span class="spin"></span>Loading…</div>';
+ try{
+  const [live,extra,excl,hid,fixed]=await Promise.all([
+   readJSON(s.dir+'/'+s.out,{}),readJSON(s.dir+'/extra.json',{files:[]}),readJSON(s.dir+'/exclude.json',{ids:[]}),
+   s.fixed?readJSON('social/hidden.json',{hrefs:[]}):Promise.resolve({data:{hrefs:[]}}),
+   s.fixed?fixedCards():Promise.resolve([])]);
+  if(my!==loadToken)return;
+  const items=(live.data[s.list]||[]),ids=new Set(items.map(v=>v.id)),gone=new Set(excl.data.ids||[]);
+  const pending=(extra.data.files||[]).filter(f=>!ids.has(f.id)&&!gone.has(f.id));
+  const hiddenHrefs=new Set(hid.data.hrefs||[]);
+  let html='';
+  if(view==='live'){
+   $('vidLead').textContent=`${items.length+fixed.filter(f=>!hiddenHrefs.has(f.href)).length} videos in ${s.label}.`;
+   html+=pending.map(f=>row({id:f.id,title:f.title||'New video',meta:'<span class="badge wait">Adding</span>being prepared',thumb:''},'')).join('');
+   html+=items.map(v=>row({id:v.id,title:v.title,meta:[mmss(v.duration),v.width?(v.width>v.height?'Landscape':'Vertical'):''].filter(Boolean).join(' · '),thumb:poster(v.poster)},`<button class="act danger" data-remove="${esc(v.id)}" data-title="${esc(v.title)}">Remove</button>`)).join('');
+   html+=fixed.filter(f=>!hiddenHrefs.has(f.href)).map(f=>row({title:f.title,meta:'<span class="badge page">Website page</span>'+esc(f.theme),thumb:poster(f.poster)},`<button class="act danger" data-hide="${esc(f.href)}" data-title="${esc(f.title)}">Remove</button>`)).join('');
+   if(!html)html='<div class="empty">Nothing here yet. Add a video from the Add tab.</div>';
+  }else{
+   const titles=excl.data.titles||{},htitles=hid.data.titles||{};
+   $('vidLead').textContent='Removed videos stay in Drive. Restore puts them back on the website.';
+   html+=[...gone].map(id=>row({id,title:titles[id]||'Removed video',meta:'Removed',thumb:''},`<button class="act good" data-restore="${esc(id)}">Restore</button>`)).join('');
+   html+=[...hiddenHrefs].map(h=>row({title:htitles[h]||h.replace(/^.*\//,'').replace('.html',''),meta:'<span class="badge page">Website page</span>Removed',thumb:''},`<button class="act good" data-unhide="${esc(h)}">Restore</button>`)).join('');
+   if(!html)html='<div class="empty">No removed videos in this section.</div>';
+  }
+  list.innerHTML=html;
+ }catch(e){if(my===loadToken)list.innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+}
+function row(v,btn){
+ const th=v.thumb?` style="background-image:url('${esc(v.thumb)}')"`:'';
+ const link=v.id?` onclick="window.open('https://drive.google.com/file/d/${esc(v.id)}/view','_blank')"`:'';
+ return `<div class="item"><div class="thumb"${th}${link}></div><div><b>${esc(v.title)}</b><div class="meta">${v.meta||''}</div></div>${btn}</div>`;
+}
+$('vidList').onclick=async e=>{
+ const b=e.target.closest('button');if(!b)return;const s=current,title=b.dataset.title||'this video';
+ try{
+  if(b.dataset.remove){
+   if(!await ask('Remove from the website?',`"${title}" will be taken off ${s.label}. It stays in your Drive and you can restore it later.`,'Remove',true))return;
+   b.disabled=true;b.innerHTML='<span class="spin"></span>';
+   await change(s.dir+'/exclude.json',{ids:[]},d=>{d.ids=d.ids||[];if(d.ids.includes(b.dataset.remove))return null;d.ids.push(b.dataset.remove);d.titles=d.titles||{};d.titles[b.dataset.remove]=title;return d},'Remove "'+title+'" from '+s.label);
+   toast('Removed. The website updates in a few minutes.');
+  }else if(b.dataset.hide){
+   if(!await ask('Remove from the website?',`"${title}" will be taken off the social media arc. You can restore it later.`,'Remove',true))return;
+   b.disabled=true;b.innerHTML='<span class="spin"></span>';
+   await change('social/hidden.json',{hrefs:[]},d=>{d.hrefs=d.hrefs||[];if(d.hrefs.includes(b.dataset.hide))return null;d.hrefs.push(b.dataset.hide);d.titles=d.titles||{};d.titles[b.dataset.hide]=title;return d},'Hide "'+title+'" from Social media');
+   toast('Removed. The website updates in a minute or two.');
+  }else if(b.dataset.restore){
+   b.disabled=true;b.innerHTML='<span class="spin"></span>';
+   await change(s.dir+'/exclude.json',{ids:[]},d=>{d.ids=(d.ids||[]).filter(x=>x!==b.dataset.restore);if(d.titles)delete d.titles[b.dataset.restore];return d},'Restore a video in '+s.label);
+   toast('Restored. It will be back on the website in a few minutes.');
+  }else if(b.dataset.unhide){
+   b.disabled=true;b.innerHTML='<span class="spin"></span>';
+   await change('social/hidden.json',{hrefs:[]},d=>{d.hrefs=(d.hrefs||[]).filter(x=>x!==b.dataset.unhide);if(d.titles)delete d.titles[b.dataset.unhide];return d},'Restore a card in Social media');
+   toast('Restored. It will be back in a minute or two.');
+  }else return;
+  loadSection();
+ }catch(err){toast(err.message,5000);loadSection()}
+};
+
+// ---------- add ----------
+let addSec=null;
+$('addSecs').innerHTML=SECTIONS.map((s,i)=>`<button type="button" data-i="${i}" aria-pressed="false">${esc(s.label)}<small>${esc(s.note)}</small></button>`).join('');
+$('theme').innerHTML=THEMES.map(([v,l])=>`<option value="${v}">${esc(l)}</option>`).join('');
+$('addSecs').onclick=e=>{const b=e.target.closest('button');if(!b)return;addSec=SECTIONS[+b.dataset.i];
+ $('addSecs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('themeWrap').hidden=!addSec.themes;check()};
+function driveIds(text){
+ const out=[];
+ text.split(/\s+/).filter(Boolean).forEach(t=>{
+  if(/drive\.google\.com\/drive\/(u\/\d+\/)?folders\//.test(t)){out.push({bad:'That is a folder link. Open the video and copy its own link.'});return}
+  const m=t.match(/\/file\/d\/([A-Za-z0-9_-]{20,})/)||t.match(/[?&]id=([A-Za-z0-9_-]{20,})/)||t.match(/^([A-Za-z0-9_-]{25,})$/);
+  if(m){if(!out.some(x=>x.id===m[1]))out.push({id:m[1]})}else if(/^https?:/.test(t))out.push({bad:'Not a Google Drive video link: '+t.slice(0,60)});
+ });
+ return out;
+}
+function check(){
+ const ids=driveIds($('links').value),good=ids.filter(x=>x.id);
+ $('found').innerHTML=ids.map(x=>x.id?`<div>✓ Drive video <span style="color:var(--muted)">${esc(x.id.slice(0,10))}…</span></div>`:`<div class="bad">${esc(x.bad)}</div>`).join('');
+ $('titleHint').hidden=good.length<2;
+ $('addBtn').disabled=!good.length||!addSec;
+ $('addBtn').textContent=good.length>1?`Add ${good.length} videos to the website`:'Add to website';
+}
+$('links').addEventListener('input',check);
+$('addBtn').onclick=async()=>{
+ const ids=driveIds($('links').value).filter(x=>x.id).map(x=>x.id),s=addSec,title=$('title').value.trim();
+ if(!ids.length||!s)return;
+ const btn=$('addBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Checking…';
+ try{
+  // skip videos that are already on the site in any section
+  const lists=await Promise.all(SECTIONS.map(x=>readJSON(x.dir+'/'+x.out,{}).then(r=>({x,ids:new Set((r.data[x.list]||[]).map(v=>v.id))}))));
+  const already=[],fresh=[];
+  ids.forEach(id=>{const hit=lists.find(l=>l.ids.has(id));hit?already.push([id,hit.x.label]):fresh.push(id)});
+  if(already.length&&!await ask('Already on the website',`${already.length===1?'This video is':'These videos are'} already in ${[...new Set(already.map(a=>a[1]))].join(', ')}. ${fresh.length?'The others will be added.':'Nothing new to add.'}`,fresh.length?'Add the others':'OK',false)||!fresh.length){btn.disabled=false;check();return}
+  btn.innerHTML='<span class="spin"></span>Saving…';
+  const now=new Date().toISOString();
+  await change(s.dir+'/extra.json',{files:[]},d=>{
+   d.files=d.files||[];const have=new Set(d.files.map(f=>f.id));
+   const add=fresh.filter(id=>!have.has(id)).map(id=>{const f={id,name:title||'',size:0,createdTime:now,modifiedTime:now};if(title)f.title=title;if(s.themes)f.theme=$('theme').value;return f});
+   if(!add.length)return null;d.files=add.concat(d.files);return d},
+   `Add ${fresh.length===1?'"'+(title||'a video')+'"':fresh.length+' videos'} to ${s.label}`);
+  // if any of them had been removed before, bring them back
+  await change(s.dir+'/exclude.json',{ids:[]},d=>{const before=(d.ids||[]).length;d.ids=(d.ids||[]).filter(x=>!fresh.includes(x));return d.ids.length===before?null:d},'Restore re-added videos in '+s.label).catch(()=>{});
+  $('links').value='';$('title').value='';check();
+  toast(fresh.length===1?'Added. It will be on the website in about 5 to 15 minutes.':`${fresh.length} videos added. They'll be on the website in about 5 to 15 minutes.`,4500);
+  show('activity');
+ }catch(e){toast(e.message,5000)}
+ btn.disabled=false;check();
+};
+
+// ---------- activity ----------
+const NAMES={'Sync videos from Drive':'Adding videos from Drive','Make website video copies':'Making HD and SD copies','pages build and deployment':'Publishing the website'};
+const ago=t=>{const s=(Date.now()-new Date(t))/1000;return s<60?'just now':s<3600?Math.round(s/60)+' min ago':s<86400?Math.round(s/3600)+' h ago':Math.round(s/86400)+' d ago'};
+async function loadActivity(){
+ $('runs').innerHTML='<div class="empty"><span class="spin"></span>Loading…</div>';
+ // videos added but not yet on the site
+ try{
+  const rows=await Promise.all(SECTIONS.map(async s=>{const [live,extra,excl]=await Promise.all([readJSON(s.dir+'/'+s.out,{}),readJSON(s.dir+'/extra.json',{files:[]}),readJSON(s.dir+'/exclude.json',{ids:[]})]);
+   const ids=new Set((live.data[s.list]||[]).map(v=>v.id)),gone=new Set(excl.data.ids||[]);
+   return (extra.data.files||[]).filter(f=>!ids.has(f.id)&&!gone.has(f.id)).map(f=>`<div class="run"><div class="dot go"></div><div><b>${esc(f.title||'New video')}</b><span>Being added to ${esc(s.label)}</span></div></div>`).join('')}));
+  const p=rows.join('');$('pending').innerHTML=p?'<h3 style="font:600 15px Grotesk;margin:6px 2px 10px">Waiting to appear</h3>'+p:'';
+ }catch(e){$('pending').innerHTML=''}
+ try{
+  const r=await gh('/actions/runs?per_page=20&branch=main');
+  if(r.status===403||r.status===404){$('runs').innerHTML='<div class="empty">To see progress here, give the token "Actions: Read-only" on GitHub. Your changes still go through.</div>';return}
+  const j=await r.json();
+  const runs=(j.workflow_runs||[]).filter(x=>NAMES[x.name]).slice(0,10);
+  $('runs').innerHTML='<h3 style="font:600 15px Grotesk;margin:16px 2px 10px">Recent steps</h3>'+(runs.length?runs.map(x=>{
+   const st=x.status!=='completed'?['go','In progress']:x.conclusion==='success'?['ok','Done']:x.conclusion==='cancelled'||x.conclusion==='skipped'?['','Skipped']:['bad','Did not finish'];
+   return `<div class="run"><div class="dot ${st[0]}"></div><div><b>${esc(NAMES[x.name])}</b><span>${st[1]} · ${ago(x.created_at)}</span></div></div>`}).join(''):'<div class="empty">Nothing has run recently.</div>');
+ }catch(e){$('runs').innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+}
+
+// ---------- menu, refresh, install hint ----------
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>show(b.dataset.tab));
+$('menuBtn').onclick=e=>{e.stopPropagation();const m=$('menu');m.hidden=!m.hidden;$('menuBtn').setAttribute('aria-expanded',String(!m.hidden))};
+document.addEventListener('click',e=>{if(!e.target.closest('#menu'))$('menu').hidden=true});
+$('signOut').onclick=()=>signOut();
+$('refresh').onclick=()=>{const t=document.querySelector('#tabs [aria-current=page]');show(t?t.dataset.tab:'videos')};
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+if(!standalone){const ios=/iPhone|iPad/.test(navigator.userAgent);
+ $('installTip').innerHTML=ios?'Tip: to keep Studio on your home screen, tap the Share button in Safari, then <b>Add to Home Screen</b>.':'Tip: to keep Studio on your home screen, open the browser menu (⋮) and tap <b>Add to Home screen</b> or <b>Install app</b>.';
+ $('installTip').hidden=false}
+show(token?'videos':'login');
+})();
+</script>
+</body></html>

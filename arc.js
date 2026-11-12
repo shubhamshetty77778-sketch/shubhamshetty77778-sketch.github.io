@@ -81,7 +81,13 @@ async function loadSource(){
   }
  }
 }
-await loadEvents();await loadSource();
+// Cards hidden from the Studio app (social/hidden.json lists their page links).
+async function hideFixed(){
+ const src=root.dataset.events;if(!src)return;
+ try{const h=await getJSON(src.replace(/events\/events\.json$/,'')+'social/hidden.json');const set=new Set(h.hrefs||[]);
+  track.querySelectorAll('.arc-card').forEach(c=>{if(set.has(c.getAttribute('href')))c.remove()})}catch(e){}
+}
+await hideFixed();await loadEvents();await loadSource();
 const all=[...track.querySelectorAll('.arc-card')];
 
 // Keep chip counts and the reel total in step with what is actually on the arc.
