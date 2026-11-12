@@ -41,15 +41,17 @@ try{
  save();
 
  // ---- country and state, looked up once per visit from the visitor's network address ----
- // Only the country and state are kept; the address itself is never stored or sent on.
- const place=()=>s.loc&&(s.loc.region?s.loc.region+', ':'')+s.loc.country;
+ // Only the country, state and (for India) city are kept; the address itself is never stored or sent on.
+ const place=()=>s.loc&&(s.loc.city?s.loc.city+', ':'')+(s.loc.region?s.loc.region+', ':'')+s.loc.country;
  const locate=()=>{
   if(s.loc!==undefined)return Promise.resolve();
   const get=(url,pick)=>{const c=new AbortController();const t=setTimeout(()=>c.abort(),3000);
    return fetch(url,{signal:c.signal,cache:'no-store'}).then(r=>r.json()).then(pick).finally(()=>clearTimeout(t))};
   const clean=v=>typeof v==='string'?v.trim().slice(0,60):'';
-  return get('https://get.geojs.io/v1/ip/geo.json',d=>({country:clean(d.country),region:clean(d.region)}))
-   .catch(()=>get('https://ipwho.is/?fields=success,country,region',d=>d.success===false?null:({country:clean(d.country),region:clean(d.region)})))
+  // the city is kept only for visitors in India
+  const keep=d=>{const country=clean(d.country);return {country,region:clean(d.region),city:country==='India'?clean(d.city):''}};
+  return get('https://get.geojs.io/v1/ip/geo.json',keep)
+   .catch(()=>get('https://ipwho.is/?fields=success,country,region,city',d=>d.success===false?null:keep(d)))
    .then(l=>{s.loc=l&&l.country?l:null;save()},()=>{s.loc=null;save()});
  };
  const located=locate();
@@ -92,7 +94,7 @@ try{
  const report=()=>{
   if(arrive)arrive();                                             // left before the arrival was sent
   tick();notePage();save();
-  const body=JSON.stringify({v:1,sid:s.sid,day:s.day,first:s.first,n:s.n,from:s.from,device:s.device,tz:s.tz,country:(s.loc&&s.loc.country)||'',region:(s.loc&&s.loc.region)||'',
+  const body=JSON.stringify({v:1,sid:s.sid,day:s.day,first:s.first,n:s.n,from:s.from,device:s.device,tz:s.tz,country:(s.loc&&s.loc.country)||'',region:(s.loc&&s.loc.region)||'',city:(s.loc&&s.loc.city)||'',
    secs:s.active,span:Math.round((Date.now()-s.start)/1000),pages:s.pages,
    videos:Object.entries(s.videos).map(([t,r])=>({t,s:Math.round(r.s),d:r.d,plays:r.plays}))});
   if(body===lastSent)return;lastSent=body;

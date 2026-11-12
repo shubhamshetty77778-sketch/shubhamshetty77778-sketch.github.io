@@ -54,9 +54,10 @@ table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
 </div>
 <div class="kpis eng" id="eng"></div>
 <section class="card chart"><h2>Visitors per day, last 30 days</h2><div id="chart"></div></section>
-<div class="two">
+<div class="three" style="margin-bottom:16px">
  <section class="card"><h2>Countries</h2><ul class="rank" id="countries"></ul></section>
  <section class="card"><h2>States and regions</h2><ul class="rank" id="regions"></ul></section>
+ <section class="card"><h2>Cities in India</h2><ul class="rank" id="cities"></ul></section>
 </div>
 <div class="three">
  <section class="card"><h2>Pages they opened</h2><ul class="rank" id="pages"></ul></section>
@@ -65,7 +66,7 @@ table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
 </div>
 <section class="card" style="margin-top:16px"><h2>Videos they played</h2><table class="recent vids"><thead><tr><th>Video</th><th>Plays</th><th>Time watched</th><th>Watched on average</th></tr></thead><tbody id="videos"></tbody></table></section>
 <section class="card"><h2>Recent visits</h2><table class="recent"><thead><tr><th>When</th><th>Visitor</th><th>Time on site</th><th>Pages and videos</th><th>From and where</th></tr></thead><tbody id="recent"></tbody></table></section>
-<p class="muted">Visitors are counted once a day per device; a visit is one browsing session. Time on site counts only while the site is on screen. Videos count when played in the site's own player. "Returning" means the same phone or browser has been here before. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). Country and state come from the visitor's internet connection, so they can be off near borders or on some mobile networks; the address itself is never stored. Updates every hour.</p>
+<p class="muted">Visitors are counted once a day per device; a visit is one browsing session. Time on site counts only while the site is on screen. Videos count when played in the site's own player. "Returning" means the same phone or browser has been here before. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). Country, state and (for India) city come from the visitor's internet connection, so they can be off near borders or on mobile data, where the city is often the network's nearest hub; the address itself is never stored. Updates every hour.</p>
 </main>
 <script>
 (()=>{
@@ -133,7 +134,7 @@ function recent(){
  $('recent').innerHTML=rs.length?rs.map(({t,a,s})=>{
   const dev=(s&&s.device)||(a&&a.device)||'',src=(s&&s.from)||(a&&a.src)||'—';
   const loc=(s&&s.country)?s:(a&&a.country)?a:null;
-  const tz=loc?(loc.region?loc.region+', ':'')+loc.country:(((s&&s.tz)||(a&&a.tz)||'')?((s&&s.tz)||(a&&a.tz))+' time zone':'');
+  const tz=loc?[loc.city,loc.region,loc.country].filter(Boolean).join(', '):(((s&&s.tz)||(a&&a.tz)||'')?((s&&s.tz)||(a&&a.tz))+' time zone':'');
   const n=(s&&s.n)||(a&&a.n);
   const who=n===1?'<span class="tag new">New</span>':n?`<span class="tag">Returning · ${ord(n)} visit</span>`:'';
   const pages=s&&s.pages&&s.pages.length?s.pages.map(esc).join(' → '):esc((a&&a.page)||'—');
@@ -144,10 +145,12 @@ function recent(){
 function places(){                      // country and state per visit: from its report, else from its arrival
  const rs=visitRows().filter(r=>within(r,days));
  const pick=r=>(r.s&&r.s.country)?r.s:(r.a&&r.a.country)?r.a:null;
- const fill=(id,key)=>{const c={};rs.forEach(r=>{const x=pick(r);const k=x?(key==='country'?x.country:(x.region?x.region+', '+x.country:x.country)):'Not known yet';c[k]=(c[k]||0)+1});
+ const fill=(id,key)=>{const c={};rs.forEach(r=>{const x=pick(r);
+   if(key==='city'&&!(x&&x.country==='India'))return;                       // cities are kept for India only
+   const k=!x?'Not known yet':key==='country'?x.country:key==='city'?(x.city?x.city+', '+(x.region||'India'):'City not known'):(x.region?x.region+', '+x.country:x.country);c[k]=(c[k]||0)+1});
   const rows=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10),top=rows.length?rows[0][1]:1;
-  $(id).innerHTML=rows.length?rows.map(([k,n])=>`<li><span>${esc(k)}</span><b>${n}</b><span class="meter"><i style="width:${n/top*100}%"></i></span></li>`).join(''):'<li class="empty">No visits in this period</li>'};
- fill('countries','country');fill('regions','region');
+  $(id).innerHTML=rows.length?rows.map(([k,n])=>`<li><span>${esc(k)}</span><b>${n}</b><span class="meter"><i style="width:${n/top*100}%"></i></span></li>`).join(''):'<li class="empty">'+(id==='cities'?'No visitors from India in this period':'No visits in this period')+'</li>'};
+ fill('countries','country');fill('regions','region');fill('cities','city');
 }
 function lists(){engagement();places();rank('pages','page');rank('sources','src');rank('devices','device');videos();recent()}
 document.querySelectorAll('.range button').forEach(b=>b.addEventListener('click',()=>{

@@ -76,8 +76,10 @@ def parse_arrival(m):
     if p:
         v.update(page=p['page'], device=p['device'], src=p['src'], tz=(p['tz'] or '').strip())
         if p['loc']:
-            region, _, country = p['loc'].rpartition(', ')
-            v.update(country=country.strip(), region=region.strip())
+            parts = [x.strip() for x in p['loc'].split(', ')]
+            v['country'] = parts[-1]
+            v['region'] = parts[-2] if len(parts) > 1 else ''
+            v['city'] = ', '.join(parts[:-2]) if len(parts) > 2 else ''
         if p['ret'] == 'first visit':
             v['n'] = 1
         elif p['n']:
@@ -112,10 +114,10 @@ def ordinal(n):
 
 
 def place(x):
-    """'Karnataka, India' from a visit's country and state, or ''."""
+    """'Bengaluru, Karnataka, India' from a visit's city (India only), state and country, or ''."""
     if not x or not x.get('country'):
         return ''
-    return f"{x['region']}, {x['country']}" if x.get('region') else x['country']
+    return ', '.join(p for p in (x.get('city'), x.get('region'), x['country']) if p)
 
 
 def visit_lines(a, s):
@@ -199,7 +201,7 @@ def collect():
         t = int(m['time'])
         if cur and t <= cur.get('t1', 0):
             continue
-        new = {k: r.get(k) for k in ('day', 'first', 'n', 'from', 'device', 'tz', 'country', 'region', 'secs', 'span', 'pages', 'videos')}
+        new = {k: r.get(k) for k in ('day', 'first', 'n', 'from', 'device', 'tz', 'country', 'region', 'city', 'secs', 'span', 'pages', 'videos')}
         new['t0'] = min(t, cur['t0']) if cur else t
         new['t1'] = t
         new['mailed'] = cur.get('mailed', False) if cur else False
