@@ -96,6 +96,18 @@ nav.tabs[hidden]{display:none}
 .menu[hidden]{display:none}
 .menu a,.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:12px;border-radius:10px;color:var(--text);text-decoration:none;font-size:14.5px}
 .menu a:active,.menu button:active{background:var(--panel)}
+.pick{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border:1.5px dashed #ffffff33;border-radius:16px;padding:26px 16px;margin-top:4px;background:var(--panel);cursor:pointer}
+.pick svg{width:30px;height:30px;color:var(--accent)}
+.pick b{font:600 16px Grotesk,sans-serif}.pick span{color:var(--muted);font-size:13px;max-width:300px}
+.pick:active{background:var(--panel2)}
+.gsetup{background:#ff6b3512;border:1px solid #ff6b3540;border-radius:14px;padding:14px;margin-bottom:12px}
+.gsetup b{font:600 15px Grotesk,sans-serif}.gsetup p{color:#d6d3cc;font-size:13.5px;margin:6px 0 10px}
+.progress{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.up{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.up b{font:500 14px Grotesk,sans-serif;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up span{color:var(--muted);font-size:12.5px}
+.bar{height:6px;border-radius:3px;background:#ffffff14;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.up.done .bar i{background:var(--ok)}.up.fail .bar i{background:var(--bad)}
 .install{background:var(--panel);border:1px dashed #ffffff30;border-radius:14px;padding:14px;margin-top:18px;font-size:13.5px;color:#d6d3cc}
 @media(min-width:700px){main{max-width:640px;margin:0 auto;width:100%}}
 </style></head>
@@ -107,6 +119,7 @@ nav.tabs[hidden]{display:none}
 <div class="menu" id="menu" hidden>
  <a href="/index.html" target="_blank" rel="noopener">Open the website</a>
  <a href="/visits.html">Visitors</a>
+ <button type="button" id="gReset">Google Drive connection</button>
  <button type="button" id="signOut">Sign out of this phone</button>
 </div>
 <main>
@@ -140,10 +153,25 @@ nav.tabs[hidden]{display:none}
 <!-- add -->
 <section class="screen" id="s-add" hidden>
  <h2>Add videos</h2>
- <p class="lead">Paste Google Drive links. The video must be shared as "Anyone with the link".</p>
- <label class="f" for="links">Drive links (one per line)</label>
- <textarea id="links" placeholder="https://drive.google.com/file/d/…/view" autocapitalize="off" spellcheck="false"></textarea>
- <div class="found" id="found"></div>
+ <div class="seg" role="group" aria-label="How to add" style="margin-top:12px"><button type="button" data-mode="upload" aria-pressed="true">Upload from phone</button><button type="button" data-mode="link" aria-pressed="false">Paste a Drive link</button></div>
+ <div id="m-upload">
+  <div id="gSetup" class="gsetup" hidden>
+   <b>Connect Google Drive (one time)</b>
+   <p>Uploads go straight into your Google Drive, in a folder called "Portfolio uploads". Google needs a free app ID for this. Follow the steps Claude gave you, then paste the Client ID here.</p>
+   <input type="text" id="gClientId" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="…apps.googleusercontent.com">
+   <button class="secondary" id="gSave">Save</button>
+  </div>
+  <label class="pick" id="pick"><input type="file" id="files" accept="video/*" multiple hidden>
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+   <b>Choose videos</b><span>From your gallery or files. Big videos are fine; keep the app open while they upload.</span></label>
+  <div class="found" id="picked"></div>
+ </div>
+ <div id="m-link" hidden>
+  <p class="lead" style="margin-top:4px">Paste Google Drive links. The video must be shared as "Anyone with the link".</p>
+  <label class="f" for="links">Drive links (one per line)</label>
+  <textarea id="links" placeholder="https://drive.google.com/file/d/…/view" autocapitalize="off" spellcheck="false"></textarea>
+  <div class="found" id="found"></div>
+ </div>
  <label class="f">Section</label>
  <div class="sections" id="addSecs" role="group" aria-label="Section"></div>
  <div id="themeWrap" hidden><label class="f" for="theme">Type of reel</label><select id="theme"></select></div>
@@ -151,6 +179,7 @@ nav.tabs[hidden]{display:none}
  <input type="text" id="title" placeholder="Shown on the website. Leave empty to use the file name">
  <p class="hint" id="titleHint">With several links, each gets this title. Leave it empty to name them from their files.</p>
  <button class="primary" id="addBtn" disabled>Add to website</button>
+ <div id="progress" class="progress" hidden></div>
  <div class="install" id="installTip" hidden></div>
 </section>
 
@@ -362,7 +391,104 @@ function driveIds(text){
  });
  return out;
 }
+// ---- Google Drive (uploads) ----
+let gClient='';try{gClient=localStorage.getItem('studio-gclient')||''}catch(e){}
+let gToken='',gExp=0,gisReady=null;
+function loadGIS(){
+ if(!gisReady)gisReady=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=res;sc.onerror=()=>{gisReady=null;rej(new Error('Could not reach Google. Check the internet connection.'))};document.head.append(sc)});
+ return gisReady;
+}
+function googleToken(){            // called straight from a tap, so Google's sign-in window is allowed to open
+ if(gToken&&Date.now()<gExp-120000)return Promise.resolve(gToken);
+ return new Promise((res,rej)=>{
+  if(!window.google||!google.accounts||!google.accounts.oauth2){rej(new Error('Google is still loading. Tap again in a second.'));loadGIS().catch(()=>{});return}
+  const tc=google.accounts.oauth2.initTokenClient({client_id:gClient,scope:'https://www.googleapis.com/auth/drive.file',
+   callback:r=>{if(r.error){rej(new Error('Google sign-in did not finish ('+r.error+').'));return}gToken=r.access_token;gExp=Date.now()+(r.expires_in||3600)*1000;res(gToken)},
+   error_callback:e=>rej(new Error(e&&e.type==='popup_closed'?'Google sign-in was closed before finishing.':'Google sign-in failed'+(e&&e.type?' ('+e.type+')':'')+'. Check the Client ID and the test user in Google Cloud.'))});
+  tc.requestAccessToken();
+ });
+}
+async function dfetch(url,opt={}){
+ const r=await fetch(url,{...opt,headers:{Authorization:'Bearer '+gToken,...(opt.headers||{})}});
+ if(r.status===401){gToken='';throw new Error('Google sign-in expired. Tap Upload again.')}
+ return r;
+}
+async function uploadFolder(){                // "Portfolio uploads" in My Drive, made by this app
+ let id='';try{id=localStorage.getItem('studio-gfolder')||''}catch(e){}
+ if(id){const r=await dfetch('https://www.googleapis.com/drive/v3/files/'+id+'?fields=id,trashed');if(r.ok&&!(await r.json()).trashed)return id}
+ const q=encodeURIComponent("name='Portfolio uploads' and mimeType='application/vnd.google-apps.folder' and trashed=false");
+ const l=await dfetch('https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id)').then(r=>r.json()).catch(()=>({}));
+ if(l.files&&l.files.length)id=l.files[0].id;
+ else{const c=await dfetch('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Portfolio uploads',mimeType:'application/vnd.google-apps.folder'})});
+  if(!c.ok)throw new Error('Could not make the "Portfolio uploads" folder in Drive ('+c.status+'). Is the Google Drive API turned on?');id=(await c.json()).id}
+ try{localStorage.setItem('studio-gfolder',id)}catch(e){}
+ return id;
+}
+const CHUNK=8*1024*1024;                       // 8 MB pieces; an interrupted piece is sent again
+function putChunk(url,blob,start,total,onp){
+ return new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('PUT',url);
+  x.setRequestHeader('Content-Range',blob?`bytes ${start}-${start+blob.size-1}/${total}`:`bytes */${total}`);
+  x.upload.onprogress=e=>onp&&onp(start+e.loaded);
+  x.onload=()=>res(x);x.onerror=()=>rej(new Error('network'));x.ontimeout=()=>rej(new Error('network'));x.send(blob)});
+}
+async function uploadFile(file,folder,onp){
+ const init=await dfetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,size',{method:'POST',
+  headers:{'Content-Type':'application/json; charset=UTF-8','X-Upload-Content-Type':file.type||'video/mp4','X-Upload-Content-Length':String(file.size)},
+  body:JSON.stringify({name:file.name,parents:[folder],description:'Uploaded from the Studio app for the portfolio'})});
+ if(!init.ok)throw new Error('Drive refused the upload ('+init.status+').');
+ const url=init.headers.get('Location');if(!url)throw new Error('Drive did not start the upload.');
+ let start=0,tries=0;
+ while(true){
+  const end=Math.min(start+CHUNK,file.size);let x;
+  try{x=await putChunk(url,file.slice(start,end),start,file.size,onp)}
+  catch(e){if(++tries>6)throw new Error('The connection dropped too many times. Try again on Wi-Fi.');
+   await new Promise(r=>setTimeout(r,2000*tries));
+   try{const q=await putChunk(url,null,0,file.size);if(q.status===308){const m=/bytes=0-(\d+)/.exec(q.getResponseHeader('Range')||'');start=m?+m[1]+1:0}else if(q.status===200||q.status===201)return JSON.parse(q.responseText)}catch(_){}
+   continue}
+  if(x.status===200||x.status===201)return JSON.parse(x.responseText);
+  if(x.status===308){const m=/bytes=0-(\d+)/.exec(x.getResponseHeader('Range')||'');start=m?+m[1]+1:end;tries=0;continue}
+  if(x.status>=500){if(++tries>6)throw new Error('Drive kept failing ('+x.status+').');await new Promise(r=>setTimeout(r,2000*tries));continue}
+  throw new Error('Drive stopped the upload ('+x.status+').');
+ }
+}
+async function shareAnyone(id){
+ const r=await dfetch('https://www.googleapis.com/drive/v3/files/'+id+'/permissions?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+ if(!r.ok)throw new Error('Uploaded, but could not share it as "Anyone with the link" ('+r.status+'). Share it in Drive, then add it with its link.');
+}
+
+// ---- adding to the website (both ways) ----
+async function addEntries(s,entries,label){
+ const now=new Date().toISOString();
+ await change(s.dir+'/extra.json',{files:[]},d=>{
+  d.files=d.files||[];const have=new Set(d.files.map(f=>f.id));
+  const add=entries.filter(e=>!have.has(e.id)).map(e=>{const f={id:e.id,name:e.name||e.title||'',size:e.size||0,createdTime:now,modifiedTime:now};if(e.title)f.title=e.title;if(s.themes)f.theme=$('theme').value;return f});
+  if(!add.length)return null;d.files=add.concat(d.files);return d},label);
+ const ids=entries.map(e=>e.id);
+ await change(s.dir+'/exclude.json',{ids:[]},d=>{const before=(d.ids||[]).length;d.ids=(d.ids||[]).filter(x=>!ids.includes(x));return d.ids.length===before?null:d},'Restore re-added videos in '+s.label).catch(()=>{});
+}
+
+let mode='upload',picked=[];
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;
+ document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+ $('m-upload').hidden=mode!=='upload';$('m-link').hidden=mode!=='link';check()});
+const mb=n=>n>=1e9?(n/1e9).toFixed(1)+' GB':Math.max(1,Math.round(n/1e6))+' MB';
+$('files').onchange=()=>{picked=[...$('files').files];
+ $('picked').innerHTML=picked.map(f=>`<div>🎬 ${esc(f.name)} <span style="color:var(--muted)">· ${mb(f.size)}</span></div>`).join('');check()};
+function gSetupView(){$('gSetup').hidden=!!gClient;$('pick').style.display=gClient?'':'none';if(gClient)loadGIS().catch(()=>{})}
+$('gSave').onclick=()=>{const v=$('gClientId').value.trim();
+ if(!/^[\w-]+\.apps\.googleusercontent\.com$/.test(v)){toast('That does not look like a Client ID. It ends in .apps.googleusercontent.com',4500);return}
+ gClient=v;try{localStorage.setItem('studio-gclient',v)}catch(e){}gSetupView();check();toast('Google Drive connected. Choose a video to upload.')};
+$('gReset').onclick=()=>{$('menu').hidden=true;$('gClientId').value=gClient;gClient='';gToken='';show('add');
+ document.querySelector('[data-mode=upload]').click();gSetupView();$('gClientId').focus()};
+gSetupView();
+
 function check(){
+ if(mode==='upload'){
+  $('titleHint').hidden=picked.length<2;
+  $('addBtn').disabled=!picked.length||!addSec||!gClient;
+  $('addBtn').textContent=picked.length>1?`Upload ${picked.length} videos`:'Upload and add to website';
+  return;
+ }
  const ids=driveIds($('links').value),good=ids.filter(x=>x.id);
  $('found').innerHTML=ids.map(x=>x.id?`<div>✓ Drive video <span style="color:var(--muted)">${esc(x.id.slice(0,10))}…</span></div>`:`<div class="bad">${esc(x.bad)}</div>`).join('');
  $('titleHint').hidden=good.length<2;
@@ -370,31 +496,59 @@ function check(){
  $('addBtn').textContent=good.length>1?`Add ${good.length} videos to the website`:'Add to website';
 }
 $('links').addEventListener('input',check);
-$('addBtn').onclick=async()=>{
+$('addBtn').onclick=()=>mode==='upload'?doUpload():doLinks();
+
+async function doUpload(){
+ const s=addSec,title=$('title').value.trim(),files=picked.slice();if(!files.length||!s)return;
+ const btn=$('addBtn');btn.disabled=true;
+ let tok;try{tok=googleToken()}catch(e){toast(e.message,5000);check();return}
+ let lock=null;try{lock=await navigator.wakeLock.request('screen')}catch(e){}       // keep the screen on while uploading
+ const box=$('progress');box.hidden=false;
+ box.innerHTML=files.map((f,i)=>`<div class="up" id="up${i}"><b>${esc(f.name)}</b><span>Waiting…</span><div class="bar"><i></i></div></div>`).join('');
+ const done=[];
+ try{
+  btn.innerHTML='<span class="spin"></span>Signing in to Google…';await tok;
+  btn.innerHTML='<span class="spin"></span>Uploading…';
+  const folder=await uploadFolder();
+  for(let i=0;i<files.length;i++){
+   const f=files[i],el=$('up'+i),bar=el.querySelector('i'),txt=el.querySelector('span');
+   const t0=Date.now();
+   try{
+    const r=await uploadFile(f,folder,sent=>{const p=sent/f.size;bar.style.width=(p*100).toFixed(1)+'%';
+     const sp=sent/Math.max(1,(Date.now()-t0)/1000);txt.textContent=`${Math.floor(p*100)}% · ${mb(sent)} of ${mb(f.size)}`+(sp>0&&p<1?` · about ${Math.max(1,Math.round((f.size-sent)/sp/60))} min left`:'')});
+    txt.textContent='Sharing…';await shareAnyone(r.id);
+    bar.style.width='100%';el.classList.add('done');txt.textContent='Uploaded to Drive ✓';
+    done.push({id:r.id,name:f.name,size:f.size,title});
+   }catch(e){el.classList.add('fail');txt.textContent=e.message}
+  }
+  if(done.length){
+   btn.innerHTML='<span class="spin"></span>Adding to the website…';
+   await addEntries(s,done,`Upload ${done.length===1?'"'+(title||done[0].name)+'"':done.length+' videos'} to ${s.label}`);
+   picked=[];$('files').value='';$('picked').innerHTML='';$('title').value='';
+   toast(done.length===files.length?(done.length===1?'Uploaded. It will be on the website in about 5 to 15 minutes.':`${done.length} videos uploaded. They'll be on the website in about 5 to 15 minutes.`):`${done.length} of ${files.length} uploaded. See the list for the rest.`,5000);
+  }
+ }catch(e){toast(e.message,6000)}
+ if(lock)lock.release().catch(()=>{});
+ btn.disabled=false;check();
+}
+
+async function doLinks(){
  const ids=driveIds($('links').value).filter(x=>x.id).map(x=>x.id),s=addSec,title=$('title').value.trim();
  if(!ids.length||!s)return;
  const btn=$('addBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Checking…';
  try{
-  // skip videos that are already on the site in any section
   const lists=await Promise.all(SECTIONS.map(x=>readJSON(x.dir+'/'+x.out,{}).then(r=>({x,ids:new Set((r.data[x.list]||[]).map(v=>v.id))}))));
   const already=[],fresh=[];
   ids.forEach(id=>{const hit=lists.find(l=>l.ids.has(id));hit?already.push([id,hit.x.label]):fresh.push(id)});
   if(already.length&&!await ask('Already on the website',`${already.length===1?'This video is':'These videos are'} already in ${[...new Set(already.map(a=>a[1]))].join(', ')}. ${fresh.length?'The others will be added.':'Nothing new to add.'}`,fresh.length?'Add the others':'OK',false)||!fresh.length){btn.disabled=false;check();return}
   btn.innerHTML='<span class="spin"></span>Saving…';
-  const now=new Date().toISOString();
-  await change(s.dir+'/extra.json',{files:[]},d=>{
-   d.files=d.files||[];const have=new Set(d.files.map(f=>f.id));
-   const add=fresh.filter(id=>!have.has(id)).map(id=>{const f={id,name:title||'',size:0,createdTime:now,modifiedTime:now};if(title)f.title=title;if(s.themes)f.theme=$('theme').value;return f});
-   if(!add.length)return null;d.files=add.concat(d.files);return d},
-   `Add ${fresh.length===1?'"'+(title||'a video')+'"':fresh.length+' videos'} to ${s.label}`);
-  // if any of them had been removed before, bring them back
-  await change(s.dir+'/exclude.json',{ids:[]},d=>{const before=(d.ids||[]).length;d.ids=(d.ids||[]).filter(x=>!fresh.includes(x));return d.ids.length===before?null:d},'Restore re-added videos in '+s.label).catch(()=>{});
+  await addEntries(s,fresh.map(id=>({id,title})),`Add ${fresh.length===1?'"'+(title||'a video')+'"':fresh.length+' videos'} to ${s.label}`);
   $('links').value='';$('title').value='';check();
   toast(fresh.length===1?'Added. It will be on the website in about 5 to 15 minutes.':`${fresh.length} videos added. They'll be on the website in about 5 to 15 minutes.`,4500);
   show('activity');
  }catch(e){toast(e.message,5000)}
  btn.disabled=false;check();
-};
+}
 
 // ---------- activity ----------
 const NAMES={'Sync videos from Drive':'Adding videos from Drive','Make website video copies':'Making HD and SD copies','pages build and deployment':'Publishing the website'};
