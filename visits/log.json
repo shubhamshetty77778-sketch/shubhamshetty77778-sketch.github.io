@@ -127,6 +127,20 @@
 "device": "phone",
 "src": "direct link",
 "tz": "Asia/Kolkata",
+"n": 1,
+"mailed": true
+},
+{
+"id": "lnukWdZNYwpV",
+"t": 1794460719,
+"sid": "x3tlte8f",
+"page": "Every Frame Has a Story",
+"device": "computer",
+"src": "direct link",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Karnataka",
+"city": "Bengaluru",
 "n": 1
 }
 ],
@@ -283,7 +297,67 @@
 "t0": 1794379461,
 "t1": 1794379461,
 "mailed": true
+},
+"x3tlte8f": {
+"day": "2026-11-12",
+"first": "2026-11-12",
+"n": 1,
+"from": "direct link",
+"device": "computer",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Karnataka",
+"city": "Bengaluru",
+"secs": 25,
+"span": 25,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1794460743,
+"t1": 1794460743,
+"mailed": true
+},
+"hgo2opy8": {
+"day": "2026-11-12",
+"first": "2026-11-12",
+"n": 2,
+"from": "direct link",
+"device": "computer",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Karnataka",
+"city": "Bengaluru",
+"secs": 6,
+"span": 6,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1794461267,
+"t1": 1794461267,
+"mailed": true
+},
+"wby0rr50": {
+"day": "2026-11-12",
+"first": "2026-11-12",
+"n": 3,
+"from": "direct link",
+"device": "computer",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Karnataka",
+"city": "Bengaluru",
+"secs": 218,
+"span": 218,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1794461611,
+"t1": 1794461611,
+"mailed": true
 }
 },
-"updated": 1794381102
+"updated": 1794463322
 }
