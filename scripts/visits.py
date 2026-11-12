@@ -25,7 +25,7 @@ TO = os.environ.get('NOTIFY_TO', 'shubhamshetty653@gmail.com')
 SITE = 'https://shubhamshetty77778-sketch.github.io'
 IST = timezone(timedelta(hours=5, minutes=30))
 PAT = re.compile(r'Opened "(?P<page>.*?)" on an? (?P<device>\w+) · came from (?P<src>.*?)'
-                 r'(?: · time zone (?P<tz>.*?))?(?: · (?P<ret>first visit|returning \(visit (?P<n>\d+), first came (?P<first>[\d-]+)\)))?$')
+                 r'(?: · time zone (?P<tz>.*?))?(?: · in (?P<loc>.*?))?(?: · (?P<ret>first visit|returning \(visit (?P<n>\d+), first came (?P<first>[\d-]+)\)))?$')
 DONE_AFTER = 10 * 60      # a visit counts as finished once no report has come for 10 minutes
 NO_REPORT_AFTER = 30 * 60  # arrivals that never sent a report are emailed after 30 minutes
 
@@ -75,6 +75,9 @@ def parse_arrival(m):
         v['sid'] = sid
     if p:
         v.update(page=p['page'], device=p['device'], src=p['src'], tz=(p['tz'] or '').strip())
+        if p['loc']:
+            region, _, country = p['loc'].rpartition(', ')
+            v.update(country=country.strip(), region=region.strip())
         if p['ret'] == 'first visit':
             v['n'] = 1
         elif p['n']:
@@ -108,13 +111,21 @@ def ordinal(n):
     return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
 
 
+def place(x):
+    """'Karnataka, India' from a visit's country and state, or ''."""
+    if not x or not x.get('country'):
+        return ''
+    return f"{x['region']}, {x['country']}" if x.get('region') else x['country']
+
+
 def visit_lines(a, s):
     """Lines describing one visitor: arrival a (may be None) and visit report s (may be None)."""
     t = a['t'] if a else s['t0']
     device = (s or {}).get('device') or (a or {}).get('device') or 'device'
     src = (s or {}).get('from') or (a or {}).get('src') or 'unknown'
     tz = (s or {}).get('tz') or (a or {}).get('tz') or ''
-    head = f"{when(t).strftime('%I:%M %p').lstrip('0')} · {device} · from {src}" + (f' · {tz}' if tz else '')
+    where = place(s) or place(a)
+    head = f"{when(t).strftime('%I:%M %p').lstrip('0')} · {where or (tz + ' time zone' if tz else 'place unknown')} · {device} · from {src}"
     n = (s or {}).get('n') or (a or {}).get('n')
     first = (s or {}).get('first') or (a or {}).get('first')
     if n == 1:
@@ -188,7 +199,7 @@ def collect():
         t = int(m['time'])
         if cur and t <= cur.get('t1', 0):
             continue
-        new = {k: r.get(k) for k in ('day', 'first', 'n', 'from', 'device', 'tz', 'secs', 'span', 'pages', 'videos')}
+        new = {k: r.get(k) for k in ('day', 'first', 'n', 'from', 'device', 'tz', 'country', 'region', 'secs', 'span', 'pages', 'videos')}
         new['t0'] = min(t, cur['t0']) if cur else t
         new['t1'] = t
         new['mailed'] = cur.get('mailed', False) if cur else False
@@ -256,6 +267,9 @@ def digest():
         '\n'.join(f"  {r['plays']} {'play' if r['plays'] == 1 else 'plays'} · {mmss(r['s'])} watched" +
                   (f" · {round(sum(r['pct']) / len(r['pct']))}% of the video on average" if r['pct'] else '') + f'  {t}'
                   for t, r in sorted(vids.items(), key=lambda kv: -kv[1]['s'])) or '  none',
+        '', 'Where they are:',
+        '\n'.join(f'  {n}  {name}' for name, n in Counter(
+            place(data['sessions'].get(v.get('sid'))) or place(v) or 'unknown' for v in tv).most_common(8)) or '  none',
         '', 'Where they came from:', top(tv, 'src'),
         '', 'Devices:', top(tv, 'device', 3),
         '', 'Each visit today:',

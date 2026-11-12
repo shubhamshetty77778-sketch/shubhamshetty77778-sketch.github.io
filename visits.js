@@ -40,17 +40,31 @@ try{
  const save=()=>sess('ss-visit',JSON.stringify(s));
  save();
 
+ // ---- country and state, looked up once per visit from the visitor's network address ----
+ // Only the country and state are kept; the address itself is never stored or sent on.
+ const place=()=>s.loc&&(s.loc.region?s.loc.region+', ':'')+s.loc.country;
+ const locate=()=>{
+  if(s.loc!==undefined)return Promise.resolve();
+  const get=(url,pick)=>{const c=new AbortController();const t=setTimeout(()=>c.abort(),3000);
+   return fetch(url,{signal:c.signal,cache:'no-store'}).then(r=>r.json()).then(pick).finally(()=>clearTimeout(t))};
+  const clean=v=>typeof v==='string'?v.trim().slice(0,60):'';
+  return get('https://get.geojs.io/v1/ip/geo.json',d=>({country:clean(d.country),region:clean(d.region)}))
+   .catch(()=>get('https://ipwho.is/?fields=success,country,region',d=>d.success===false?null:({country:clean(d.country),region:clean(d.region)})))
+   .then(l=>{s.loc=l&&l.country?l:null;save()},()=>{s.loc=null;save()});
+ };
+ const located=locate();
+
  // ---- arrival notification, once per visitor per day ----
  let arrive=null;
  if(store('ss-seen')!==day){
   store('ss-seen',day);
   arrive=()=>{arrive=null;
   const again=s.n>1?` · returning (visit ${s.n}, first came ${s.first})`:' · first visit';
-  const msg='Opened "'+pageName()+'" on a '+device+' · came from '+from+(tz?' · time zone '+tz:'')+again;
+  const msg='Opened "'+pageName()+'" on a '+device+' · came from '+from+(tz?' · time zone '+tz:'')+(place()?' · in '+place():'')+again;
   const url='https://ntfy.sh/'+TOPIC+'?'+new URLSearchParams({title:'New visitor on your portfolio',tags:'eyes,v-'+s.sid,click:location.origin+location.pathname});
   fetch(url,{method:'POST',body:msg,keepalive:true,mode:'cors'}).catch(()=>{});
   };
-  setTimeout(()=>arrive&&arrive(),1500);                          // wait for video pages to set their title
+  Promise.all([located,new Promise(r=>setTimeout(r,1500))]).then(()=>arrive&&arrive());   // wait for the place and for video pages to set their title
  }
 
  // ---- time with the page in view ----
@@ -78,7 +92,7 @@ try{
  const report=()=>{
   if(arrive)arrive();                                             // left before the arrival was sent
   tick();notePage();save();
-  const body=JSON.stringify({v:1,sid:s.sid,day:s.day,first:s.first,n:s.n,from:s.from,device:s.device,tz:s.tz,
+  const body=JSON.stringify({v:1,sid:s.sid,day:s.day,first:s.first,n:s.n,from:s.from,device:s.device,tz:s.tz,country:(s.loc&&s.loc.country)||'',region:(s.loc&&s.loc.region)||'',
    secs:s.active,span:Math.round((Date.now()-s.start)/1000),pages:s.pages,
    videos:Object.entries(s.videos).map(([t,r])=>({t,s:Math.round(r.s),d:r.d,plays:r.plays}))});
   if(body===lastSent)return;lastSent=body;

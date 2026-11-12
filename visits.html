@@ -19,6 +19,7 @@ body.stats{background:#0b0d11;color:#f4f0e8;margin:0;font-family:'Plus Jakarta S
 .chart .grid{stroke:#ffffff10}
 .chart .val{fill:#f4f0e8;font:500 11px 'Space Grotesk',sans-serif}
 .three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.two{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}.two .card{margin:0}
 .three .card{margin:0}
 .rank{list-style:none;margin:0;padding:0}
 .rank li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #ffffff0d;font-size:14px}
@@ -39,7 +40,7 @@ table.vids td:first-child{white-space:normal;color:#f4f0e8}
 .range{display:flex;gap:8px;margin:-14px 0 24px;flex-wrap:wrap}
 .range button{background:#15181e;border:1px solid #ffffff1c;color:#d6d3cc;border-radius:999px;padding:8px 14px;font:500 13px 'Space Grotesk',sans-serif;cursor:pointer;min-height:38px}
 .range button[aria-pressed=true]{background:#f4f0e8;color:#0b0d11;border-color:#f4f0e8}
-@media(max-width:820px){.kpis,.kpis.eng{grid-template-columns:repeat(2,1fr)}.kpi.main{grid-column:1/-1}.three{grid-template-columns:1fr}
+@media(max-width:820px){.two{grid-template-columns:1fr}.kpis,.kpis.eng{grid-template-columns:repeat(2,1fr)}.kpi.main{grid-column:1/-1}.three{grid-template-columns:1fr}
 table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
 @media(max-width:480px){table.recent:not(.vids) th:nth-child(3),table.recent:not(.vids) td:nth-child(3){display:none}}
 </style></head>
@@ -53,14 +54,18 @@ table.recent th:nth-child(5),table.recent td:nth-child(5){display:none}}
 </div>
 <div class="kpis eng" id="eng"></div>
 <section class="card chart"><h2>Visitors per day, last 30 days</h2><div id="chart"></div></section>
+<div class="two">
+ <section class="card"><h2>Countries</h2><ul class="rank" id="countries"></ul></section>
+ <section class="card"><h2>States and regions</h2><ul class="rank" id="regions"></ul></section>
+</div>
 <div class="three">
  <section class="card"><h2>Pages they opened</h2><ul class="rank" id="pages"></ul></section>
  <section class="card"><h2>Where they came from</h2><ul class="rank" id="sources"></ul></section>
  <section class="card"><h2>Devices</h2><ul class="rank" id="devices"></ul></section>
 </div>
 <section class="card" style="margin-top:16px"><h2>Videos they played</h2><table class="recent vids"><thead><tr><th>Video</th><th>Plays</th><th>Time watched</th><th>Watched on average</th></tr></thead><tbody id="videos"></tbody></table></section>
-<section class="card"><h2>Recent visits</h2><table class="recent"><thead><tr><th>When</th><th>Visitor</th><th>Time on site</th><th>Pages and videos</th><th>From</th></tr></thead><tbody id="recent"></tbody></table></section>
-<p class="muted">Visitors are counted once a day per device; a visit is one browsing session. Time on site counts only while the site is on screen. Videos count when played in the site's own player. "Returning" means the same phone or browser has been here before. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). Updates every hour.</p>
+<section class="card"><h2>Recent visits</h2><table class="recent"><thead><tr><th>When</th><th>Visitor</th><th>Time on site</th><th>Pages and videos</th><th>From and where</th></tr></thead><tbody id="recent"></tbody></table></section>
+<p class="muted">Visitors are counted once a day per device; a visit is one browsing session. Time on site counts only while the site is on screen. Videos count when played in the site's own player. "Returning" means the same phone or browser has been here before. Bots and your own devices are left out (this device is marked as yours now that you've opened this page). Country and state come from the visitor's internet connection, so they can be off near borders or on some mobile networks; the address itself is never stored. Updates every hour.</p>
 </main>
 <script>
 (()=>{
@@ -126,7 +131,9 @@ function recent(){
  const rs=visitRows().filter(r=>within(r,days)).reverse().slice(0,40);
  const fmt=t=>new Date(t*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
  $('recent').innerHTML=rs.length?rs.map(({t,a,s})=>{
-  const dev=(s&&s.device)||(a&&a.device)||'',src=(s&&s.from)||(a&&a.src)||'—',tz=(s&&s.tz)||(a&&a.tz)||'';
+  const dev=(s&&s.device)||(a&&a.device)||'',src=(s&&s.from)||(a&&a.src)||'—';
+  const loc=(s&&s.country)?s:(a&&a.country)?a:null;
+  const tz=loc?(loc.region?loc.region+', ':'')+loc.country:(((s&&s.tz)||(a&&a.tz)||'')?((s&&s.tz)||(a&&a.tz))+' time zone':'');
   const n=(s&&s.n)||(a&&a.n);
   const who=n===1?'<span class="tag new">New</span>':n?`<span class="tag">Returning · ${ord(n)} visit</span>`:'';
   const pages=s&&s.pages&&s.pages.length?s.pages.map(esc).join(' → '):esc((a&&a.page)||'—');
@@ -134,7 +141,15 @@ function recent(){
   return `<tr><td>${fmt(t)}</td><td>${esc(dev||'—')}${who?'<br>'+who:''}</td><td>${s?spent(s.secs):'<span class="muted">—</span>'}</td><td>${pages}${vids}</td><td>${esc(src)}${tz?'<div class="detail">'+esc(tz)+'</div>':''}</td></tr>`}).join('')
   :'<tr><td colspan="5" class="empty">No visits in this period</td></tr>';
 }
-function lists(){engagement();rank('pages','page');rank('sources','src');rank('devices','device');videos();recent()}
+function places(){                      // country and state per visit: from its report, else from its arrival
+ const rs=visitRows().filter(r=>within(r,days));
+ const pick=r=>(r.s&&r.s.country)?r.s:(r.a&&r.a.country)?r.a:null;
+ const fill=(id,key)=>{const c={};rs.forEach(r=>{const x=pick(r);const k=x?(key==='country'?x.country:(x.region?x.region+', '+x.country:x.country)):'Not known yet';c[k]=(c[k]||0)+1});
+  const rows=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10),top=rows.length?rows[0][1]:1;
+  $(id).innerHTML=rows.length?rows.map(([k,n])=>`<li><span>${esc(k)}</span><b>${n}</b><span class="meter"><i style="width:${n/top*100}%"></i></span></li>`).join(''):'<li class="empty">No visits in this period</li>'};
+ fill('countries','country');fill('regions','region');
+}
+function lists(){engagement();places();rank('pages','page');rank('sources','src');rank('devices','device');videos();recent()}
 document.querySelectorAll('.range button').forEach(b=>b.addEventListener('click',()=>{
  days=+b.dataset.days;document.querySelectorAll('.range button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));lists()}));
 fetch('/visits/log.json?'+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{visits:[]}).catch(()=>({visits:[]})).then(d=>{
