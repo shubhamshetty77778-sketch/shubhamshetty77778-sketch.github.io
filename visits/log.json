@@ -141,7 +141,8 @@
 "country": "India",
 "region": "Karnataka",
 "city": "Bengaluru",
-"n": 1
+"n": 1,
+"mailed": true
 },
 {
 "id": "GEANTugZjC3g",
@@ -394,8 +395,8 @@
 "country": "India",
 "region": "Tamil Nadu",
 "city": "Chennai",
-"secs": 269,
-"span": 325,
+"secs": 270,
+"span": 2947,
 "pages": [
 "Every Frame Has a Story",
 "See You at Saugandhika",
@@ -410,8 +411,8 @@
 }
 ],
 "t0": 1794548962,
-"t1": 1794549247,
-"mailed": false
+"t1": 1794551870,
+"mailed": true
 },
 "cll1rk77": {
 "day": "2026-11-13",
@@ -423,16 +424,16 @@
 "country": "India",
 "region": "Tamil Nadu",
 "city": "Chennai",
-"secs": 64,
-"span": 64,
+"secs": 88,
+"span": 4083,
 "pages": [
 "Every Frame Has a Story"
 ],
 "videos": [],
 "t0": 1794548979,
-"t1": 1794548979,
-"mailed": false
+"t1": 1794552997,
+"mailed": true
 }
 },
-"updated": 1794549566
+"updated": 1794554027
 }
