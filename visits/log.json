@@ -142,6 +142,32 @@
 "region": "Karnataka",
 "city": "Bengaluru",
 "n": 1
+},
+{
+"id": "GEANTugZjC3g",
+"t": 1794548916,
+"sid": "cll1rk77",
+"page": "Every Frame Has a Story",
+"device": "computer",
+"src": "direct link",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Tamil Nadu",
+"city": "Chennai",
+"n": 1
+},
+{
+"id": "QOOEHDyTKluE",
+"t": 1794548924,
+"sid": "irfa93uu",
+"page": "Every Frame Has a Story",
+"device": "computer",
+"src": "direct link",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Tamil Nadu",
+"city": "Chennai",
+"n": 1
 }
 ],
 "sessions": {
@@ -357,7 +383,56 @@
 "t0": 1794461611,
 "t1": 1794461611,
 "mailed": true
+},
+"irfa93uu": {
+"day": "2026-11-13",
+"first": "2026-11-13",
+"n": 1,
+"from": "direct link",
+"device": "computer",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Tamil Nadu",
+"city": "Chennai",
+"secs": 269,
+"span": 325,
+"pages": [
+"Every Frame Has a Story",
+"See You at Saugandhika",
+"Every Frame Has a Story"
+],
+"videos": [
+{
+"t": "See You at Saugandhika",
+"s": 0,
+"d": 0,
+"plays": 2
+}
+],
+"t0": 1794548962,
+"t1": 1794549247,
+"mailed": false
+},
+"cll1rk77": {
+"day": "2026-11-13",
+"first": "2026-11-13",
+"n": 1,
+"from": "direct link",
+"device": "computer",
+"tz": "Asia/Calcutta",
+"country": "India",
+"region": "Tamil Nadu",
+"city": "Chennai",
+"secs": 64,
+"span": 64,
+"pages": [
+"Every Frame Has a Story"
+],
+"videos": [],
+"t0": 1794548979,
+"t1": 1794548979,
+"mailed": false
 }
 },
-"updated": 1794463322
+"updated": 1794549566
 }
